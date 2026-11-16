@@ -1,84 +1,99 @@
-# Cyber Sentinels KYA homepage integration
+# KYA homepage and landing-page integration
 
-Verdict: **COMPLETE — implementation and local verification**. The authoritative English copy and Spanish translation are implemented. **ASSET MISSING:** the original KYA PNG is unavailable; the accessible conceptual text flow is the explicitly authorized fallback. This supersedes the earlier provisional-copy checkpoint.
+Verdict: **IN PROGRESS — final build/browser verification pending**. Approved English narrative and visual content, Spanish translation, homepage integration and the proposed landing page are implemented. **PNG ASSET MISSING:** the original KYA PNG was not identified; the user explicitly authorized the accessible text flow without inventing or substituting an image.
 
-## Exact source and scope
+## Source and boundaries
 
 - Branch: `feat/kya-homepage-20261116`.
 - Worktree: `tmp/kya-homepage`.
-- Approved-copy application source: `4dd241f779c6e6a7927bb3a2ae4bea6f5b3d8241`.
-- Browser checker: `c10d1e454bb33c1c54ada41aa35e78ae07adcd48`; application source unchanged.
-- Original website base: `baf5ac8e282abec127eda44ba1e1820b6b03db42`.
+- Qualified application/test source: `39eacb144753348d0e0e1e91df083bbf289b1d7f`.
+- Previous homepage checkpoint: `2e2c44d1850b6287762842c81a7554885047e3fc`.
+- Original bilingual website base: `baf5ac8e282abec127eda44ba1e1820b6b03db42`.
 
-No database schema, migration, financial execution control, protected authorization, Production environment or unrelated security source was changed. No push, merge, PR closure or deployment occurred. Production remains NO-GO; local website completion is not a Production release decision.
+No database, financial execution control, protected-route policy, consent submission behavior or Production environment was changed. No push, merge, PR closure, enquiry submission or deployment occurred. Production remains NO-GO independently of this local website work.
 
-## Content and design
+## Approved content and asset audit
 
-The user's authoritative English source is preserved in APPROVED-COPY.md and rendered in components/kya-homepage-section.tsx, alongside its Spanish translation. It includes the section brand/subtitle, complete main headline and four supporting paragraphs, all five capability labels/descriptions, three key statements, closing line and both requested CTA labels.
+APPROVED-COPY.md records the authoritative narrative, five capability descriptions, key statements and closing. LANDING-VISUAL-SPEC.md records the user's latest visual specification and landing continuation. The latter supersedes the earlier combined identity/authority visual. No separate additional landing-brief file was found; the supplied approved narrative and visual specification form the implemented brief.
 
-The five capability descriptions are visibly marked as a development direction. The section also displays an “In development” / “En desarrollo” badge and a clear development/Production-certification boundary. The approved “KYA verifies the agent” positioning is presented within that developing-capability context, not as completed hosted verification or certification.
+The shared text visual displays:
 
-The accessible ordered flow follows the supplied model:
+CYBER SENTINELS KYA™
 
-AI Agent Requests Action → KYA Identity + Delegated Authority → TENENTE™ Authority Decision → ALLOW / REVIEW / DENY → Evidence & Replay.
+Your AI Agent Has an Identity. But Does It Have Authority?
 
-Spanish retains ALLOW / REVIEW / DENY and the TENENTE™/KYA brands while translating the surrounding explanations. The layout uses the existing dark/cyan styling, typography, button classes, content width and responsive grid. Existing hero, authority example, evidence narrative, public translations and TENENTE content remain intact. No duplicate Agent Registry, Authority Graph, identity database or protected product was introduced.
+IDENTIFY · VERIFY · AUTHORISE · ENFORCE · PROVE
 
-## Original PNG availability
+AI Agent Requests Action → KYA Identity — Who is acting? → Delegated Authority — Who authorised it? → TENENTE™ Authority Decision — Is this action permitted now? → ALLOW / REVIEW / DENY → Evidence & Replay.
 
-**ASSET MISSING.** Searches of repository public assets, available attachments, tracked PNG names and KYA-named workspace files did not identify the original KYA PNG. The unrelated public/cyber-sentinels-hero.png was inspected and remains unchanged. ASSET-STATUS.json records its hash and the search boundary.
+The six stages are an ordered list; the five downward arrows are decorative and hidden from assistive technology. Spanish translates the question, prompts and narrative while retaining KYA, TENENTE™, Replay and ALLOW / REVIEW / DENY as names/protocol outcomes.
 
-No original filename was invented, no broken image reference was added, and no replacement raster was silently presented as the original. The user explicitly authorized continuing with accessible text when the image is absent; therefore this asset note does not by itself block completion of the requested integration.
+**PNG ASSET MISSING.** Repository public assets, tracked PNG names, KYA-named files and available attachments did not identify an original KYA PNG. The existing unrelated public/cyber-sentinels-hero.png remains unchanged. No filename was invented, no image element references a nonexistent asset, and no replacement raster was created or substituted. ASSET-STATUS.json records the scope and hash of the unrelated existing asset. QA screenshots are evidence, not product image assets.
 
-## Working CTAs and navigation
+## Routes, content and working CTAs
 
-| Control | English destination | Spanish destination |
+| Surface/control | English | Spanish |
 |---|---|---|
-| Public KYA navigation | /#know-your-agent | /es#know-your-agent |
-| Explore KYA / Explorar KYA | /#kya-capabilities | /es#kya-capabilities |
-| Explore Agent Authority / Explorar la autoridad de los agentes | /platform#agent-authority | /es/platform#agent-authority |
+| Homepage | / | /es |
+| KYA landing page | /platform/kya | /es/platform/kya |
+| Public KYA navigation | /platform/kya | /es/platform/kya |
+| Homepage Explore KYA | /platform/kya | /es/platform/kya |
+| Landing Request a KYA Pilot | /enterprise-access?intent=pilot | /es/enterprise-access?intent=pilot |
+| Explore Agent Authority | /platform#agent-authority | /es/platform#agent-authority |
 
-The primary CTA explores the five KYA capability details on the same homepage. The secondary opens the existing agent-authority section. No placeholder route, submitted lead form or implied operational KYA service is involved. The public header and both language label arrays remain aligned; protected/admin navigation is unchanged.
+The pilot CTA reuses the existing enquiry page's actual supported pilot intent, opening its Start Pilot / Iniciar un piloto form. No new contact endpoint, mail-sending action, hidden lead submission or implied operational service was introduced. The request remains an enquiry about a developing capability.
 
-## Homepage/PR audit and SEO
+The homepage preserves its existing H1 and KYA H2. The landing page has one H1 using the approved identity/authority question and shares the previously approved copy and capability details through one component. Development badges, capability-direction labels and a Production-certification boundary remain visible. No duplicate Agent Registry, Authority Graph, TENENTE control plane or identity database was built.
 
-The existing website stack is preserved: #133 at 13a3485bb8a6ec8af720ec579bcf6b357003dec6, #136 at 582acc889afbe59991ea307bc5e4a2b986b11c0e, #141 at f0b0f3258124212b5f0bda96ecdccef4fb0dd803 and #143 at 9b58683a63ce71b7f6d48936dfd71f90f52b15c3. Read-only metadata is retained in PR-AUDIT.json. No remote actions were taken and no old remote workflow result qualifies this local source.
+Existing dark/cyan branding, layout width, button classes, typography and responsive grids are reused. The original homepage hero, V2 evidence narrative, public translations and authority content remain intact.
 
-English `/` and Spanish `/es` continue to share the existing request-locale/page ownership. Titles preserve Operational Trust Intelligence branding and include KYA. Descriptions explicitly identify KYA as developing. Existing metadata helpers provide canonical URLs, reciprocal language alternatives and locale-correct Open Graph values; no certification/rating schema was added.
+## Localization, SEO and PR overlap
 
-## Changed files
+The new route has real EN/ES ownership, dedicated titles/descriptions, reciprocal hreflang, locale-correct Open Graph metadata and canonical URLs. It is registered in the existing public route manifest and sitemap. There are now 46 canonical public source routes and 92 EN/ES sitemap entries; the unchanged publication-notice limitations elsewhere still apply. The manually bilingual KYA owner is excluded from generated translation batches, like the existing manual Platform owner; old translation IDs and files are preserved.
 
-| File | Purpose |
+Existing website PR overlap is preserved in PR-AUDIT.json: #133, #136, #141 and #143. No remote actions were taken and previous remote checks are not presented as qualification of this unpublished source.
+
+## Exact changed source files in this continuation
+
+| File | Change |
 |---|---|
-| app/page.tsx | Single KYA section integration and bilingual metadata |
-| components/kya-homepage-section.tsx | Authoritative EN copy, Spanish translation, five capabilities, key/closing statements, accessible flow and CTAs |
-| components/public-language-selector.tsx | EN/ES KYA navigation label |
-| lib/navigation/canonical-navigation.ts | Public KYA homepage anchor |
-| package.json | Include KYA regression in existing test:public-surface; no dependency/lockfile changes |
-| tests/kya-homepage.test.mjs | Actual rendered EN/ES copy, destinations and metadata |
-| tests/public-surface-navigation.test.mjs | Expected intentional KYA navigation addition |
-| tools/kya-homepage-browser.mjs | Actual Next desktop/mobile, keyboard, axe, SEO and screenshot checks |
-| docs/qualification/kya-homepage/* | Approved source, audit, asset status, logs and hash manifest |
-| artifacts/kya-homepage/* | Local browser/a11y results and screenshots |
-| .gitattributes | Preserve evidence bytes and checksums |
+| app/platform/kya/page.tsx | Dedicated locale-aware landing page and metadata |
+| app/es/platform/kya/page.tsx | Real Spanish route ownership |
+| components/kya-homepage-section.tsx | Shared home/landing modes, approved six-stage visual, translated prompts and pilot CTA |
+| lib/i18n/public-locales.ts | Published EN/ES route mapping |
+| lib/navigation/canonical-navigation.ts | KYA navigation targets the landing page |
+| lib/navigation/route-visibility.ts | Public/indexable landing-route registration only; protected policies unchanged |
+| tools/i18n/public-catalog.mjs | Register the shared bilingual owner outside generated batches |
+| tests/kya-homepage.test.mjs | Home/landing rendering, exact visual, six stages, CTAs and metadata in both locales |
+| tests/public-i18n.test.mjs | New landing sitemap entry/count |
+| tests/public-surface-navigation.test.mjs | Intentional KYA landing navigation destination |
+| tests/spanish-public-completion.test.mjs | Validate all 46 real Spanish route owners |
+| tools/kya-homepage-browser.mjs | Eight route/language/viewport cases, keyboard CTAs, language switch, axe and screenshots |
 
-## Verification and limits
+Qualification documents, logs, hash manifests and artifacts are updated separately. Earlier homepage integration files remain in the feature branch; no unrelated security work was imported.
 
-Current approved-copy checks:
+## Verification
 
-- Focused homepage/navigation/positioning/EN-ES tests: 33/33 PASS, zero skips.
+- Focused rendering/navigation/positioning/localization/route tests: 36/36 PASS, zero skips.
+- Existing test:public-surface command: 18/18 PASS, zero skips. Suites overlap; counts are not unique totals.
 - Uncached typecheck: PASS, exit 0.
 - Full lint: PASS, exit 0.
-- Final production build: PASS, exit 0; 212 static pages.
-- Actual local production Next browser cases: 4/4 PASS (EN/ES, 390/1440 pixels); both CTAs activated by keyboard Enter, expected targets reached, correct language/canonical/hreflang/title, zero overflow and zero page errors.
-- Axe accessibility: zero violations and zero incomplete checks in all eight scope/viewport/language scans. The KYA section passed 14 applicable rules and the header passed 13 in each case. Expanded mobile navigation was included.
-- Final screenshots: four section and four full-page captures saved; English desktop and Spanish mobile section captures visually inspected. No notice obstruction.
-- Preview server stopped after testing.
+- Final production build: PASS, exit 0; 213 generated pages.
+- Actual-site browser: 8/8 PASS across EN/ES, homepage/landing and 390/1440 widths; zero page errors.
+- Five repeated Spanish mobile authority-fragment keyboard activations: PASS.
+- Accessibility: 16 scoped axe scans, zero violations. Eight raw incomplete contrast results cover 40 decorative arrows; all manually resolved at minimum 13.92:1, zero unresolved.
+- Screenshot capture uses document coordinates from scroll position zero, avoiding sticky-header overlap without changing UI behavior. Desktop and mobile captures were visually reviewed.
 
-Tests use this website's exact npm-ci lockfile dependencies. No heap override, weakened scanner rules or source exclusion was added. The earlier provisional-copy tests/logs remain historical; they are not substituted for the approved-copy checks. Suites overlap and counts must not be added as unique tests.
+The browser checker covers actual production Next rendering at local loopback, not a component mock. It verifies both homepage and landing page in EN/ES at 390/1440 widths, correct headings, six flow stages, five capabilities, canonical/hreflang/title/description, no overflow, landing navigation, keyboard Enter on every CTA, real pilot form destinations and landing language switching. No enquiry is submitted.
 
-Browser checks cover the actual local production Next site, not a component mock: EN/ES at 390 and 1440 pixels, navigation anchors, keyboard Enter on both CTAs, target content, canonical/hreflang/title, overflow and page errors. Axe runs WCAG 2 A/AA, 2.1 A/AA and 2.2 AA tagged rules on the KYA section and public header, including the expanded mobile menu. Automated checks are bounded evidence, not complete WCAG certification; incomplete results require review. API reference: https://github.com/dequelabs/axe-core/blob/develop/doc/API.md.
+Axe checks WCAG 2 A/AA, 2.1 A/AA and 2.2 AA tagged rules on KYA and the public header, including expanded mobile navigation. Automated results are scoped evidence, not complete WCAG certification. Reference: https://github.com/dequelabs/axe-core/blob/develop/doc/API.md.
 
-The inherited local consent receipt notice is dismissed using its actual “Dismiss saved preferences notification” button before clean screenshots. Consent code/behavior is unchanged. An earlier obscured screenshot is retained as historical evidence; clean final captures are separate from any claim about consent persistence. No hosted credentials/env files are configured in this worktree, no hosted SQL was run, and no lead form was submitted.
+The existing consent receipt notice is dismissed through its normal button before screenshots. Consent behavior is unchanged; local receipt persistence is not qualified. The earlier obscured provisional screenshot is retained under history/. No hosted credentials or env files are configured for this preview. The owned server is stopped after verification.
 
-The owned preview server was stopped after verification. Original PNG remains the only known asset gap. Further publication, push, merge or Production action requires separate approval.
+The only expected asset limitation is **PNG ASSET MISSING**, with the accessible text fallback explicitly authorized. Publication and Production actions remain outside this task.
+
+## Navigation and contrast findings retained
+
+An initial Spanish mobile keyboard check intermittently stayed on the landing page when activating the client-routed authority fragment link. The destination itself returned HTTP 200. The secondary CTA now uses a native anchor to that existing locale-specific page/fragment, preserving full-document navigation. Failed browser logs, URL diagnostics and screenshot remain in the evidence; a five-repeat Spanish mobile regression is included in the final checker. No rule or target assertion was removed.
+
+Axe cannot automatically measure the decorative downward arrow glyphs. Raw color-contrast incomplete findings are retained. The checker only accepts this explicit glyph profile, verifies opaque rendered foreground/background colors, computes their relative luminance/contrast and requires at least 4.5:1. Any other incomplete result, unsupported composition or insufficient ratio still fails. The final results distinguish these manual reviews from automated passes; no axe rule is disabled.

@@ -97,8 +97,10 @@ try {
       if (selector === 'header' && width === 390) await page.getByRole('button', { name: locale === 'es' ? 'Cerrar menú' : 'Close', exact: true }).click();
     }
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
-    await section.screenshot({ path: `${out}/${name}-section.png` });
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    const sectionClip = await section.boundingBox();
+    assert.ok(sectionClip);
+    await page.screenshot({ path: `${out}/${name}-section.png`, fullPage: true, clip: sectionClip });
     await page.screenshot({ path: `${out}/${name}-page.png`, fullPage: true });
     const links = await section.locator('a').evaluateAll(a => a.map(x => ({ text: x.textContent, href: x.getAttribute('href') })));
     for (const link of links) {

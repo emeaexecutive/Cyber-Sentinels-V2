@@ -1,5 +1,5 @@
 {
-  "status": "ASSET MISSING",
+  "status": "PNG ASSET MISSING",
   "originalKyaPngFound": false,
   "searched": [
     "repository public assets",
@@ -13,5 +13,7 @@
   },
   "replacementRasterCreated": false,
   "accessibleTextFlowRetained": true,
-  "fallbackExplicitlyAuthorizedByUser": true
+  "fallbackExplicitlyAuthorizedByUser": true,
+  "approvedVisualSpecification": "LANDING-VISUAL-SPEC.md",
+  "renderedFlowStages": 6
 }
