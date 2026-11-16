@@ -1,1 +1,4 @@
 supabase/release/epic-26-27/* text eol=lf
+
+artifacts/kya-homepage/** -text
+docs/qualification/kya-homepage/** -text

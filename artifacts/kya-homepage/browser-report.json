@@ -1,0 +1,67 @@
+{
+  "origin": "http://127.0.0.1:3137",
+  "scope": "Actual local Next website; no hosted Auth, SQL, forms submitted or provider execution",
+  "cases": [
+    {
+      "locale": "en",
+      "width": 390,
+      "status": "PASS",
+      "ctas": [
+        {
+          "text": "Discuss KYA with us",
+          "href": "/enterprise-access?intent=demo"
+        },
+        {
+          "text": "Explore agent authority",
+          "href": "/platform#agent-authority"
+        }
+      ]
+    },
+    {
+      "locale": "en",
+      "width": 1440,
+      "status": "PASS",
+      "ctas": [
+        {
+          "text": "Discuss KYA with us",
+          "href": "/enterprise-access?intent=demo"
+        },
+        {
+          "text": "Explore agent authority",
+          "href": "/platform#agent-authority"
+        }
+      ]
+    },
+    {
+      "locale": "es",
+      "width": 390,
+      "status": "PASS",
+      "ctas": [
+        {
+          "text": "Hablemos de KYA",
+          "href": "/es/enterprise-access?intent=demo"
+        },
+        {
+          "text": "Explorar la autoridad de los agentes",
+          "href": "/es/platform#agent-authority"
+        }
+      ]
+    },
+    {
+      "locale": "es",
+      "width": 1440,
+      "status": "PASS",
+      "ctas": [
+        {
+          "text": "Hablemos de KYA",
+          "href": "/es/enterprise-access?intent=demo"
+        },
+        {
+          "text": "Explorar la autoridad de los agentes",
+          "href": "/es/platform#agent-authority"
+        }
+      ]
+    }
+  ],
+  "errors": []
+}
