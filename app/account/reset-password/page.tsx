@@ -12,7 +12,8 @@ import { ResetPasswordForm } from "./reset-password-form";
 
 export const dynamic = "force-dynamic";
 
-export default async function ResetPasswordPage({ searchParams }: { searchParams?: Promise<{ lang?: string }> } = {}) {
+export default async function ResetPasswordPage(props: { searchParams?: Promise<{ lang?: string }> }) {
+  const searchParams = props?.searchParams;
   const cookieStore = await cookies();
   const locale = accountLocale((await searchParams)?.lang, cookieStore.get(ACCOUNT_LOCALE_COOKIE)?.value);
   const copy = accountCopy[locale];
