@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getPublicRequestLocale } from "@/lib/i18n/request-locale";
 import { publicPageAlternates } from "@/lib/i18n/public-locales";
+import { KyaHomepageSection } from "@/components/kya-homepage-section";
 
 const flowSteps = {
   en: [
@@ -50,10 +51,10 @@ const trustedContexts = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getPublicRequestLocale();
-  const title = locale === "es" ? "Inteligencia de confianza operativa | Cyber Sentinels" : "Operational Trust Intelligence™ | Cyber Sentinels";
+  const title = locale === "es" ? "Inteligencia de confianza operativa y KYA | Cyber Sentinels" : "Operational Trust Intelligence™ & KYA | Cyber Sentinels";
   const description = locale === "es"
-    ? "Cyber Sentinels ayuda a los equipos a comprobar si un agente de IA tiene autoridad para actuar y conserva las pruebas que explican la decisión."
-    : "Cyber Sentinels helps teams decide whether an AI agent or human has authority to act, preserve the evidence behind the decision, and replay what happened later.";
+    ? "Explora los controles de identidad y autoridad, las pruebas y Replay de Cyber Sentinels, y la capacidad Know Your Agent (KYA), en desarrollo."
+    : "Explore Cyber Sentinels’ identity and authority controls, evidence and Replay, and the developing Know Your Agent (KYA) capability.";
   const path = locale === "es" ? "/es" : "/";
   return {
     ...publicSocialMetadata(title, description, path, locale),
@@ -129,6 +130,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <KyaHomepageSection locale={locale} />
 
       <section className="border-b border-zinc-800">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">

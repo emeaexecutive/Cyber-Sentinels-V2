@@ -7,14 +7,14 @@ import type { PublicLocale } from "@/lib/i18n/public-locales";
 export const navigationLanguages = {
   en: {
     name: "English",
-    labels: ["Platform", "Solutions", "Developers", "Enterprise", "Pricing", "Sign In"],
+    labels: ["Platform", "KYA", "Solutions", "Developers", "Enterprise", "Pricing", "Sign In"],
     selector: "Translate",
     group: "Available languages",
     unavailable: "Not available yet",
   },
   es: {
     name: "Español",
-    labels: ["Plataforma", "Soluciones", "Desarrollo", "Empresa", "Precios", "Iniciar sesión"],
+    labels: ["Plataforma", "KYA", "Soluciones", "Desarrollo", "Empresa", "Precios", "Iniciar sesión"],
     selector: "Idioma",
     group: "Idiomas disponibles",
     unavailable: "Aún no disponible",

@@ -17,11 +17,12 @@ function footerLinks(source) {
   return [...block.matchAll(/\["([^"]+)", "([^"]+)"\]/g)].map((match) => ({ href: match[1], label: match[2] }));
 }
 
-test("public header contains exactly six direct actions and no dropdown discovery", async () => {
+test("public header includes the KYA homepage anchor and no dropdown discovery", async () => {
   const source = await read("lib/navigation/canonical-navigation.ts");
   const component = await read("components/global-navigation.tsx");
   assert.deepEqual(publicHeaderLinks(source), [
     { href: "/platform", label: "Platform" },
+    { href: "/#know-your-agent", label: "KYA" },
     { href: "/solutions", label: "Solutions" },
     { href: "/developers", label: "Developers" },
     { href: "/enterprise", label: "Enterprise" },
