@@ -35,7 +35,7 @@
     },
     {
       "path": "docs/qualification/kya-homepage/ASSET-STATUS.json",
-      "sha256": "ff6f0f8e8936e2998b817c5ad979ef0fcf1e9917c6df2f65a84b9d971a8e295c"
+      "sha256": "ca6202dd45a5c075b9f7a6cc72515801ad24faf42589dea6c9cc49712abc89e7"
     },
     {
       "path": "docs/qualification/kya-homepage/logs/kya-approved-browser-lint.log",
@@ -111,7 +111,7 @@
     },
     {
       "path": "docs/qualification/kya-homepage/REPORT.md",
-      "sha256": "e90c3772d45154a2a29b3e1747eb9689844855525f39d2a5c914bfe29529f46a"
+      "sha256": "03839d98e02d6ecc63253d72880343ddeba982935874efbfe788c17ab627b54d"
     },
     {
       "path": "artifacts/kya-homepage/browser-report.json",
