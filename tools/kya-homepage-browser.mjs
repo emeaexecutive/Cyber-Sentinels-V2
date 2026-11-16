@@ -96,13 +96,29 @@ try {
       assert.deepEqual(result.violations, [], `${name} accessibility ${selector}`);
       if (selector === 'header' && width === 390) await page.getByRole('button', { name: locale === 'es' ? 'Cerrar menú' : 'Close', exact: true }).click();
     }
+    const diagram = section.locator('img[src*="kya-ai-agent-trust-flow"]');
+    await diagram.scrollIntoViewIfNeeded();
+    await diagram.evaluate(async image => { await image.decode(); });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     const sectionClip = await section.boundingBox();
     assert.ok(sectionClip);
     await page.screenshot({ path: `${out}/${name}-section.png`, fullPage: true, clip: sectionClip });
     await page.screenshot({ path: `${out}/${name}-page.png`, fullPage: true });
-    const links = await section.locator('a').evaluateAll(a => a.map(x => ({ text: x.textContent, href: x.getAttribute('href') })));
+    const imageGeometry = await diagram.evaluate(image => ({ naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight, width: image.width, height: image.height, fit: getComputedStyle(image).objectFit, alt: image.alt }));
+    assert.ok(imageGeometry.naturalWidth > 0 && imageGeometry.naturalHeight > 0);
+    assert.ok(Math.abs(imageGeometry.width / imageGeometry.height - 1) < 0.01);
+    assert.equal(imageGeometry.fit, 'contain');
+    assert.ok(imageGeometry.alt.length > 60);
+    const original = await page.request.get(origin + '/kya-ai-agent-trust-flow.png');
+    assert.equal(original.status(), 200);
+    const { createHash } = await import('node:crypto');
+    assert.equal(createHash('sha256').update(await original.body()).digest('hex'), 'abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8');
+    assert.equal(await section.locator('a[href="/kya-ai-agent-trust-flow.png"]').count(), 1);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    const diagramClip = await diagram.boundingBox();
+    await page.screenshot({ path: `${out}/${name}-diagram.png`, fullPage: true, clip: diagramClip });
+    const links = await section.locator('a:not([href="/kya-ai-agent-trust-flow.png"])').evaluateAll(a => a.map(x => ({ text: x.textContent, href: x.getAttribute('href') })));
     for (const link of links) {
       const control = section.getByRole('link', { name: link.text, exact: true });
       await control.focus();

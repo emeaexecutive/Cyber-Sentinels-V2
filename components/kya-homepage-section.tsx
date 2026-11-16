@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { PublicLocale } from "@/lib/i18n/public-locales";
 
@@ -101,6 +102,24 @@ export function KyaHomepageSection({ locale, landing = false }: { locale: Public
             <p className="mt-7 border-t border-zinc-800 pt-5 text-xs leading-6 text-zinc-400">{copy.availability}</p>
           </figure>
         </div>
+        <figure className="mx-auto mt-12 max-w-5xl" aria-labelledby="kya-original-caption">
+          <Image
+            src="/kya-ai-agent-trust-flow.png"
+            width={1254}
+            height={1254}
+            sizes="(max-width: 1024px) 100vw, 1024px"
+            alt={locale === "es"
+              ? "Diagrama conceptual KYA en inglés: un agente solicita una acción; la identidad y la autoridad delegada informan la decisión de TENENTE: ALLOW, REVIEW o DENY, con pruebas y Replay."
+              : "Conceptual KYA trust flow: an agent requests an action; identity and delegated authority inform the TENENTE decision: ALLOW, REVIEW or DENY, followed by Evidence and Replay."}
+            className="h-auto w-full object-contain"
+          />
+          <figcaption id="kya-original-caption" className="mt-4 text-sm leading-7 text-zinc-300">
+            {locale === "es" ? "Gráfico original aprobado en inglés. La explicación accesible en español se conserva arriba. " : "Approved original English graphic. The accessible text explanation is preserved above. "}
+            <a href="/kya-ai-agent-trust-flow.png" className="underline underline-offset-4">
+              {locale === "es" ? "Abrir el diagrama a tamaño completo para ampliar" : "Open the full-size diagram to zoom"}
+            </a>
+          </figcaption>
+        </figure>
         <div id="kya-capabilities" className="mt-12 scroll-mt-28 border-t border-zinc-800 pt-8">
           <p className="text-xs font-medium uppercase tracking-widest text-cyan-300">{copy.capabilitiesLabel}</p>
           <dl className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
