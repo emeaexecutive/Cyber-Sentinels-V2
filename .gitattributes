@@ -2,3 +2,8 @@ supabase/release/epic-26-27/* text eol=lf
 artifacts/execution06-treasury/** -text
 
 docs/qualification/execution06-monitoring/** -text
+artifacts/execution06-core/** -text
+artifacts/execution06-staging-inspection/** -text
+docs/qualification/execution06b/** -text
+docs/qualification/execution07/** -text
+artifacts/execution07/** -text

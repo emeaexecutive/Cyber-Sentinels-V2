@@ -1,0 +1,2139 @@
+{
+  "observedAt": "2026-11-15T18:34:23.255Z",
+  "method": "Read-only connector migration/table/advisor/deployment metadata. No execute_sql, data writes or deployments.",
+  "staging": {
+    "project": "agpyhygpfmppjkxwcpac",
+    "migrations": {
+      "migrations": [
+        {
+          "version": "001",
+          "name": "initial_schema"
+        },
+        {
+          "version": "202605260001",
+          "name": "private_beta_schema_fix"
+        },
+        {
+          "version": "20260528",
+          "name": "explicit_supabase_api_grants"
+        },
+        {
+          "version": "202605300001",
+          "name": "evidence_upload_flow"
+        },
+        {
+          "version": "202605300002",
+          "name": "align_evidence_file_url"
+        },
+        {
+          "version": "202605300003",
+          "name": "add_signal_metadata"
+        },
+        {
+          "version": "202605310001",
+          "name": "real_evidence_file_upload"
+        },
+        {
+          "version": "202606010001",
+          "name": "intent_requests"
+        },
+        {
+          "version": "202606010002",
+          "name": "autonomy_profiles"
+        },
+        {
+          "version": "202606010003",
+          "name": "passport_state_checks"
+        },
+        {
+          "version": "202606010004",
+          "name": "execution_passports"
+        },
+        {
+          "version": "202606020001",
+          "name": "trust_graph_engine_help"
+        },
+        {
+          "version": "202606020002",
+          "name": "harden_operational_tables"
+        },
+        {
+          "version": "202606020004",
+          "name": "help_question_traceability"
+        },
+        {
+          "version": "202606020005",
+          "name": "trust_assistant_questions"
+        },
+        {
+          "version": "202606020006",
+          "name": "knowledge_articles"
+        },
+        {
+          "version": "202606030001",
+          "name": "data_rights_requests"
+        },
+        {
+          "version": "202606030002",
+          "name": "messages_notifications_appeals"
+        },
+        {
+          "version": "202606030003",
+          "name": "ai_trust_event_pipeline"
+        },
+        {
+          "version": "202606030004",
+          "name": "developer_platform_api_keys"
+        },
+        {
+          "version": "202606030005",
+          "name": "enterprise_access_requests"
+        },
+        {
+          "version": "202606030006",
+          "name": "private_evidence_bucket"
+        },
+        {
+          "version": "202606040001",
+          "name": "feedback_signal_intelligence"
+        },
+        {
+          "version": "202606040002",
+          "name": "ensure_enterprise_access_requests_public_submit"
+        },
+        {
+          "version": "202606040003",
+          "name": "enterprise_access_problem_category"
+        },
+        {
+          "version": "202606050001",
+          "name": "enterprise_access_design_partner_signals"
+        },
+        {
+          "version": "202606050002",
+          "name": "billing_subscriptions_usage_limits"
+        },
+        {
+          "version": "202606050003",
+          "name": "harden_enterprise_access_insert_permissions"
+        },
+        {
+          "version": "202606050004",
+          "name": "submit_enterprise_access_request_rpc"
+        },
+        {
+          "version": "202606060001",
+          "name": "trusted_hiring_mvp"
+        },
+        {
+          "version": "202606070001",
+          "name": "ai_agent_identity_direction"
+        },
+        {
+          "version": "202606070002",
+          "name": "trust_algorithm_runs"
+        },
+        {
+          "version": "202606070003",
+          "name": "integration_status"
+        },
+        {
+          "version": "202606070004",
+          "name": "api_test_runs"
+        },
+        {
+          "version": "202606070005",
+          "name": "launch_control_notes"
+        },
+        {
+          "version": "202606080001",
+          "name": "trust_relationships"
+        },
+        {
+          "version": "202606080002",
+          "name": "trust_timeline_events"
+        },
+        {
+          "version": "202606080003",
+          "name": "trust_replay_sessions"
+        },
+        {
+          "version": "202606080004",
+          "name": "trust_workspaces_cases"
+        },
+        {
+          "version": "202606080005",
+          "name": "operational_governance_engine"
+        },
+        {
+          "version": "202606080006",
+          "name": "operational_hardening_rls"
+        },
+        {
+          "version": "202606080007",
+          "name": "operational_notifications_coordination"
+        },
+        {
+          "version": "202606090001",
+          "name": "hiring_security_interview_integrity"
+        },
+        {
+          "version": "202606090002",
+          "name": "trust_evidence_chains_receipts"
+        },
+        {
+          "version": "202606090003",
+          "name": "operational_trust_intelligence"
+        },
+        {
+          "version": "202606100001",
+          "name": "runtime_validation_logs"
+        },
+        {
+          "version": "202606180001",
+          "name": "enterprise_ai_trust_governance"
+        },
+        {
+          "version": "202606190001",
+          "name": "verifiers"
+        },
+        {
+          "version": "202606190002",
+          "name": "session_integrity_signal_separation"
+        },
+        {
+          "version": "202606190003",
+          "name": "hopae_connect_upstream_identity"
+        },
+        {
+          "version": "202606270001",
+          "name": "screenshot_support_debugging"
+        },
+        {
+          "version": "202607010001",
+          "name": "production_owner_scoped_rls"
+        },
+        {
+          "version": "202607020001",
+          "name": "critical_trust_infrastructure_alignment"
+        },
+        {
+          "version": "202607160001",
+          "name": "release_1_rc1_provider_evidence_gate"
+        },
+        {
+          "version": "202607160002",
+          "name": "release_1_rc2_living_trust_privacy"
+        },
+        {
+          "version": "202607160003",
+          "name": "release_1_rc6_production_evidence_gate"
+        },
+        {
+          "version": "202607170001",
+          "name": "operational_risk_intelligence_shadow"
+        },
+        {
+          "version": "202607170002",
+          "name": "provider_abstraction_hopae"
+        },
+        {
+          "version": "202607190001",
+          "name": "identity_signal_engine"
+        },
+        {
+          "version": "202607190002",
+          "name": "identity_signal_runtime"
+        },
+        {
+          "version": "202607200001",
+          "name": "canonical_trust_event_foundation"
+        },
+        {
+          "version": "202607200002",
+          "name": "enterprise_trust_consent_manager"
+        },
+        {
+          "version": "202607200003",
+          "name": "provider_consensus_engine"
+        },
+        {
+          "version": "202607210001",
+          "name": "enterprise_trust_architecture"
+        },
+        {
+          "version": "202607210002",
+          "name": "continuous_trust_runtime"
+        },
+        {
+          "version": "202607230001",
+          "name": "trust_intelligence_engine"
+        },
+        {
+          "version": "202607230002",
+          "name": "enterprise_trust_graph"
+        },
+        {
+          "version": "202607240001",
+          "name": "trust_dna_engine"
+        },
+        {
+          "version": "202607240002",
+          "name": "replay_timeline_engine"
+        },
+        {
+          "version": "202607240003",
+          "name": "continuous_trust_engine"
+        },
+        {
+          "version": "202607240004",
+          "name": "enterprise_trust_centre"
+        },
+        {
+          "version": "202607310001",
+          "name": "environment_attestation_scope_continuity"
+        },
+        {
+          "version": "202608010001",
+          "name": "ai_serious_incident_regulatory_lineage"
+        },
+        {
+          "version": "202608010002",
+          "name": "enterprise_trust_fabric"
+        },
+        {
+          "version": "202608060001",
+          "name": "rc2_enterprise_operational_readiness"
+        },
+        {
+          "version": "202608060002",
+          "name": "end_to_end_trust_transaction"
+        },
+        {
+          "version": "202608080001",
+          "name": "provider_neutral_evidence_independence"
+        },
+        {
+          "version": "202608080002",
+          "name": "provider_neutral_workspace_rls_forward_repair"
+        },
+        {
+          "version": "202608080003",
+          "name": "native_operational_entity_verification"
+        },
+        {
+          "version": "202608090001",
+          "name": "native_delegated_authority"
+        },
+        {
+          "version": "202608090002",
+          "name": "native_enforcement_outcome_proof"
+        },
+        {
+          "version": "202608100001",
+          "name": "pgcrypto_routine_search_path"
+        },
+        {
+          "version": "202608100002",
+          "name": "runtime_persistence_compatibility"
+        },
+        {
+          "version": "202608100003",
+          "name": "alpha_beta_persistence_repairs"
+        },
+        {
+          "version": "202608100004",
+          "name": "continuous_trust_legacy_consensus_fk_repair"
+        },
+        {
+          "version": "202608100005",
+          "name": "optional_legacy_consensus_pointer"
+        },
+        {
+          "version": "202608110001",
+          "name": "external_agent_trust_api"
+        },
+        {
+          "version": "20260814153327",
+          "name": "customer_workspace_bootstrap"
+        },
+        {
+          "version": "20260814153337",
+          "name": "staging_product_closure_security_reconciliation"
+        },
+        {
+          "version": "20260815172418",
+          "name": "customer_workspace_creator_returning"
+        },
+        {
+          "version": "20260815172840",
+          "name": "customer_workspace_creator_returning_guard_reconciliation"
+        },
+        {
+          "version": "20260815174612",
+          "name": "gamma_authority_replay_event"
+        },
+        {
+          "version": "20260815180521",
+          "name": "native_replay_chronology_extension"
+        },
+        {
+          "version": "20260815180807",
+          "name": "consent_evidence_freshness"
+        },
+        {
+          "version": "20260816135031",
+          "name": "staging_repair_append_trust_event_consent_namespace"
+        },
+        {
+          "version": "20260817173631",
+          "name": "track_block_protected_workflow"
+        },
+        {
+          "version": "20260817175031",
+          "name": "track_block_protected_workflow"
+        },
+        {
+          "version": "20260817175111",
+          "name": "track_block_fk_indexes"
+        },
+        {
+          "version": "20260817175137",
+          "name": "track_block_evidence_index"
+        },
+        {
+          "version": "20260817175347",
+          "name": "reconcile_enterprise_trust_domain_registry"
+        },
+        {
+          "version": "20260817175421",
+          "name": "runtime_validation_legacy_shape_rehearsal"
+        },
+        {
+          "version": "20260817175448",
+          "name": "reconcile_enterprise_trust_domain_registry_v2"
+        },
+        {
+          "version": "20260817175455",
+          "name": "reconcile_enterprise_trust_domain_registry_idempotency"
+        },
+        {
+          "version": "20260818075145",
+          "name": "remove_user_metadata_rls_authorization"
+        },
+        {
+          "version": "20260818075422",
+          "name": "remove_user_editable_rls_authorization"
+        },
+        {
+          "version": "20260819082001",
+          "name": "consent_evidence_freshness_repair"
+        },
+        {
+          "version": "20260820085027",
+          "name": "vale_canonical_provider_preview"
+        },
+        {
+          "version": "20260821085309",
+          "name": "track_block_policy_identity_continuity"
+        },
+        {
+          "version": "20260821174100",
+          "name": "reconcile_canonical_persist_search_path"
+        },
+        {
+          "version": "20260822124942",
+          "name": "repair_production_consent_event_metadata"
+        },
+        {
+          "version": "20260824181053",
+          "name": "authority_integrity_authorization_propagation"
+        },
+        {
+          "version": "20260824184543",
+          "name": "trust_forecast_operational_intelligence"
+        },
+        {
+          "version": "20260825175059",
+          "name": "authority_integrity_authorization_propagation"
+        },
+        {
+          "version": "20260825175143",
+          "name": "trust_forecast_operational_intelligence"
+        },
+        {
+          "version": "20260828165913",
+          "name": "close_public_api_security_contract"
+        },
+        {
+          "version": "20260829094528",
+          "name": "harden_public_api_rate_limit_isolation"
+        },
+        {
+          "version": "20260829164824",
+          "name": "close_public_api_customer_zero"
+        },
+        {
+          "version": "20260831121500",
+          "name": "fix_public_api_replay_subject"
+        },
+        {
+          "version": "20260831124000",
+          "name": "expand_canonical_replay_event_types"
+        },
+        {
+          "version": "20260831125500",
+          "name": "fix_public_api_trust_memory_source_id"
+        },
+        {
+          "version": "20260901120000",
+          "name": "grant_service_role_api_keys_privileges"
+        },
+        {
+          "version": "20260903093116",
+          "name": "reconcile_public_api_webhook_event_types"
+        },
+        {
+          "version": "20260903093247",
+          "name": "reconcile_public_api_webhook_event_types"
+        },
+        {
+          "version": "20260904100313",
+          "name": "normalize_continuous_trust_alert_contract"
+        },
+        {
+          "version": "20260904100445",
+          "name": "normalize_continuous_trust_alert_contract"
+        },
+        {
+          "version": "202609060001",
+          "name": "world_id_durable_replay_guard"
+        },
+        {
+          "version": "202609060002",
+          "name": "world_id_replay_hardening"
+        },
+        {
+          "version": "20260906155836",
+          "name": "world_id_durable_replay_guard"
+        },
+        {
+          "version": "20260906165033",
+          "name": "world_id_replay_hardening"
+        },
+        {
+          "version": "20260907120000",
+          "name": "add_decision_outcome_review_to_canonical_trust"
+        },
+        {
+          "version": "20260909163513",
+          "name": "operational_incident_evidence_foundation"
+        },
+        {
+          "version": "20260913132642",
+          "name": "fix_operational_incident_api_key_revocation_check"
+        },
+        {
+          "version": "20260926113958",
+          "name": "restrict_internal_governance_helper_execution"
+        },
+        {
+          "version": "20260929084417",
+          "name": "repair_execution_proof_sql_lint"
+        },
+        {
+          "version": "202610020001",
+          "name": "judgeme_installations"
+        },
+        {
+          "version": "202610040001",
+          "name": "p0p1_security_closure"
+        },
+        {
+          "version": "202610040002",
+          "name": "account_access_approval"
+        },
+        {
+          "version": "202610040003",
+          "name": "require_approved_accounts_for_data_api"
+        },
+        {
+          "version": "202610040004",
+          "name": "lock_legacy_passport_decision_writes"
+        },
+        {
+          "version": "20261006105554",
+          "name": "model_approval_evidence_lifecycle"
+        },
+        {
+          "version": "20261006110619",
+          "name": "model_state_replay_event_contract"
+        },
+        {
+          "version": "20261007150222",
+          "name": "account_approval_default_deny"
+        },
+        {
+          "version": "20261007150224",
+          "name": "canonical_trust_memory_function_reconciliation"
+        },
+        {
+          "version": "20261007150835",
+          "name": "canonical_workspace_bootstrap"
+        },
+        {
+          "version": "20261008093614",
+          "name": "canonical_application_access_grants"
+        },
+        {
+          "version": "20261008105722",
+          "name": "canonical_application_schema_reconciliation"
+        },
+        {
+          "version": "20261008112858",
+          "name": "evidence_download_approval_revalidation"
+        },
+        {
+          "version": "20261008120422",
+          "name": "authority_of_record_exact_execution"
+        },
+        {
+          "version": "20261010110000",
+          "name": "employment_access_governance_hardening"
+        },
+        {
+          "version": "20261012084456",
+          "name": "audited_account_approval_transition"
+        },
+        {
+          "version": "20261012122704",
+          "name": "require_active_customer_sessions"
+        }
+      ]
+    },
+    "tables": {
+      "tables": [
+        {
+          "name": "public.voice_signals",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_references",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.scope_continuity_decisions",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Deterministic Scope Continuity decisions derived from recorded declaration, authority and attestation inputs."
+        },
+        {
+          "name": "public.trust_graph_edges",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.evidence_files",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.evidence_nodes",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Tenant-bound, normalized Evidence Graph nodes. Raw provider payloads remain in their authoritative stores."
+        },
+        {
+          "name": "public.verification_receipts",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.identity_confidence_results",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Provisional identity confidence. It is not an authorization decision."
+        },
+        {
+          "name": "public.ori_inference_records",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Sanitized ORI shadow evidence only. Raw passports, biometrics, images, documents, provider payloads, email addresses, secrets, tokens, and arbitrary customer text are prohibited."
+        },
+        {
+          "name": "public.api_test_runs",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.incident_chronology_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provenance_assets",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entity_native_verification_attempts",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.signals",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.ai_governance_runs",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.incident_regulatory_trigger_findings",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.integration_status",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.public_api_outcome_submissions",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Outcome assertions projected onto existing canonical transactions. AGENT_ASSERTED is never independent destination evidence."
+        },
+        {
+          "name": "public.public_api_audit_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.incident_corrective_actions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.verification_passports",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.identity_signal_evidence",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Normalized identity signal evidence only; raw provider proofs and secrets are prohibited."
+        },
+        {
+          "name": "public.operational_entity_native_replay_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consent_providers",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_intelligence_signals",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.support_issues",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.device_channel_evidence",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.native_execution_claims",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.usage_limits",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.verifiers",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provenance_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.identity_subjects",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.external_action_requests",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.canonical_trust_transaction_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entity_manifests",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Versioned, signed manifests for canonical Operational Entities. No private credentials are stored."
+        },
+        {
+          "name": "public.scope_decision_attestations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.session_integrity_checks",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.api_keys",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Tenant-scoped external API client credentials. key_hash stores a salted scrypt derivation; plaintext secrets are never persisted."
+        },
+        {
+          "name": "public.evidence_chains",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entities",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.native_runtime_execution_observations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.release_evidence_checks",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Target-environment evidence references; source inspection alone must be blocked, not passed."
+        },
+        {
+          "name": "public.consent_cookies",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.scope_authorization_leases",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.identity_verification_requests",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.execution_passports",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.launch_control_notes",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.canonical_enforcement_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consent_tracker_catalogue",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Unknown trackers remain unclassified and cannot default to Essential."
+        },
+        {
+          "name": "public.provider_results",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.agent_activity_logs",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provider_transitions",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Canonical provider-governance transition state with frozen historical evidence and decision snapshot references."
+        },
+        {
+          "name": "public.trust_event_audit",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_graph_relationships_v2",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Versioned tenant-bound Trust Graph topology with non-destructive removal."
+        },
+        {
+          "name": "public.identity_audit_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.enterprise_access_requests",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provider_state_audit",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.controlled_destination_records",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Safe internal destination A. Persistence is deliberately separate from trust-decision and enforcement evidence tables."
+        },
+        {
+          "name": "public.candidate_profiles",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_memory_index",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.hopae_webhook_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_simulation_results",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.native_enforcement_acknowledgements",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.native_enforcement_human_approvals",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_intelligence_updates",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_replay_sessions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consent_preferences",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.release_validation_reviews",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entity_authority_delegations",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Signed, attenuated authority-lineage edges between canonical Operational Entities; identity remains separately proven."
+        },
+        {
+          "name": "public.environment_attestations",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Append-only attributed environment observations and assertions. Provider assertions are not independent evidence."
+        },
+        {
+          "name": "public.public_api_rate_limit_windows",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.external_action_outcomes",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "External action outcome ledger. UNKNOWN remains visible and may be followed by a later evidence-backed terminal result."
+        },
+        {
+          "name": "public.evidence_graph_nodes",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provider_health_snapshots",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_history",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.knowledge_articles",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.agent_passports",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.waitlist",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.native_enforcement_outcomes",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Evidence-derived outcome correlation. ALLOW is never represented as proof of execution."
+        },
+        {
+          "name": "public.incident_evidence_links",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.canonical_trust_transactions",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Canonical receipt index for one evidence-backed action transaction. Raw provider and action payloads are excluded."
+        },
+        {
+          "name": "public.audit_logs",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.protected_workflows",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Track + Block workflow state; not a Trust Object and not a decision engine."
+        },
+        {
+          "name": "public.trust_policy_decisions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_alerts",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_manual_reviews",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.governance_policies",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_contract_evaluations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entity_native_challenges",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Tenant/entity-bound short-lived challenge metadata. Only the nonce hash is persisted."
+        },
+        {
+          "name": "public.trust_decision_contracts",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.incident_regulatory_assessments",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.native_enforcement_decision_bindings",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.evidence_graph_edges",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consent_audit_log",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.billing_customers",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.scope_continuity_reviewer_actions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.interest_signals",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.public_api_agent_bindings",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.native_entity_identity_evidence",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "First-party cryptographic identity evidence. Provenance is CYBER_SENTINELS_NATIVE and is never independent corroboration of itself."
+        },
+        {
+          "name": "public.identity_provider_transactions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.webhook_event_ledger",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Sanitized provider-neutral webhook intake ledger; raw payload retention is disabled."
+        },
+        {
+          "name": "public.evidence_object_access",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.context_contradiction_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.admin_reviews",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_processing_failures",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.agents",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_alert_history",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_signals",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Immutable normalized trust signals. Raw provider payloads, secrets, biometric material, document images, full IP addresses and precise location are prohibited."
+        },
+        {
+          "name": "public.identity_provider_capabilities",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consent_categories",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_scores",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.release_validation_cases",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Controlled licensed non-sensitive validation metadata; approval requires attributable review."
+        },
+        {
+          "name": "public.intent_requests",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entity_owner_bindings",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.external_action_acknowledgements",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Transport acknowledgement only; acknowledgement must never be represented as an external action outcome."
+        },
+        {
+          "name": "public.trust_simulations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.message_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consent_receipts",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Append-only, tamper-evident and integrity-verifiable Consent Receipts. Not described as immutable."
+        },
+        {
+          "name": "public.risk_scores",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consent_purposes",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entity_native_runtime_observations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_algorithm_runs",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_cases",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entity_external_identities",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Append-only provider identity observations attached to an Operational Entity. Presence is evidence, not trust or authority."
+        },
+        {
+          "name": "public.trust_event_chain_heads",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.subscriptions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_dimension_scores",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.incident_external_submissions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.evidence_objects",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Evidence Vault boundary: normalized facts may remain in-ledger; raw evidence requires an encrypted object reference and explicit access policy."
+        },
+        {
+          "name": "public.migration_policy_decisions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_evidence",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Provider-neutral, append-only evidence attached to Trust Graph entities."
+        },
+        {
+          "name": "public.world_id_nullifier_claims",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.incident_reviewer_decisions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_relationships",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.injection_risk_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.incident_evidence_supersessions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entity_delegation_acceptances",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.incident_evidence_snapshots",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.subject_trust_state",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Materialized read model. Only apply_trust_state_decision_v1 may change current trust state."
+        },
+        {
+          "name": "public.enterprise_policy_governance_events",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "RC2 append-only policy approval, reviewer, evidence, authority, replay and rollback history."
+        },
+        {
+          "name": "public.consensus_decisions",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Append-only canonical decision lineage; subject_trust_state is only a materialized current view."
+        },
+        {
+          "name": "public.operational_entity_native_software_observations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.judgeme_installations",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Trusted Judge.me shop-to-tenant installation mapping. Provider API credentials remain server-only environment secrets."
+        },
+        {
+          "name": "public.verification_flags",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.replay_events",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Immutable Trust Intelligence replay chronology linked to evidence and trust updates."
+        },
+        {
+          "name": "public.ai_agents",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.agent_activity",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.ori_model_registry",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Governed server-side ORI model metadata. Client model upload and public activation are prohibited."
+        },
+        {
+          "name": "public.incident_submission_packages",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Immutable evidence packages. regulator_ready means internally prepared and approved, not legally sufficient."
+        },
+        {
+          "name": "public.trust_workspaces",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.autonomy_profiles",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_policy_versions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provider_relationships",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Tenant-scoped provider roles and responsibilities referencing the existing provider_registry; not a provider registry."
+        },
+        {
+          "name": "public.trust_subjects",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.passport_state_checks",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.recruiter_profiles",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_reports",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.agent_profiles",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.incident_impact_assessments",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.execution_context_declarations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.interview_risk_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.verification_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_measurements",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Sanitized durable timings; raw requests, secrets, personal data, documents and biometrics are prohibited."
+        },
+        {
+          "name": "public.trust_timeline_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.evidence_relationships",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.public_api_webhook_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_intelligence_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consensus_policy_versions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provider_operational_health_snapshots",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.teams",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_entities",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Versioned Enterprise Trust Graph entities. Deletion creates a tombstone."
+        },
+        {
+          "name": "public.feedback_reports",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provenance_reports",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_event_envelopes",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Provider envelope metadata and SHA-256 request digest only. Raw payload retention is prohibited."
+        },
+        {
+          "name": "public.native_execution_contradictions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consent_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.normalized_identity_evidence",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Provider-neutral evidence and raw-payload digest only; no raw identity provider payload or identity document may be retained."
+        },
+        {
+          "name": "public.trust_contracts",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consensus_decision_evidence",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_drift_findings",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Rule-bound drift findings; not an unstructured log and never an authorization authority."
+        },
+        {
+          "name": "public.consensus_conflicts",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entity_native_credentials",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.hopae_verifications",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.native_enforcement_requests",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_explanations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_alert_activity",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Immutable tenant-scoped alert collaboration history for the Enterprise Trust Centre."
+        },
+        {
+          "name": "public.provider_capability_versions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_event_links",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_state_decisions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.agent_permissions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_manual_review_history",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.operational_entity_delegated_action_evaluations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.decisions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.continuous_trust_assessments",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Immutable continuous assessment context linked to the authoritative Trust State decision."
+        },
+        {
+          "name": "public.team_members",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provider_registry",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Governed provider metadata. Secrets remain in deployment configuration and are never stored here."
+        },
+        {
+          "name": "public.account_access_approvals",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_architecture_audit_log",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.ori_reviewer_outcomes",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Immutable attributed reviewer outcomes. Records require governance approval before future dataset eligibility and never trigger online learning."
+        },
+        {
+          "name": "public.verification_cases",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.appeals",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_dimensions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consent_policy_versions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_profiles",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Immutable Trust DNA profiles. Dimensions explain trust; this table is not an authorization authority."
+        },
+        {
+          "name": "public.operational_entity_native_verifications",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_fabric_decisions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.ori_feature_registry",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.system_health_checks",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provider_execution_records",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Target-environment provider execution proof; Live requires a completed real record in the current environment."
+        },
+        {
+          "name": "public.notifications",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.account_access_approval_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.help_questions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_case_relationships",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_score_history",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.native_destination_observations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.interview_risk_signals",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.governance_actions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_graph_nodes",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_signal_processing",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Durable bounded-retry outbox for serverless Continuous Trust processing; it is not an in-process worker queue."
+        },
+        {
+          "name": "public.message_threads",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_assistant_questions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_domain_versions",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Canonical trust-domain schema registry. Registration is not a trust assertion."
+        },
+        {
+          "name": "public.incident_responsibility_roles",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consent_region_profiles",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.webcam_signals",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.verification_signals",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.audit_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provider_change_events",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Provider-governance history attached to affected Operational Entities and controls; it is not a provider registry."
+        },
+        {
+          "name": "public.consensus_policies",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.workspace_members",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.provider_observations",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.ori_model_state_audit",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_manual_overrides",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.consensus_audit_log",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.interview_sessions",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.passports",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.data_rights_requests",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.cookie_consent_receipts",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_graph_events",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.liveness_checks",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.workflow_interventions",
+          "rls_enabled": true,
+          "rows": 0,
+          "comment": "Downstream responses to immutable canonical ALLOW/REVIEW/DENY transactions."
+        },
+        {
+          "name": "public.trust_kpi_snapshots",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_sources",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.trust_certifications",
+          "rls_enabled": true,
+          "rows": 0
+        },
+        {
+          "name": "public.runtime_validation_logs",
+          "rls_enabled": true,
+          "rows": 0
+        }
+      ]
+    },
+    "advisors": {
+      "result": {
+        "lints": [
+          {
+            "name": "function_search_path_mutable",
+            "title": "Function Search Path Mutable",
+            "level": "WARN",
+            "facing": "EXTERNAL",
+            "categories": [
+              "SECURITY"
+            ],
+            "description": "Detects functions where the search_path parameter is not set.",
+            "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable",
+            "count": 1,
+            "findings": [
+              {
+                "detail": "Function \\`public.prevent_cookie_consent_mutation\\` has a role mutable search_path",
+                "metadata": {
+                  "name": "prevent_cookie_consent_mutation",
+                  "type": "function",
+                  "schema": "public"
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              }
+            ]
+          },
+          {
+            "name": "authenticated_security_definer_function_executable",
+            "title": "Signed-In Users Can Execute SECURITY DEFINER Function",
+            "level": "WARN",
+            "facing": "EXTERNAL",
+            "categories": [
+              "SECURITY"
+            ],
+            "description": "Detects `SECURITY DEFINER` functions that are callable by signed-in users. Revoke `EXECUTE`, switch the function to `SECURITY INVOKER`, or move it out of your exposed API schema if signed-in users should not call it.",
+            "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+            "count": 11,
+            "findings": [
+              {
+                "detail": "Function `public.identity_workspace_role(workspace_reference uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/identity_workspace_role`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "identity_workspace_role",
+                  "schema": "public",
+                  "language": "sql",
+                  "arguments": "workspace_reference uuid",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              },
+              {
+                "detail": "Function `public.record_account_access_attempt(p_access_granted boolean)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/record_account_access_attempt`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "record_account_access_attempt",
+                  "schema": "public",
+                  "language": "plpgsql",
+                  "arguments": "p_access_granted boolean",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              },
+              {
+                "detail": "Function `public.security_closure_ai_agent_owner(p_agent_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/security_closure_ai_agent_owner`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "security_closure_ai_agent_owner",
+                  "schema": "public",
+                  "language": "sql",
+                  "arguments": "p_agent_id uuid",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              },
+              {
+                "detail": "Function `public.security_closure_case_owner(p_case_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/security_closure_case_owner`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "security_closure_case_owner",
+                  "schema": "public",
+                  "language": "sql",
+                  "arguments": "p_case_id uuid",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              },
+              {
+                "detail": "Function `public.security_closure_evidence_object_owner(p_object_name text)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/security_closure_evidence_object_owner`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "security_closure_evidence_object_owner",
+                  "schema": "public",
+                  "language": "plpgsql",
+                  "arguments": "p_object_name text",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              },
+              {
+                "detail": "Function `public.security_closure_passport_owner(p_passport_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/security_closure_passport_owner`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "security_closure_passport_owner",
+                  "schema": "public",
+                  "language": "sql",
+                  "arguments": "p_passport_id uuid",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              },
+              {
+                "detail": "Function `public.security_closure_team_member(p_team_id text)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/security_closure_team_member`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "security_closure_team_member",
+                  "schema": "public",
+                  "language": "plpgsql",
+                  "arguments": "p_team_id text",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              },
+              {
+                "detail": "Function `public.security_closure_team_member(p_team_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/security_closure_team_member`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "security_closure_team_member",
+                  "schema": "public",
+                  "language": "sql",
+                  "arguments": "p_team_id uuid",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              },
+              {
+                "detail": "Function `public.security_closure_user_approved()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/security_closure_user_approved`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "security_closure_user_approved",
+                  "schema": "public",
+                  "language": "sql",
+                  "arguments": "",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              },
+              {
+                "detail": "Function `public.user_can_access_trust_workspace(workspace_reference uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/user_can_access_trust_workspace`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "user_can_access_trust_workspace",
+                  "schema": "public",
+                  "language": "sql",
+                  "arguments": "workspace_reference uuid",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              },
+              {
+                "detail": "Function `public.user_has_trust_workspace_role(workspace_reference uuid, allowed_roles text[])` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/user_has_trust_workspace_role`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+                "metadata": {
+                  "name": "user_has_trust_workspace_role",
+                  "schema": "public",
+                  "language": "sql",
+                  "arguments": "workspace_reference uuid, allowed_roles text[]",
+                  "security_definer": true
+                },
+                "observed_at": "2026-11-15T17:46:43.383Z"
+              }
+            ]
+          },
+          {
+            "name": "auth_leaked_password_protection",
+            "title": "Leaked Password Protection Disabled",
+            "level": "WARN",
+            "facing": "EXTERNAL",
+            "categories": [
+              "SECURITY"
+            ],
+            "description": "Leaked password protection is currently disabled.",
+            "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+            "count": 1,
+            "findings": [
+              {
+                "detail": "Supabase Auth prevents the use of compromised passwords by checking against HaveIBeenPwned.org. Enable this feature to enhance security.",
+                "metadata": {
+                  "type": "auth",
+                  "entity": "Auth"
+                }
+              }
+            ]
+          },
+          {
+            "name": "auth_insufficient_mfa_options",
+            "title": "Insufficient MFA Options",
+            "level": "WARN",
+            "facing": "EXTERNAL",
+            "categories": [
+              "SECURITY"
+            ],
+            "description": "This project has too few multi-factor authentication (MFA) options enabled.",
+            "remediation": "https://supabase.com/docs/guides/auth/auth-mfa",
+            "count": 1,
+            "findings": [
+              {
+                "detail": "Your project has too few MFA options enabled, which may weaken account security. Enable more MFA methods to enhance security.",
+                "metadata": {
+                  "type": "auth",
+                  "entity": "Auth"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "production": {
+    "result": {
+      "deployment": {
+        "id": "dpl_HX9XAvn1SB7DQHbFeU3VfhEXit4G",
+        "name": "cyber-sentinels-v2",
+        "url": "cyber-sentinels-v2-mnadxhufo-keith-speres-projects.vercel.app",
+        "type": "LAMBDAS",
+        "state": "READY",
+        "createdAt": 1793787978501,
+        "creator": {
+          "uid": "8s6V9COhAgO8vljOoqTak7gj",
+          "username": "emeaexecutive-9603"
+        },
+        "project": {
+          "id": "prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr",
+          "name": "cyber-sentinels-v2",
+          "framework": "nextjs"
+        },
+        "meta": {},
+        "alias": [],
+        "target": "production",
+        "regions": [
+          "iad1"
+        ],
+        "buildingAt": 1793787979700,
+        "ready": 1793788247335,
+        "readyState": "READY",
+        "source": "cli",
+        "aliasError": null
+      }
+    }
+  }
+}

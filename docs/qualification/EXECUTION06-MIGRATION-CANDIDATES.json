@@ -1,0 +1,70 @@
+{
+  "source": "17055a082112c1c8f134f5132ee97100a68b0cf9",
+  "project": "agpyhygpfmppjkxwcpac",
+  "method": "Source/ledger mismatch candidates only; not a safe migration apply list. Historical mismatches need reconciliation and full predecessor-schema rehearsal.",
+  "latestStagingTimestamp": "20261012122704",
+  "forwardCandidates": [
+    {
+      "path": "supabase/migrations/20261020091324_tenente_swarm_authority_control.sql",
+      "version": "20261020091324",
+      "sha256": "1b146dcbeaada53dfb6267156f6ad6b8c75bef4e77d9d208134342d0d36616de"
+    },
+    {
+      "path": "supabase/migrations/20261020100706_tenente_swarm_projection_recovery.sql",
+      "version": "20261020100706",
+      "sha256": "abf09cb0d567c757d2457b7e0f18deed3bd1bdddc9f14a2a132dffca8757753c"
+    },
+    {
+      "path": "supabase/migrations/20261028230354_single_use_high_consequence_approval.sql",
+      "version": "20261028230354",
+      "sha256": "5790f26db32aef25fa25463a55a053af71692afab682d76412fd7ef096c86353"
+    },
+    {
+      "path": "supabase/migrations/20261104150000_workload_identity_bindings.sql",
+      "version": "20261104150000",
+      "sha256": "631de0ab79619874c4fcb6615348ee2db66b16e07e2a10a991aa2085c97bea6a"
+    },
+    {
+      "path": "supabase/migrations/20261108100241_atomic_native_dispatch.sql",
+      "version": "20261108100241",
+      "sha256": "296814605eaef5705813a65ddfc48f29c45e384a847487696e8df77cf4274238"
+    },
+    {
+      "path": "supabase/migrations/20261112104809_soc_replay_event_types.sql",
+      "version": "20261112104809",
+      "sha256": "80a55ca87255b3b3ef470248bafba751975590a092139c8e5c9d59748751303c"
+    },
+    {
+      "path": "supabase/migrations/20261112141743_soc_model_budget_replay.sql",
+      "version": "20261112141743",
+      "sha256": "ef9d000ffdc3ce226299577896f3b3614a54b017b67fe8d91243d9a50cbe18ee"
+    }
+  ],
+  "historicalMismatches": [
+    {
+      "path": "supabase/migrations/20260819084252_consent_evidence_freshness_repair.sql",
+      "version": "20260819084252",
+      "sha256": "71647ec46a77e808aa20c0675853cf2ad417650b2f062feddc194cae8d066516"
+    },
+    {
+      "path": "supabase/migrations/20260819084329_restrict_evidence_trigger_functions.sql",
+      "version": "20260819084329",
+      "sha256": "6972df0e401167400d31e550b408b596055107f1e45768c48767c4f6ee45a300"
+    },
+    {
+      "path": "supabase/migrations/20260902083450_grant_service_role_api_keys_privileges.sql",
+      "version": "20260902083450",
+      "sha256": "241c17e8ab4f791ab0f96af68758521580f267cc9c1e0aa5f4c5151f0476af2f"
+    },
+    {
+      "path": "supabase/migrations/20260903095127_reconcile_public_api_webhook_event_types.sql",
+      "version": "20260903095127",
+      "sha256": "4af7ca267c60243100f68b2c0505d19e8d4086465fce3ff8b99cf4de66dad6c2"
+    },
+    {
+      "path": "supabase/migrations/20260904113046_normalize_continuous_trust_alert_contract.sql",
+      "version": "20260904113046",
+      "sha256": "c0beea3663ba2123542da5a49cb6359682a687c69410cad8189848bcbbe5d298"
+    }
+  ]
+}
