@@ -1,0 +1,17 @@
+{
+  "status": "ASSET MISSING",
+  "originalKyaPngFound": false,
+  "searched": [
+    "repository public assets",
+    "available user attachments",
+    "tracked PNG names and KYA-named repository files"
+  ],
+  "existingUnrelatedAsset": {
+    "path": "public/cyber-sentinels-hero.png",
+    "sha256": "6498c2d6a2b7dc0d0273e5c5f3bc56574111641760a443375a30c71bee0e5308",
+    "usedAsKyaOriginal": false
+  },
+  "replacementRasterCreated": false,
+  "accessibleTextFlowRetained": true,
+  "fallbackExplicitlyAuthorizedByUser": true
+}

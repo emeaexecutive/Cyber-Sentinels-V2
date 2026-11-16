@@ -1,0 +1,14 @@
+[
+  {
+    "scope": "#know-your-agent",
+    "violations": [],
+    "incomplete": [],
+    "passedRules": 14
+  },
+  {
+    "scope": "header",
+    "violations": [],
+    "incomplete": [],
+    "passedRules": 13
+  }
+]

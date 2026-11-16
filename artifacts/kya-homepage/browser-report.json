@@ -8,12 +8,26 @@
       "status": "PASS",
       "ctas": [
         {
-          "text": "Discuss KYA with us",
-          "href": "/enterprise-access?intent=demo"
+          "text": "Explore KYA",
+          "href": "/#kya-capabilities"
         },
         {
-          "text": "Explore agent authority",
+          "text": "Explore Agent Authority",
           "href": "/platform#agent-authority"
+        }
+      ],
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 14
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13
         }
       ]
     },
@@ -23,12 +37,26 @@
       "status": "PASS",
       "ctas": [
         {
-          "text": "Discuss KYA with us",
-          "href": "/enterprise-access?intent=demo"
+          "text": "Explore KYA",
+          "href": "/#kya-capabilities"
         },
         {
-          "text": "Explore agent authority",
+          "text": "Explore Agent Authority",
           "href": "/platform#agent-authority"
+        }
+      ],
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 14
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13
         }
       ]
     },
@@ -38,12 +66,26 @@
       "status": "PASS",
       "ctas": [
         {
-          "text": "Hablemos de KYA",
-          "href": "/es/enterprise-access?intent=demo"
+          "text": "Explorar KYA",
+          "href": "/es#kya-capabilities"
         },
         {
           "text": "Explorar la autoridad de los agentes",
           "href": "/es/platform#agent-authority"
+        }
+      ],
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 14
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13
         }
       ]
     },
@@ -53,12 +95,26 @@
       "status": "PASS",
       "ctas": [
         {
-          "text": "Hablemos de KYA",
-          "href": "/es/enterprise-access?intent=demo"
+          "text": "Explorar KYA",
+          "href": "/es#kya-capabilities"
         },
         {
           "text": "Explorar la autoridad de los agentes",
           "href": "/es/platform#agent-authority"
+        }
+      ],
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 14
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13
         }
       ]
     }

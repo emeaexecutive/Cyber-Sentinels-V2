@@ -1,29 +1,66 @@
 {
-  "featureSource": "3e3d3e903f84c7a1759a431e592b5099861a0321",
-  "browserCheckerSource": "ab0088745f0352de575178db099470e571c6a4be",
+  "applicationSource": "4dd241f779c6e6a7927bb3a2ae4bea6f5b3d8241",
+  "browserCheckerSource": "c10d1e454bb33c1c54ada41aa35e78ae07adcd48",
   "branch": "feat/kya-homepage-20261116",
-  "status": "PARTIAL_MISSING_REFERENCED_COPY_AND_ORIGINAL_PNG",
+  "verdict": "COMPLETE",
+  "originalPngStatus": "ASSET MISSING",
+  "authorizedFallback": "Accessible text and conceptual flow",
   "checks": {
+    "focusedTestsPassed": 33,
+    "focusedTestsSkipped": 0,
     "typecheckExit": 0,
     "fullLintExit": 0,
-    "changedLintExit": 0,
-    "focusedTests": {
-      "passed": 33,
-      "skipped": 0
-    },
-    "publicSurfaceTests": {
-      "passed": 16,
-      "skipped": 0
-    },
-    "suitesOverlap": true,
     "buildExit": 0,
     "staticPages": 212,
-    "browserCases": 4,
-    "browserPageErrors": 0,
+    "browserCasesPassed": 4,
+    "pageErrors": 0,
+    "accessibilityScopes": 8,
+    "accessibilityViolations": 0,
+    "accessibilityIncomplete": 0,
+    "keyboardCtas": "PASS",
+    "screenshotVisualReview": [
+      "en-1440-section.png",
+      "es-390-section.png"
+    ],
+    "previewStopped": true,
     "hostedWrites": 0,
+    "pushes": 0,
     "deployments": 0
   },
+  "historicalArtifact": "artifacts/kya-homepage/history/es-390-consent-notice-provisional.png",
   "files": [
+    {
+      "path": "docs/qualification/kya-homepage/APPROVED-COPY.md",
+      "sha256": "543f45826558110c3b3d87238cc3ae3e8e8e0d278e6b30f2b2c6756c81e7e137"
+    },
+    {
+      "path": "docs/qualification/kya-homepage/ASSET-STATUS.json",
+      "sha256": "ff6f0f8e8936e2998b817c5ad979ef0fcf1e9917c6df2f65a84b9d971a8e295c"
+    },
+    {
+      "path": "docs/qualification/kya-homepage/logs/kya-approved-browser-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/qualification/kya-homepage/logs/kya-approved-browser.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/qualification/kya-homepage/logs/kya-approved-build.log",
+      "sha256": "7c33d58b184e7b034de7a02dd56c598c12f607ad103726736130d457852da985"
+    },
+    {
+      "path": "docs/qualification/kya-homepage/logs/kya-approved-lint.log",
+      "sha256": "6adfcc9c097b3e042fccae2748838d9c0ea3a88f8bfe7d27399047d040a9d991"
+    },
+    {
+      "path": "docs/qualification/kya-homepage/logs/kya-approved-tests.log",
+      "sha256": "750f3f45efbb6d68b55ed9e709b495ef9e0187453471ef2ba9844e256a9cf6bf"
+    },
+    {
+      "path": "docs/qualification/kya-homepage/logs/kya-approved-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
     {
       "path": "docs/qualification/kya-homepage/logs/kya-browser-canonical-attempt.log",
       "sha256": "b9c91aa4c75aa3d1cd0ff3aae433bbb0ebc1c40887c65518f216522523bbe853"
@@ -74,47 +111,63 @@
     },
     {
       "path": "docs/qualification/kya-homepage/REPORT.md",
-      "sha256": "43b88638f304ad8face43ef8ddde96522569f2c94496858d4c343842e520509b"
+      "sha256": "e90c3772d45154a2a29b3e1747eb9689844855525f39d2a5c914bfe29529f46a"
     },
     {
       "path": "artifacts/kya-homepage/browser-report.json",
-      "sha256": "42951ade2eeaffa5ff7ad20691ee73081d693d8207f2ddd3264f273323f2ce22"
+      "sha256": "3318d1f814e22d51e0d11d22fef86b347ef60c5de234ee64bceebfda0be4f301"
+    },
+    {
+      "path": "artifacts/kya-homepage/en-1440-accessibility.json",
+      "sha256": "81829fd9f67fa75fd7de550561e58f3b140e5a2e3521b788d786914104054e74"
     },
     {
       "path": "artifacts/kya-homepage/en-1440-page.png",
-      "sha256": "64ba871e4fb76136612eba1e4e04936507f578bb6749a918b0ab15504b3287bc"
+      "sha256": "7bc868187fdb1304dfe0ba43c766e7853fd55dfcb1b22c7265c89b92373e733c"
     },
     {
       "path": "artifacts/kya-homepage/en-1440-section.png",
-      "sha256": "0dd7e5b455d71a20b442faf601a2a6b7d2682e8e13838ad422665983e07d849f"
+      "sha256": "62681fe9d9aaa64a1c9e042a8a3d8da950161b1a06136aca3eecf82a65845111"
+    },
+    {
+      "path": "artifacts/kya-homepage/en-390-accessibility.json",
+      "sha256": "81829fd9f67fa75fd7de550561e58f3b140e5a2e3521b788d786914104054e74"
     },
     {
       "path": "artifacts/kya-homepage/en-390-page.png",
-      "sha256": "d8c76f0e340e660dd5c6a063bec91132eedcb6b715b1616b2845ddd615ce7ef9"
+      "sha256": "22b85cb6587b6a76ff73597aceed953d6c06a1d3c07c572887138260e306cdd5"
     },
     {
       "path": "artifacts/kya-homepage/en-390-section.png",
-      "sha256": "c7c12343ee567eabc0b0b3b21cffbded9548e5d17ae92f4883297046a08a407b"
+      "sha256": "c1cf57932edadf7b40d1079c5afd8e36b4b88bc887dcdb247864c35d710918ca"
+    },
+    {
+      "path": "artifacts/kya-homepage/es-1440-accessibility.json",
+      "sha256": "81829fd9f67fa75fd7de550561e58f3b140e5a2e3521b788d786914104054e74"
     },
     {
       "path": "artifacts/kya-homepage/es-1440-page.png",
-      "sha256": "2f1466addbca774b8b9be52b46a22c8c3c83ab20e316629438eb363caf261aac"
+      "sha256": "33b4538919af4d26a4051c1cae9aab802eaeff773d5278a454da33fbbf99c8a0"
     },
     {
       "path": "artifacts/kya-homepage/es-1440-section.png",
-      "sha256": "d9be8e8afa8ec4b059bed0f72685c82b3ccc22f680fe9f769d1c2b54f80fbb4d"
+      "sha256": "3952b5a9cdcc15193ca99c764069b6afcea4bb97b9881b718371a47ff13d08d3"
     },
     {
-      "path": "artifacts/kya-homepage/es-390-consent-notice.png",
-      "sha256": "f2a3076ce8e757229dac8396040f58564e552467ea314f157aa646549219f57f"
+      "path": "artifacts/kya-homepage/es-390-accessibility.json",
+      "sha256": "81829fd9f67fa75fd7de550561e58f3b140e5a2e3521b788d786914104054e74"
     },
     {
       "path": "artifacts/kya-homepage/es-390-page.png",
-      "sha256": "f88b7ceb7be9463d499101b2ffaa6aef0e56bf98cd70d40ac91ef43bc089ba42"
+      "sha256": "423475a0192c6124e0ab84db660608125a588127744a52607b4d2b7e1e2befbc"
     },
     {
       "path": "artifacts/kya-homepage/es-390-section.png",
-      "sha256": "ad61fb50ba724700b82ae31698699bcb7968e54944c2a284d2e086da6909ce53"
+      "sha256": "eaf6fce3beb409297dfd28bd77ddc33ef0c6af82813fe4d60a6ae1f94b363a3d"
+    },
+    {
+      "path": "artifacts/kya-homepage/history/es-390-consent-notice-provisional.png",
+      "sha256": "f2a3076ce8e757229dac8396040f58564e552467ea314f157aa646549219f57f"
     }
   ]
 }
