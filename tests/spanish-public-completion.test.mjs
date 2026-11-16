@@ -9,8 +9,8 @@ const h=harness();
 const {canonicalPublicRoutes}=h.load('lib/navigation/route-visibility.ts');
 const {getPublishedPublicEquivalents}=h.load('lib/i18n/public-locales.ts');
 
-test('all 45 canonical public routes have real Spanish page ownership',()=>{
-  assert.equal(canonicalPublicRoutes.length,45);
+test('all 46 canonical public routes have real Spanish page ownership',()=>{
+  assert.equal(canonicalPublicRoutes.length,46);
   for(const path of canonicalPublicRoutes){
     const es=getPublishedPublicEquivalents(path).es;
     assert.equal(es,`/es${path==='/'?'':path}`);

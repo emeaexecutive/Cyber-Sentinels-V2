@@ -17,6 +17,7 @@ const publishedSpanishPages: Readonly<Partial<Record<CanonicalPublicPath, `/es${
   "/tenente-swarm/river-crossing": "/es/tenente-swarm/river-crossing",
   "/": "/es",
   "/platform": "/es/platform",
+  "/platform/kya": "/es/platform/kya",
   "/pricing": "/es/pricing",
   "/help": "/es/help",
   "/enterprise-access": "/es/enterprise-access",

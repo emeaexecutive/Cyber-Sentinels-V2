@@ -21,9 +21,12 @@ const content = {
     statement: ["KYC verifies the customer.", "KYA verifies the agent.", "Cyber Sentinels verifies the authority to act."],
     closing: "Authority can be delegated. It cannot be invented.™",
     primary: "Explore KYA",
+    pilot: "Request a KYA Pilot",
     secondary: "Explore Agent Authority",
     caption: "Conceptual flow · in development",
-    flow: ["AI Agent Requests Action", "KYA Identity + Delegated Authority", "TENENTE™ Authority Decision", "ALLOW / REVIEW / DENY", "Evidence & Replay"],
+    visualQuestion: "Your AI Agent Has an Identity. But Does It Have Authority?",
+    visualCapabilities: "IDENTIFY · VERIFY · AUTHORISE · ENFORCE · PROVE",
+    flow: ["AI Agent Requests Action", "KYA Identity — Who is acting?", "Delegated Authority — Who authorised it?", "TENENTE™ Authority Decision — Is this action permitted now?", "ALLOW / REVIEW / DENY", "Evidence & Replay"],
     availability: "This describes the developing KYA capability and our intended direction, not Production certification or a guarantee of execution.",
   },
   es: {
@@ -45,17 +48,20 @@ const content = {
     statement: ["KYC verifica al cliente.", "KYA verifica al agente.", "Cyber Sentinels verifica la autoridad para actuar."],
     closing: "La autoridad puede delegarse. No puede inventarse.™",
     primary: "Explorar KYA",
+    pilot: "Solicitar un piloto de KYA",
     secondary: "Explorar la autoridad de los agentes",
     caption: "Flujo conceptual · en desarrollo",
-    flow: ["El agente de IA solicita una acción", "Identidad KYA + autoridad delegada", "Decisión de autoridad de TENENTE™", "ALLOW / REVIEW / DENY", "Pruebas y Replay"],
+    visualQuestion: "Tu agente de IA tiene una identidad. Pero ¿tiene autoridad?",
+    visualCapabilities: "IDENTIFICAR · VERIFICAR · AUTORIZAR · APLICAR CONTROLES · DEMOSTRAR",
+    flow: ["El agente de IA solicita una acción", "Identidad KYA — ¿Quién está actuando?", "Autoridad delegada — ¿Quién lo autorizó?", "Decisión de autoridad de TENENTE™ — ¿Está permitida esta acción ahora?", "ALLOW / REVIEW / DENY", "Pruebas y Replay"],
     availability: "Esta descripción presenta la capacidad KYA en desarrollo y nuestra orientación prevista, no una certificación para producción ni una garantía de ejecución.",
   },
 } as const;
 
-export function KyaHomepageSection({ locale }: { locale: PublicLocale }) {
+export function KyaHomepageSection({ locale, landing = false }: { locale: PublicLocale; landing?: boolean }) {
   const copy = content[locale];
-  const home = locale === "es" ? "/es" : "/";
   const prefix = locale === "es" ? "/es" : "";
+  const Heading = landing ? "h1" : "h2";
   return (
     <section id="know-your-agent" aria-labelledby="kya-heading" className="scroll-mt-28 border-y border-zinc-800 bg-[#070b12]">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
@@ -66,24 +72,29 @@ export function KyaHomepageSection({ locale }: { locale: PublicLocale }) {
               <span className="rounded-full border border-amber-400/30 px-3 py-1 text-xs font-medium text-amber-200">{copy.status}</span>
             </div>
             <p className="mt-3 text-sm font-medium text-zinc-300">{copy.subtitle}</p>
-            <h2 id="kya-heading" className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">{copy.headline}</h2>
+            <Heading id="kya-heading" className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl">{landing ? copy.visualQuestion : copy.headline}</Heading>
+            {landing ? <p className="mt-5 text-lg font-medium leading-8 text-white">{copy.headline}</p> : null}
             <p className="mt-5 text-base leading-8 text-zinc-300">{copy.context}</p>
             <p className="mt-4 text-base font-semibold leading-7 text-white">{copy.boundary}</p>
             <p className="mt-4 text-base leading-8 text-zinc-300">{copy.development}</p>
             <p className="mt-4 text-sm leading-7 text-zinc-400">{copy.vision}</p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link href={`${home}#kya-capabilities`} className="brand-primary-action">{copy.primary}</Link>
+              <Link href={landing ? `${prefix}/enterprise-access?intent=pilot` : `${prefix}/platform/kya`} className="brand-primary-action">{landing ? copy.pilot : copy.primary}</Link>
               <Link href={`${prefix}/platform#agent-authority`} className="brand-secondary-action">{copy.secondary}</Link>
             </div>
           </div>
           <figure className="min-w-0 rounded-2xl border border-cyan-900/60 bg-[#04070c] p-5 sm:p-7">
-            <figcaption className="text-xs leading-6 text-zinc-400">{copy.caption}</figcaption>
-            <ol className="mt-6 space-y-0">
+            <figcaption>
+              <span className="block text-xs font-semibold tracking-widest text-cyan-300">CYBER SENTINELS KYA™</span>
+              <span className="mt-4 block text-xl font-semibold leading-8 text-white">{copy.visualQuestion}</span>
+              <span className="mt-3 block text-xs leading-6 text-zinc-400">{copy.caption}</span>
+            </figcaption>
+            <p className="mt-5 text-xs font-semibold leading-6 tracking-wide text-cyan-300">{copy.visualCapabilities}</p>
+            <ol className="mt-6 space-y-3">
               {copy.flow.map((step, index) => (
-                <li key={step} className="relative border-l border-cyan-800 pb-7 pl-6 last:pb-0">
-                  <span aria-hidden="true" className="absolute -left-[5px] top-2 h-2 w-2 rounded-full bg-cyan-300" />
-                  <p className="text-[0.65rem] tracking-widest text-cyan-300">0{index + 1}</p>
-                  <p className="mt-2 text-base font-semibold leading-7 text-white">{step}</p>
+                <li key={step} className="text-center">
+                  <p className="text-sm font-semibold leading-7 text-white">{step}</p>
+                  {index < copy.flow.length - 1 ? <span aria-hidden="true" className="mt-2 block text-xl text-cyan-300">↓</span> : null}
                 </li>
               ))}
             </ol>
