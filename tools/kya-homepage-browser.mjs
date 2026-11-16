@@ -18,6 +18,7 @@ try {
     const response = await page.goto(origin + path, { waitUntil: 'domcontentloaded', timeout: 90000 });
     assert.equal(response.status(), 200);
     await page.locator('#kya-heading').waitFor();
+    await page.evaluate(() => document.fonts.ready);
     assert.equal(await page.locator('html').getAttribute('lang'), locale);
     assert.match(await page.title(), /KYA/);
     assert.equal(new URL(await page.locator('link[rel="canonical"]').getAttribute('href')).href, new URL(path, 'https://www.cybersentinels.com').href);
