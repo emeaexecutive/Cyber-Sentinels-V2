@@ -25,7 +25,7 @@ test('EN/ES recovery form preserves locale, validates and handles security-code 
         if (u.pathname === '/form.js') return route.fulfill({ contentType: 'application/javascript', body: bundle.outputFiles[0].text });
         if (u.pathname === '/api/auth/password-reset/complete') {
           calls++;
-          return route.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ ok: false, code: 'REAUTHENTICATION_REQUIRED', error: 'Enter the security code we sent to your email.' }) });
+          return route.fulfill({ status: calls === 1 ? 409 : 503, contentType: 'application/json', body: JSON.stringify(calls === 1 ? { ok: false, code: 'REAUTHENTICATION_REQUIRED', error: 'Enter the security code we sent to your email.' } : { ok: false, code: 'RECOVERY_SIGN_OUT_FAILED', error: 'Password updated, but sign out could not complete. Please try signing out again.' }) });
         }
         return route.fulfill({ contentType: 'text/html', body: '<html><body style="background:#04070c;color:white"><main style="max-width:450px;margin:auto;padding:16px"><div id="root"></div></main><script src="/form.js"></script></body></html>' });
       });
@@ -41,6 +41,10 @@ test('EN/ES recovery form preserves locale, validates and handles security-code 
       await page.getByRole('button', { name: es ? 'Actualizar contraseña' : 'Update password', exact: true }).click();
       await page.getByLabel(es ? 'Código de seguridad' : 'Security code').waitFor();
       assert.equal(calls, 1);
+      await page.getByLabel(es ? 'Código de seguridad' : 'Security code').fill('123456');
+      await page.getByRole('button', { name: es ? 'Actualizar contraseña' : 'Update password', exact: true }).click();
+      await page.getByRole('alert').filter({ hasText: es ? 'La contraseña se ha actualizado, pero no se pudo cerrar la sesión.' : 'Password updated, but sign out could not complete.' }).waitFor();
+      assert.equal(calls, 2);
       assert.equal(await page.locator('html').getAttribute('lang'), locale);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
       await page.screenshot({ path: `artifacts/execution06-account/${locale}-${width}.png`, fullPage: true });

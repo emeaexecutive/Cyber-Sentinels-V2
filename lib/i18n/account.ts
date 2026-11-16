@@ -47,7 +47,9 @@ export const accountCopy = {
   "nonceInvalid": "That security code is invalid or expired.",
   "nonceFailed": "We couldn't send a security code. Please request a new password reset email.",
   "failure": "We couldn't update your password. Request a new reset link and try again.",
-  "unverified": "Request could not be verified."
+  "unverified": "Request could not be verified.",
+  "weakPassword": "Choose a stronger password and try again.",
+  "signOutIncomplete": "Password updated, but sign out could not complete. Please try signing out again."
 },
  es: {
   "accessTitle": "Revisión de acceso",
@@ -86,6 +88,8 @@ export const accountCopy = {
   "nonceInvalid": "El código de seguridad no es válido o ha caducado.",
   "nonceFailed": "No pudimos enviar el código de seguridad. Solicita un correo de restablecimiento nuevo.",
   "failure": "No pudimos actualizar tu contraseña. Solicita un enlace nuevo e inténtalo de nuevo.",
-  "unverified": "No se pudo verificar la solicitud."
+  "unverified": "No se pudo verificar la solicitud.",
+  "weakPassword": "Elige una contraseña más segura e inténtalo de nuevo.",
+  "signOutIncomplete": "La contraseña se ha actualizado, pero no se pudo cerrar la sesión. Intenta cerrar la sesión de nuevo."
 }
-} satisfies Record<AccountLocale, Record<"accessTitle" | "accessLabel" | "organization" | "reason" | "signOut" | "PENDING" | "REJECTED" | "DENIED" | "SUSPENDED" | "REVOKED" | "unknownAccess" | "expiredTitle" | "expiredBody" | "requestLink" | "newTitle" | "newPassword" | "confirmPassword" | "showPassword" | "hidePassword" | "showConfirm" | "hideConfirm" | "show" | "hide" | "securityCode" | "updating" | "update" | "success" | "successBody" | "continue" | "minimum" | "singleUse" | "mismatch" | "nonceNeeded" | "nonceInvalid" | "nonceFailed" | "failure" | "unverified", string>>;
+} satisfies Record<AccountLocale, Record<"accessTitle" | "accessLabel" | "organization" | "reason" | "signOut" | "PENDING" | "REJECTED" | "DENIED" | "SUSPENDED" | "REVOKED" | "unknownAccess" | "expiredTitle" | "expiredBody" | "requestLink" | "newTitle" | "newPassword" | "confirmPassword" | "showPassword" | "hidePassword" | "showConfirm" | "hideConfirm" | "show" | "hide" | "securityCode" | "updating" | "update" | "success" | "successBody" | "continue" | "minimum" | "singleUse" | "mismatch" | "nonceNeeded" | "nonceInvalid" | "nonceFailed" | "failure" | "unverified" | "weakPassword" | "signOutIncomplete", string>>;

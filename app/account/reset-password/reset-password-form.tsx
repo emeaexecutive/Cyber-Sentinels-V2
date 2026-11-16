@@ -60,7 +60,7 @@ export function ResetPasswordForm({ locale = "en" }: { locale?: AccountLocale } 
         if (result.code === "REAUTHENTICATION_REQUIRED") {
           setNeedsNonce(true);
         }
-        const errors: Record<string, string> = { WEAK_PASSWORD: copy.minimum.replace("{minimum}", String(PASSWORD_MIN_LENGTH)), PASSWORD_MISMATCH: copy.mismatch, REAUTHENTICATION_REQUIRED: copy.nonceNeeded, REAUTHENTICATION_INVALID: copy.nonceInvalid, REAUTHENTICATION_FAILED: copy.nonceFailed, RECOVERY_SESSION_INVALID: copy.expiredTitle, WRONG_ORIGIN: copy.unverified };
+        const errors: Record<string, string> = { WEAK_PASSWORD: copy.weakPassword, RECOVERY_SIGN_OUT_FAILED: copy.signOutIncomplete, PASSWORD_MISMATCH: copy.mismatch, REAUTHENTICATION_REQUIRED: copy.nonceNeeded, REAUTHENTICATION_INVALID: copy.nonceInvalid, REAUTHENTICATION_FAILED: copy.nonceFailed, RECOVERY_SESSION_INVALID: copy.expiredTitle, WRONG_ORIGIN: copy.unverified };
         setMessage(locale === "en" ? result.error || copy.failure : errors[result.code ?? ""] || copy.failure);
         return;
       }
