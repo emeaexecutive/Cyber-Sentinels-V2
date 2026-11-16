@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import { createRequire } from 'node:module';
 
 const origin = process.env.KYA_PREVIEW_ORIGIN ?? 'http://127.0.0.1:3137';
 assert.match(origin, /^http:\/\/(127\.0\.0\.1|localhost):\d+$/);
 const out = 'artifacts/kya-homepage';
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch({ headless: true });
+const require = createRequire(import.meta.url);
 const report = { origin, scope: 'Actual local Next website; no hosted Auth, SQL, forms submitted or provider execution', cases: [], errors: [] };
 try {
   for (const locale of ['en', 'es']) for (const width of [390, 1440]) {
@@ -33,6 +35,23 @@ try {
     const section = page.locator('#know-your-agent');
     assert.equal(await section.count(), 1);
     assert.match(await section.innerText(), locale === 'es' ? /En desarrollo/ : /In development/);
+    assert.equal(await section.locator('figure ol > li').count(), 5);
+    assert.equal(await section.locator('dl dt').count(), 5);
+    assert.equal(await section.getAttribute('aria-labelledby'), 'kya-heading');
+    assert.equal(await section.locator('#kya-heading').evaluate(e => e.tagName), 'H2');
+    await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
+    const accessibility = [];
+    for (const selector of ['#know-your-agent', 'header']) {
+      if (selector === 'header' && width === 390) await page.getByRole('button', { name: locale === 'es' ? 'Abrir menú' : 'Open menu', exact: true }).click();
+      const result = await page.evaluate(async selector => {
+        const result = await window.axe.run(document.querySelector(selector), { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } });
+        return { scope: selector, violations: result.violations, incomplete: result.incomplete, passedRules: result.passes.length };
+      }, selector);
+      accessibility.push(result);
+      await writeFile(`${out}/${locale}-${width}-accessibility.json`, JSON.stringify(accessibility, null, 2) + '\n');
+      assert.deepEqual(result.violations, [], `${locale} ${width} accessibility ${selector}`);
+      if (selector === 'header' && width === 390) await page.getByRole('button', { name: locale === 'es' ? 'Cerrar menú' : 'Close', exact: true }).click();
+    }
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({ path: `${out}/${locale}-${width}-section.png` });
@@ -40,15 +59,18 @@ try {
     await page.screenshot({ path: `${out}/${locale}-${width}-page.png`, fullPage: true });
     const links = await section.locator('a').evaluateAll(a => a.map(x => ({ text: x.textContent, href: x.getAttribute('href') })));
     for (const link of links) {
-      await section.getByRole('link', { name: link.text, exact: true }).click();
+      const control = section.getByRole('link', { name: link.text, exact: true });
+      await control.focus();
+      assert.equal(await control.evaluate(e => document.activeElement === e), true);
+      await page.keyboard.press('Enter');
       await page.waitForURL(u => u.pathname + u.search + u.hash === link.href);
       await page.locator('main h1').first().waitFor();
       if (link.href.includes('#agent-authority')) assert.equal(await page.locator('#agent-authority').count(), 1);
-      if (link.href.includes('enterprise-access')) assert.ok(await page.locator('form').count() > 0);
+      if (link.href.includes('#kya-capabilities')) assert.equal(await page.locator('#kya-capabilities dl dt').count(), 5);
       await page.goto(origin + path + '#know-your-agent', { waitUntil: 'domcontentloaded' });
       await page.locator('#kya-heading').waitFor();
     }
-    report.cases.push({ locale, width, status: 'PASS', ctas: links });
+    report.cases.push({ locale, width, status: 'PASS', ctas: links, accessibility });
     await page.close();
   }
   assert.deepEqual(report.errors, []);
