@@ -1,0 +1,282 @@
+[
+  {
+    "cmd": "SELECT",
+    "qual": "(((tenant_id IS NOT NULL) AND user_can_access_trust_workspace(tenant_id)) OR ((tenant_id IS NULL) AND ((owner_user_id IS NULL) OR (owner_user_id = auth.uid())) AND ((user_id IS NULL) OR (user_id = auth.uid())) AND ((user_email IS NULL) OR (lower(user_email) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((owner_user_id IS NOT NULL) OR (user_id IS NOT NULL) OR (user_email IS NOT NULL))))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "api_keys",
+    "permissive": "PERMISSIVE",
+    "policyname": "api keys owner read",
+    "schemaname": "public",
+    "with_check": null,
+    "new_qual": "(((tenant_id IS NOT NULL) AND user_can_access_trust_workspace(tenant_id)) OR ((tenant_id IS NULL) AND ((owner_user_id IS NULL) OR (owner_user_id = auth.uid())) AND ((user_id IS NULL) OR (user_id = auth.uid())) AND ((user_email IS NULL) OR (lower(user_email) = session_security.current_ownership_email())) AND ((owner_user_id IS NOT NULL) OR (user_id IS NOT NULL) OR (user_email IS NOT NULL))))",
+    "new_check": null
+  },
+  {
+    "cmd": "INSERT",
+    "qual": null,
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "audit_logs",
+    "permissive": "PERMISSIVE",
+    "policyname": "audit logs owner insert",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, actor, (metadata ->> 'actor'::text), ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)))",
+    "new_qual": null,
+    "new_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, actor, (metadata ->> 'actor'::text), ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)))"
+  },
+  {
+    "cmd": "SELECT",
+    "qual": "((lower(COALESCE(owner_email, actor, (metadata ->> 'actor'::text), ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "audit_logs",
+    "permissive": "PERMISSIVE",
+    "policyname": "audit logs owner read",
+    "schemaname": "public",
+    "with_check": null,
+    "new_qual": "((lower(COALESCE(owner_email, actor, (metadata ->> 'actor'::text), ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id))",
+    "new_check": null
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(created_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "autonomy_profiles",
+    "permissive": "PERMISSIVE",
+    "policyname": "autonomy profiles creator access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(created_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))))",
+    "new_qual": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(created_by, ''::text)) = session_security.current_ownership_email()))",
+    "new_check": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(created_by, ''::text)) = session_security.current_ownership_email()))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((auth.uid() IS NOT NULL) AND ((requester_user_id IS NULL) OR (requester_user_id = auth.uid())) AND ((requester_email IS NULL) OR (lower(requester_email) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((requester_user_id IS NOT NULL) OR (requester_email IS NOT NULL)))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "data_rights_requests",
+    "permissive": "PERMISSIVE",
+    "policyname": "data rights requester access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((requester_user_id IS NULL) OR (requester_user_id = auth.uid())) AND ((requester_email IS NULL) OR (lower(requester_email) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((requester_user_id IS NOT NULL) OR (requester_email IS NOT NULL)))",
+    "new_qual": "((auth.uid() IS NOT NULL) AND ((requester_user_id IS NULL) OR (requester_user_id = auth.uid())) AND ((requester_email IS NULL) OR (lower(requester_email) = session_security.current_ownership_email())) AND ((requester_user_id IS NOT NULL) OR (requester_email IS NOT NULL)))",
+    "new_check": "((auth.uid() IS NOT NULL) AND ((requester_user_id IS NULL) OR (requester_user_id = auth.uid())) AND ((requester_email IS NULL) OR (lower(requester_email) = session_security.current_ownership_email())) AND ((requester_user_id IS NOT NULL) OR (requester_email IS NOT NULL)))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((lower(COALESCE(owner_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id) OR security_closure_case_owner(COALESCE(verification_case_id, case_id)) OR security_closure_passport_owner(passport_id))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "decisions",
+    "permissive": "PERMISSIVE",
+    "policyname": "decisions owner access",
+    "schemaname": "public",
+    "with_check": "(((lower(COALESCE(owner_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id) OR security_closure_case_owner(COALESCE(verification_case_id, case_id)) OR security_closure_passport_owner(passport_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)) AND ((COALESCE(verification_case_id, case_id) IS NULL) OR security_closure_case_owner(COALESCE(verification_case_id, case_id))) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))",
+    "new_qual": "((lower(COALESCE(owner_email, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id) OR security_closure_case_owner(COALESCE(verification_case_id, case_id)) OR security_closure_passport_owner(passport_id))",
+    "new_check": "(((lower(COALESCE(owner_email, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id) OR security_closure_case_owner(COALESCE(verification_case_id, case_id)) OR security_closure_passport_owner(passport_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)) AND ((COALESCE(verification_case_id, case_id) IS NULL) OR security_closure_case_owner(COALESCE(verification_case_id, case_id))) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))"
+  },
+  {
+    "cmd": "SELECT",
+    "qual": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(work_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "enterprise_access_requests",
+    "permissive": "PERMISSIVE",
+    "policyname": "enterprise requests read own submission",
+    "schemaname": "public",
+    "with_check": null,
+    "new_qual": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(work_email, ''::text)) = session_security.current_ownership_email()))",
+    "new_check": null
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((lower(COALESCE(owner_email, uploaded_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id) OR security_closure_case_owner(verification_case_id) OR security_closure_passport_owner(passport_id))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "evidence_files",
+    "permissive": "PERMISSIVE",
+    "policyname": "evidence files owner access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, uploaded_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id) OR security_closure_case_owner(verification_case_id) OR security_closure_passport_owner(passport_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)) AND ((verification_case_id IS NULL) OR security_closure_case_owner(verification_case_id)) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))",
+    "new_qual": "((lower(COALESCE(owner_email, uploaded_by, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id) OR security_closure_case_owner(verification_case_id) OR security_closure_passport_owner(passport_id))",
+    "new_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, uploaded_by, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id) OR security_closure_case_owner(verification_case_id) OR security_closure_passport_owner(passport_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)) AND ((verification_case_id IS NULL) OR security_closure_case_owner(verification_case_id)) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((lower(COALESCE(created_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_passport_owner(passport_id))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "execution_passports",
+    "permissive": "PERMISSIVE",
+    "policyname": "execution passports owner access",
+    "schemaname": "public",
+    "with_check": "(((lower(COALESCE(created_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_passport_owner(passport_id)) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))",
+    "new_qual": "((lower(COALESCE(created_by, ''::text)) = session_security.current_ownership_email()) OR security_closure_passport_owner(passport_id))",
+    "new_check": "(((lower(COALESCE(created_by, ''::text)) = session_security.current_ownership_email()) OR security_closure_passport_owner(passport_id)) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((auth.uid() IS NOT NULL) AND ((submitted_by_user_id IS NULL) OR (submitted_by_user_id = auth.uid())) AND ((submitted_by_email IS NULL) OR (lower(submitted_by_email) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((submitted_by_user_id IS NOT NULL) OR (submitted_by_email IS NOT NULL)))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "feedback_reports",
+    "permissive": "PERMISSIVE",
+    "policyname": "feedback submitter access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((submitted_by_user_id IS NULL) OR (submitted_by_user_id = auth.uid())) AND ((submitted_by_email IS NULL) OR (lower(submitted_by_email) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((submitted_by_user_id IS NOT NULL) OR (submitted_by_email IS NOT NULL)))",
+    "new_qual": "((auth.uid() IS NOT NULL) AND ((submitted_by_user_id IS NULL) OR (submitted_by_user_id = auth.uid())) AND ((submitted_by_email IS NULL) OR (lower(submitted_by_email) = session_security.current_ownership_email())) AND ((submitted_by_user_id IS NOT NULL) OR (submitted_by_email IS NOT NULL)))",
+    "new_check": "((auth.uid() IS NOT NULL) AND ((submitted_by_user_id IS NULL) OR (submitted_by_user_id = auth.uid())) AND ((submitted_by_email IS NULL) OR (lower(submitted_by_email) = session_security.current_ownership_email())) AND ((submitted_by_user_id IS NOT NULL) OR (submitted_by_email IS NOT NULL)))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((auth.uid() IS NOT NULL) AND ((created_by_user_id IS NULL) OR (created_by_user_id = auth.uid())) AND ((created_by_email IS NULL) OR (lower(created_by_email) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((created_by IS NULL) OR (lower(created_by) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((created_by_user_id IS NOT NULL) OR (created_by_email IS NOT NULL) OR (created_by IS NOT NULL)))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "help_questions",
+    "permissive": "PERMISSIVE",
+    "policyname": "help question author access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((created_by_user_id IS NULL) OR (created_by_user_id = auth.uid())) AND ((created_by_email IS NULL) OR (lower(created_by_email) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((created_by IS NULL) OR (lower(created_by) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((created_by_user_id IS NOT NULL) OR (created_by_email IS NOT NULL) OR (created_by IS NOT NULL)))",
+    "new_qual": "((auth.uid() IS NOT NULL) AND ((created_by_user_id IS NULL) OR (created_by_user_id = auth.uid())) AND ((created_by_email IS NULL) OR (lower(created_by_email) = session_security.current_ownership_email())) AND ((created_by IS NULL) OR (lower(created_by) = session_security.current_ownership_email())) AND ((created_by_user_id IS NOT NULL) OR (created_by_email IS NOT NULL) OR (created_by IS NOT NULL)))",
+    "new_check": "((auth.uid() IS NOT NULL) AND ((created_by_user_id IS NULL) OR (created_by_user_id = auth.uid())) AND ((created_by_email IS NULL) OR (lower(created_by_email) = session_security.current_ownership_email())) AND ((created_by IS NULL) OR (lower(created_by) = session_security.current_ownership_email())) AND ((created_by_user_id IS NOT NULL) OR (created_by_email IS NOT NULL) OR (created_by IS NOT NULL)))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(created_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "intent_requests",
+    "permissive": "PERMISSIVE",
+    "policyname": "intent requests creator access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(created_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))))",
+    "new_qual": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(created_by, ''::text)) = session_security.current_ownership_email()))",
+    "new_check": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(created_by, ''::text)) = session_security.current_ownership_email()))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((lower(COALESCE(created_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_passport_owner(passport_id))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "passport_state_checks",
+    "permissive": "PERMISSIVE",
+    "policyname": "passport state checks owner access",
+    "schemaname": "public",
+    "with_check": "(((lower(COALESCE(created_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_passport_owner(passport_id)) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))",
+    "new_qual": "((lower(COALESCE(created_by, ''::text)) = session_security.current_ownership_email()) OR security_closure_passport_owner(passport_id))",
+    "new_check": "(((lower(COALESCE(created_by, ''::text)) = session_security.current_ownership_email()) OR security_closure_passport_owner(passport_id)) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((lower(COALESCE(owner_email, user_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "passports",
+    "permissive": "PERMISSIVE",
+    "policyname": "passports owner access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, user_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)))",
+    "new_qual": "((lower(COALESCE(owner_email, user_email, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id))",
+    "new_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, user_email, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((lower(COALESCE(created_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR user_can_access_trust_workspace(enterprise_id))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "provenance_events",
+    "permissive": "PERMISSIVE",
+    "policyname": "provenance events tenant access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(created_by, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR user_can_access_trust_workspace(enterprise_id)) AND ((enterprise_id IS NULL) OR user_can_access_trust_workspace(enterprise_id)))",
+    "new_qual": "((lower(COALESCE(created_by, ''::text)) = session_security.current_ownership_email()) OR user_can_access_trust_workspace(enterprise_id))",
+    "new_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(created_by, ''::text)) = session_security.current_ownership_email()) OR user_can_access_trust_workspace(enterprise_id)) AND ((enterprise_id IS NULL) OR user_can_access_trust_workspace(enterprise_id)))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((lower(COALESCE(owner_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "signals",
+    "permissive": "PERMISSIVE",
+    "policyname": "signals owner access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)))",
+    "new_qual": "((lower(COALESCE(owner_email, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id))",
+    "new_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)))"
+  },
+  {
+    "cmd": "SELECT",
+    "qual": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(member_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "team_members",
+    "permissive": "PERMISSIVE",
+    "policyname": "team members read own membership",
+    "schemaname": "public",
+    "with_check": null,
+    "new_qual": "((auth.uid() IS NOT NULL) AND (lower(COALESCE(member_email, ''::text)) = session_security.current_ownership_email()))",
+    "new_check": null
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((auth.uid() IS NOT NULL) AND ((asked_by_user_id IS NULL) OR (asked_by_user_id = auth.uid())) AND ((asked_by_email IS NULL) OR (lower(asked_by_email) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((asked_by_user_id IS NOT NULL) OR (asked_by_email IS NOT NULL)))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "trust_assistant_questions",
+    "permissive": "PERMISSIVE",
+    "policyname": "trust assistant question author access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((asked_by_user_id IS NULL) OR (asked_by_user_id = auth.uid())) AND ((asked_by_email IS NULL) OR (lower(asked_by_email) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))) AND ((asked_by_user_id IS NOT NULL) OR (asked_by_email IS NOT NULL)))",
+    "new_qual": "((auth.uid() IS NOT NULL) AND ((asked_by_user_id IS NULL) OR (asked_by_user_id = auth.uid())) AND ((asked_by_email IS NULL) OR (lower(asked_by_email) = session_security.current_ownership_email())) AND ((asked_by_user_id IS NOT NULL) OR (asked_by_email IS NOT NULL)))",
+    "new_check": "((auth.uid() IS NOT NULL) AND ((asked_by_user_id IS NULL) OR (asked_by_user_id = auth.uid())) AND ((asked_by_email IS NULL) OR (lower(asked_by_email) = session_security.current_ownership_email())) AND ((asked_by_user_id IS NOT NULL) OR (asked_by_email IS NOT NULL)))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((lower(COALESCE(owner_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "trust_reports",
+    "permissive": "PERMISSIVE",
+    "policyname": "trust reports owner access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))",
+    "new_qual": "((lower(COALESCE(owner_email, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id))",
+    "new_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))"
+  },
+  {
+    "cmd": "ALL",
+    "qual": "((lower(COALESCE(owner_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id) OR security_closure_passport_owner(passport_id))",
+    "roles": [
+      "authenticated"
+    ],
+    "tablename": "verification_cases",
+    "permissive": "PERMISSIVE",
+    "policyname": "verification cases owner access",
+    "schemaname": "public",
+    "with_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, ''::text)) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text))) OR security_closure_team_member(team_id) OR security_closure_passport_owner(passport_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))",
+    "new_qual": "((lower(COALESCE(owner_email, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id) OR security_closure_passport_owner(passport_id))",
+    "new_check": "((auth.uid() IS NOT NULL) AND ((lower(COALESCE(owner_email, ''::text)) = session_security.current_ownership_email()) OR security_closure_team_member(team_id) OR security_closure_passport_owner(passport_id)) AND ((team_id IS NULL) OR security_closure_team_member(team_id)) AND ((passport_id IS NULL) OR security_closure_passport_owner(passport_id)))"
+  }
+]

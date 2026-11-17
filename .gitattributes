@@ -7,3 +7,6 @@ artifacts/execution06-staging-inspection/** -text
 docs/qualification/execution06b/** -text
 docs/qualification/execution07/** -text
 artifacts/execution07/** -text
+docs/qualification/EXECUTION07-*.md -text
+supabase/migrations/20261117135536_fail_closed_email_ownership.sql text eol=lf
+tests/fixtures/ownership-email-baseline.sql text eol=lf

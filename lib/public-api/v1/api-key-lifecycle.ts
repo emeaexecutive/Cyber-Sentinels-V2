@@ -29,8 +29,14 @@ export function validateApiKeyRecord(
   if (!row.tenant_id || !row.client_id || !row.created_by) {
     throw new PublicApiError("API_KEY_NOT_TENANT_BOUND", "The API key is not configured for public API access.", 403);
   }
+  // The server-created owner is authoritative. Legacy owner columns must not
+  // contradict it when a privileged client authenticates the stored key.
+  const createdBy = String(row.created_by);
+  if ([row.owner_user_id, row.user_id].some((owner) => owner != null && String(owner) !== createdBy)) {
+    throw new PublicApiError("API_KEY_NOT_TENANT_BOUND", "The API key ownership binding is inconsistent.", 403);
+  }
   return {
     scopes,
-    createdBy: String(row.created_by ?? row.owner_user_id ?? row.user_id),
+    createdBy,
   };
 }
