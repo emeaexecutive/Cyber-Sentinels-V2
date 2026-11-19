@@ -133,21 +133,23 @@ export function getPublicSupabaseEnv(context: string) {
     );
   }
 
+  const publicKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string).trim();
+  let privileged = publicKey.startsWith("sb_secret_");
+  try {
+    const payload = publicKey.split(".")[1];
+    if (payload) {
+      const claims = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+      privileged ||= claims.role === "service_role";
+    }
+  } catch {
+    // Credential validity is checked by Supabase. This guard only rejects a
+    // recognizable privileged credential accidentally placed in a public slot.
+  }
+  if (privileged) throw new Error("Privileged Supabase credential forbidden in browser configuration.");
+
   return {
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
-  };
-}
-
-export function getServiceRoleEnv(context: string) {
-  assertEnv({
-    context,
-    names: ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
-  });
-
-  return {
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY as string,
+    supabaseAnonKey: publicKey,
   };
 }
 

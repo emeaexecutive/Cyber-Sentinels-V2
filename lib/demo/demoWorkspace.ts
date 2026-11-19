@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getServiceRoleEnv } from "@/lib/env";
+import { getServiceRoleEnv } from "@/lib/env.server";
 
 export const demoWorkspaceSlug = "cyber-sentinels-demo-workspace";
 export const demoMetadata = {

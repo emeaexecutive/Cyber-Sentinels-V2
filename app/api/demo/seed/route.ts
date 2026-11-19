@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { generateDemoWorkflow } from "@/lib/demo/demoWorkspace";
-import { getServiceRoleEnv } from "@/lib/env";
+import { getServiceRoleEnv } from "@/lib/env.server";
 
 const DEMO_ACTOR = "demo-lab";
 

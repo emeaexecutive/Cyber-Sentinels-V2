@@ -29,6 +29,13 @@ export function publicApiEnvironmentMetadata(env: NodeJS.ProcessEnv = process.en
     return { valid: false as const, state: "CONFIGURATION_INVALID" as const, reasonCode: "NON_PRODUCTION_ORIGIN_POINTS_TO_PRODUCTION", name, origin: origin.origin };
   }
   if (["test", "staging"].includes(name) && /\.vercel\.app$/i.test(origin.hostname)) {
+    // This exact opt-in target is a qualification URL, not a customer contract.
+    if (name === "staging" && stagingControlPlaneQualificationEnabled(env)
+      && env.VERCEL_ENV === "preview"
+      && env.VERCEL_PROJECT_ID === "prj_nLXKcloPF9ZUBsiGAkyVWOJe1OOk"
+      && origin.origin === "https://cyber-sentinels-pr58-acceptance.vercel.app") {
+      return { valid: true as const, state: "CONFIGURED" as const, reasonCode: "CONTROLLED_PREVIEW_QUALIFICATION", name: "staging" as const, origin: origin.origin, qualificationOnly: true as const };
+    }
     return { valid: false as const, state: "CONFIGURATION_INVALID" as const, reasonCode: "PREVIEW_ORIGIN_IS_NOT_STABLE_CUSTOMER_CONTRACT", name, origin: origin.origin };
   }
   if (name === "staging" && origin.origin !== "https://staging.cybersentinels.com") {

@@ -3,6 +3,7 @@
   "framework": "nextjs",
   "git": {
     "deploymentEnabled": {
+      "release/execution14-preview-safe": false,
       "main": false,
       "feat/authority-of-record-tenente": false,
       "feat/execution-proof-provider-qualification": false,

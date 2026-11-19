@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { getServiceRoleEnv } from "@/lib/env";
+import { getServiceRoleEnv } from "@/lib/env.server";
 
 // Auth only, after application Siteverify. Supabase exempts the server admin
 // credential from its own CAPTCHA check, avoiding consuming a token twice.
