@@ -20,6 +20,7 @@ type CookieToSet = {
 };
 
 const userPagePrefixes = [
+  "/tenente",
   "/agents",
   "/billing",
   "/clearances",
@@ -63,6 +64,7 @@ const userPagePrefixes = [
 ];
 
 const protectedUserApiPrefixes = [
+  "/api/tenente",
   "/api/agents",
   "/api/appeals",
   "/api/billing",
@@ -292,10 +294,13 @@ function redirectTo(req: NextRequest, path: string) {
   return preventIndexing(NextResponse.redirect(new URL(path, req.url)));
 }
 
-function protectedSurfaceUnavailable() {
-  return preventIndexing(
-    new NextResponse("Protected surface unavailable.", { status: 503 })
+function protectedSurfaceUnavailable(req?: NextRequest) {
+  const spanish = req && (req.nextUrl.searchParams.get("lang")?.toLowerCase() === "es" || req.nextUrl.pathname === "/es" || req.nextUrl.pathname.startsWith("/es/"));
+  const response = preventIndexing(
+    new NextResponse(spanish ? "Superficie protegida no disponible." : "Protected surface unavailable.", { status: 503 })
   );
+  response.headers.set("Content-Language", spanish ? "es" : "en");
+  return response;
 }
 
 export async function middleware(req: NextRequest) {
@@ -324,13 +329,10 @@ export async function middleware(req: NextRequest) {
   const recoveryMutation = ["/api/auth/password-reset/request", "/api/auth/password-reset/complete", "/api/auth/logout"].includes(pathname);
   if (!isRecoveryWorkflowPath(pathname) || (!["GET", "HEAD"].includes(req.method) && !recoveryMutation)) {
     let recovery = req.cookies.has(PASSWORD_RECOVERY_COOKIE);
-    // Only this route verifies a separately pinned workload issuer. Cookies still
-    // undergo recovery quarantine; a Supabase bearer cannot pass workload auth.
-    const workloadDecision = req.method === "POST" && /^\/api\/v1\/workloads\/[^/]+\/decisions$/.test(pathname);
-    const bearer = workloadDecision ? undefined : req.headers.get("authorization")?.match(/^Bearer (ey[^ ]+\.[^ ]+\.[^ ]+)$/i)?.[1];
+    const bearer = req.headers.get("authorization")?.match(/^Bearer (ey[^ ]+\.[^ ]+\.[^ ]+)$/i)?.[1];
     const hasSessionCookie = req.cookies.getAll().some(({ name }) => name.startsWith("sb-") && name.includes("auth-token") && !name.includes("code-verifier"));
     if (bearer || hasSessionCookie) {
-      if (!hasPublicSupabaseEnv()) return protectedSurfaceUnavailable();
+      if (!hasPublicSupabaseEnv()) return protectedSurfaceUnavailable(req);
       const env = getPublicSupabaseEnv("recovery quarantine");
       const auth = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
         cookies: {
@@ -345,7 +347,7 @@ export async function middleware(req: NextRequest) {
       try {
         const cookieResult = hasSessionCookie ? await auth.auth.getClaims() : null;
         const bearerResult = bearer ? await auth.auth.getClaims(bearer) : null;
-        if (cookieResult?.error || bearerResult?.error) return finish(protectedSurfaceUnavailable());
+        if (cookieResult?.error || bearerResult?.error) return finish(protectedSurfaceUnavailable(req));
         recovery = isPasswordRecoverySession(cookieResult?.data?.claims) ||
           isPasswordRecoverySession(bearerResult?.data?.claims) ||
           (recovery && !cookieResult?.data?.claims);
@@ -355,7 +357,7 @@ export async function middleware(req: NextRequest) {
             refreshedCookies.push({ name: PASSWORD_RECOVERY_COOKIE, value: "", options: { path: "/", maxAge: 0 } });
           }
         }
-      } catch { return finish(protectedSurfaceUnavailable()); }
+      } catch { return finish(protectedSurfaceUnavailable(req)); }
     }
     if (recovery) {
       return finish(pathname.startsWith("/api/")
@@ -397,14 +399,14 @@ async function applicationMiddleware(req: NextRequest) {
   }
 
   if (!hasPublicSupabaseEnv()) {
-    return protectedSurfaceUnavailable();
+    return protectedSurfaceUnavailable(req);
   }
 
   let supabaseEnv;
   try {
     supabaseEnv = getPublicSupabaseEnv("middleware Supabase client");
   } catch {
-    return protectedSurfaceUnavailable();
+    return protectedSurfaceUnavailable(req);
   }
 
   let response = NextResponse.next({
@@ -485,7 +487,7 @@ async function applicationMiddleware(req: NextRequest) {
       console.error("User access approval lookup failed.", {
         code: approvalError.code,
       });
-      return protectedSurfaceUnavailable();
+      return protectedSurfaceUnavailable(req);
     }
 
     const approved = approval?.status === "APPROVED";
@@ -498,7 +500,7 @@ async function applicationMiddleware(req: NextRequest) {
       console.error("User access approval audit failed.", {
         code: accessAuditError.code,
       });
-      return protectedSurfaceUnavailable();
+      return protectedSurfaceUnavailable(req);
     }
 
     if (!approved) {
