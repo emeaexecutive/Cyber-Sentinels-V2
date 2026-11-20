@@ -8,7 +8,8 @@
       "feat/execution-proof-provider-qualification": false,
       "feat/real-provider-qualification": false,
       "fix/login-security-check": false,
-      "feat/tenente-swarm-authority-control": false
+      "feat/tenente-swarm-authority-control": false,
+      "codex/governed-soc-runtime-20261112": false
     }
   },
   "cleanUrls": true,
