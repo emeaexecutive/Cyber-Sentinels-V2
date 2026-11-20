@@ -22,7 +22,7 @@ test("preference dialog has labelled semantics, contained focus, scroll lock, an
   assert.match(manager, /aria-describedby="consent-preferences-description"/);
   assert.match(preferences, /id="consent-preferences-heading"/);
   assert.match(preferences, /id="consent-preferences-description"/);
-  assert.match(manager, /aria-label="Close cookie preferences"/);
+  assert.match(manager, /aria-label=\{consentText\(locale, "closePreferences", "Close cookie preferences"\)\}/);
   assert.match(manager, /event\.key === "Escape"/);
   assert.match(manager, /event\.key !== "Tab"/);
   assert.match(manager, /document\.body\.style\.overflow = "hidden"/);
