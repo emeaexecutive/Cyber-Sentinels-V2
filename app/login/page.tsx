@@ -617,8 +617,8 @@ export default function LoginPage() {
             {turnstileSiteKey ? (
               <div className="mt-5">
                 <TurnstileField
-                  action="signup"
                   siteKey={turnstileSiteKey}
+                  action={authMode === "forgot-password" ? "password_reset" : "auth"}
                   onTokenChange={handleTurnstileToken}
                   onErrorChange={(error) => {
                     if (error) showSecurityFailure(error);
@@ -728,9 +728,9 @@ export default function LoginPage() {
 
               {turnstileSiteKey ? (
                 <TurnstileField
-                  action={authMode === "create-account" ? "signup" : authMode === "forgot-password" ? "password_reset" : "login"}
                   siteKey={turnstileSiteKey}
                   onTokenChange={handleTurnstileToken}
+                  action={authMode === "forgot-password" ? "password_reset" : "auth"}
                   onErrorChange={(error) => {
                     if (error) showSecurityFailure(error);
                   }}

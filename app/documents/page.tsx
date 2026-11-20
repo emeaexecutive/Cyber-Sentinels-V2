@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -68,5 +69,5 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Documents and Technical Resources | Cyber Sentinels", "Read the Cyber Sentinels technical whitepaper and resources on agent identity, authority, execution trust, decisions and audit evidence.", "/documents"),
   title: "Documents and Technical Resources | Cyber Sentinels",
   description: "Read the Cyber Sentinels technical whitepaper and resources on agent identity, authority, execution trust, decisions and audit evidence.",
-  alternates: { canonical: "/documents" },
+  alternates: publicPageAlternates("/documents"),
 };

@@ -1,0 +1,2175 @@
+{
+  "origin": "http://127.0.0.1:3137",
+  "scope": "Actual local Next homepage and KYA landing; no hosted Auth/SQL, pilot form submission or provider execution",
+  "cases": [
+    {
+      "path": "/",
+      "locale": "en",
+      "width": 390,
+      "landing": false,
+      "status": "PASS",
+      "image": {
+        "naturalWidth": 390,
+        "naturalHeight": 390,
+        "width": 358,
+        "height": 358,
+        "fit": "contain",
+        "alt": "Conceptual KYA trust flow: an agent requests an action; identity and delegated authority inform the TENENTE decision: ALLOW, REVIEW or DENY, followed by Evidence and Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
+      "ctas": [
+        {
+          "text": "Explore KYA",
+          "href": "/platform/kya"
+        },
+        {
+          "text": "Explore Agent Authority",
+          "href": "/platform#agent-authority"
+        }
+      ],
+      "fragmentRepeatChecks": 0,
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "impact": "serious",
+              "tags": [
+                "cat.color",
+                "wcag2aa",
+                "wcag143",
+                "TTv5",
+                "TT13.c",
+                "EN-301-549",
+                "EN-9.1.4.3",
+                "ACT",
+                "RGAAv4",
+                "RGAA-3.2.1"
+              ],
+              "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "help": "Elements must meet minimum color contrast ratio thresholds",
+              "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI",
+              "nodes": [
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(1) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(2) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(3) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(4) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(5) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                }
+              ]
+            }
+          ],
+          "passedRules": 18,
+          "manualReview": [
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(1) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(2) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(3) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(4) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(5) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            }
+          ]
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13,
+          "manualReview": []
+        }
+      ]
+    },
+    {
+      "path": "/platform/kya",
+      "locale": "en",
+      "width": 390,
+      "landing": true,
+      "status": "PASS",
+      "image": {
+        "naturalWidth": 390,
+        "naturalHeight": 390,
+        "width": 358,
+        "height": 358,
+        "fit": "contain",
+        "alt": "Conceptual KYA trust flow: an agent requests an action; identity and delegated authority inform the TENENTE decision: ALLOW, REVIEW or DENY, followed by Evidence and Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
+      "ctas": [
+        {
+          "text": "Request a KYA Pilot",
+          "href": "/enterprise-access?intent=pilot"
+        },
+        {
+          "text": "Explore Agent Authority",
+          "href": "/platform#agent-authority"
+        }
+      ],
+      "fragmentRepeatChecks": 0,
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "impact": "serious",
+              "tags": [
+                "cat.color",
+                "wcag2aa",
+                "wcag143",
+                "TTv5",
+                "TT13.c",
+                "EN-301-549",
+                "EN-9.1.4.3",
+                "ACT",
+                "RGAAv4",
+                "RGAA-3.2.1"
+              ],
+              "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "help": "Elements must meet minimum color contrast ratio thresholds",
+              "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI",
+              "nodes": [
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(1) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(2) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(3) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(4) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(5) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                }
+              ]
+            }
+          ],
+          "passedRules": 18,
+          "manualReview": [
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(1) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(2) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(3) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(4) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(5) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            }
+          ]
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13,
+          "manualReview": []
+        }
+      ]
+    },
+    {
+      "path": "/",
+      "locale": "en",
+      "width": 1440,
+      "landing": false,
+      "status": "PASS",
+      "image": {
+        "naturalWidth": 1024,
+        "naturalHeight": 1024,
+        "width": 1024,
+        "height": 1024,
+        "fit": "contain",
+        "alt": "Conceptual KYA trust flow: an agent requests an action; identity and delegated authority inform the TENENTE decision: ALLOW, REVIEW or DENY, followed by Evidence and Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
+      "ctas": [
+        {
+          "text": "Explore KYA",
+          "href": "/platform/kya"
+        },
+        {
+          "text": "Explore Agent Authority",
+          "href": "/platform#agent-authority"
+        }
+      ],
+      "fragmentRepeatChecks": 0,
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "impact": "serious",
+              "tags": [
+                "cat.color",
+                "wcag2aa",
+                "wcag143",
+                "TTv5",
+                "TT13.c",
+                "EN-301-549",
+                "EN-9.1.4.3",
+                "ACT",
+                "RGAAv4",
+                "RGAA-3.2.1"
+              ],
+              "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "help": "Elements must meet minimum color contrast ratio thresholds",
+              "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI",
+              "nodes": [
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(1) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(2) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(3) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(4) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(5) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                }
+              ]
+            }
+          ],
+          "passedRules": 18,
+          "manualReview": [
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(1) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(2) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(3) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(4) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(5) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            }
+          ]
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13,
+          "manualReview": []
+        }
+      ]
+    },
+    {
+      "path": "/platform/kya",
+      "locale": "en",
+      "width": 1440,
+      "landing": true,
+      "status": "PASS",
+      "image": {
+        "naturalWidth": 1024,
+        "naturalHeight": 1024,
+        "width": 1024,
+        "height": 1024,
+        "fit": "contain",
+        "alt": "Conceptual KYA trust flow: an agent requests an action; identity and delegated authority inform the TENENTE decision: ALLOW, REVIEW or DENY, followed by Evidence and Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
+      "ctas": [
+        {
+          "text": "Request a KYA Pilot",
+          "href": "/enterprise-access?intent=pilot"
+        },
+        {
+          "text": "Explore Agent Authority",
+          "href": "/platform#agent-authority"
+        }
+      ],
+      "fragmentRepeatChecks": 0,
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "impact": "serious",
+              "tags": [
+                "cat.color",
+                "wcag2aa",
+                "wcag143",
+                "TTv5",
+                "TT13.c",
+                "EN-301-549",
+                "EN-9.1.4.3",
+                "ACT",
+                "RGAAv4",
+                "RGAA-3.2.1"
+              ],
+              "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "help": "Elements must meet minimum color contrast ratio thresholds",
+              "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI",
+              "nodes": [
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(1) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(2) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(3) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(4) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(5) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                }
+              ]
+            }
+          ],
+          "passedRules": 18,
+          "manualReview": [
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(1) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(2) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(3) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(4) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(5) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            }
+          ]
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13,
+          "manualReview": []
+        }
+      ]
+    },
+    {
+      "path": "/es",
+      "locale": "es",
+      "width": 390,
+      "landing": false,
+      "status": "PASS",
+      "image": {
+        "naturalWidth": 390,
+        "naturalHeight": 390,
+        "width": 358,
+        "height": 358,
+        "fit": "contain",
+        "alt": "Diagrama conceptual KYA en inglés: un agente solicita una acción; la identidad y la autoridad delegada informan la decisión de TENENTE: ALLOW, REVIEW o DENY, con pruebas y Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
+      "ctas": [
+        {
+          "text": "Explorar KYA",
+          "href": "/es/platform/kya"
+        },
+        {
+          "text": "Explorar la autoridad de los agentes",
+          "href": "/es/platform#agent-authority"
+        }
+      ],
+      "fragmentRepeatChecks": 0,
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "impact": "serious",
+              "tags": [
+                "cat.color",
+                "wcag2aa",
+                "wcag143",
+                "TTv5",
+                "TT13.c",
+                "EN-301-549",
+                "EN-9.1.4.3",
+                "ACT",
+                "RGAAv4",
+                "RGAA-3.2.1"
+              ],
+              "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "help": "Elements must meet minimum color contrast ratio thresholds",
+              "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI",
+              "nodes": [
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(1) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(2) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(3) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(4) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(5) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                }
+              ]
+            }
+          ],
+          "passedRules": 18,
+          "manualReview": [
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(1) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(2) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(3) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(4) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(5) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            }
+          ]
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13,
+          "manualReview": []
+        }
+      ]
+    },
+    {
+      "path": "/es/platform/kya",
+      "locale": "es",
+      "width": 390,
+      "landing": true,
+      "status": "PASS",
+      "image": {
+        "naturalWidth": 390,
+        "naturalHeight": 390,
+        "width": 358,
+        "height": 358,
+        "fit": "contain",
+        "alt": "Diagrama conceptual KYA en inglés: un agente solicita una acción; la identidad y la autoridad delegada informan la decisión de TENENTE: ALLOW, REVIEW o DENY, con pruebas y Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
+      "ctas": [
+        {
+          "text": "Solicitar un piloto de KYA",
+          "href": "/es/enterprise-access?intent=pilot"
+        },
+        {
+          "text": "Explorar la autoridad de los agentes",
+          "href": "/es/platform#agent-authority"
+        }
+      ],
+      "fragmentRepeatChecks": 5,
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "impact": "serious",
+              "tags": [
+                "cat.color",
+                "wcag2aa",
+                "wcag143",
+                "TTv5",
+                "TT13.c",
+                "EN-301-549",
+                "EN-9.1.4.3",
+                "ACT",
+                "RGAAv4",
+                "RGAA-3.2.1"
+              ],
+              "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "help": "Elements must meet minimum color contrast ratio thresholds",
+              "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI",
+              "nodes": [
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(1) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(2) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(3) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(4) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(5) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                }
+              ]
+            }
+          ],
+          "passedRules": 18,
+          "manualReview": [
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(1) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(2) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(3) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(4) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(5) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            }
+          ]
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13,
+          "manualReview": []
+        }
+      ]
+    },
+    {
+      "path": "/es",
+      "locale": "es",
+      "width": 1440,
+      "landing": false,
+      "status": "PASS",
+      "image": {
+        "naturalWidth": 1024,
+        "naturalHeight": 1024,
+        "width": 1024,
+        "height": 1024,
+        "fit": "contain",
+        "alt": "Diagrama conceptual KYA en inglés: un agente solicita una acción; la identidad y la autoridad delegada informan la decisión de TENENTE: ALLOW, REVIEW o DENY, con pruebas y Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
+      "ctas": [
+        {
+          "text": "Explorar KYA",
+          "href": "/es/platform/kya"
+        },
+        {
+          "text": "Explorar la autoridad de los agentes",
+          "href": "/es/platform#agent-authority"
+        }
+      ],
+      "fragmentRepeatChecks": 0,
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "impact": "serious",
+              "tags": [
+                "cat.color",
+                "wcag2aa",
+                "wcag143",
+                "TTv5",
+                "TT13.c",
+                "EN-301-549",
+                "EN-9.1.4.3",
+                "ACT",
+                "RGAAv4",
+                "RGAA-3.2.1"
+              ],
+              "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "help": "Elements must meet minimum color contrast ratio thresholds",
+              "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI",
+              "nodes": [
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(1) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(2) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(3) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(4) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    ".text-center:nth-child(5) > .block.text-xl[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                }
+              ]
+            }
+          ],
+          "passedRules": 18,
+          "manualReview": [
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(1) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(2) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(3) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(4) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                ".text-center:nth-child(5) > .block.text-xl[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            }
+          ]
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13,
+          "manualReview": []
+        }
+      ]
+    },
+    {
+      "path": "/es/platform/kya",
+      "locale": "es",
+      "width": 1440,
+      "landing": true,
+      "status": "PASS",
+      "image": {
+        "naturalWidth": 1024,
+        "naturalHeight": 1024,
+        "width": 1024,
+        "height": 1024,
+        "fit": "contain",
+        "alt": "Diagrama conceptual KYA en inglés: un agente solicita una acción; la identidad y la autoridad delegada informan la decisión de TENENTE: ALLOW, REVIEW o DENY, con pruebas y Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
+      "ctas": [
+        {
+          "text": "Solicitar un piloto de KYA",
+          "href": "/es/enterprise-access?intent=pilot"
+        },
+        {
+          "text": "Explorar la autoridad de los agentes",
+          "href": "/es/platform#agent-authority"
+        }
+      ],
+      "fragmentRepeatChecks": 0,
+      "accessibility": [
+        {
+          "scope": "#know-your-agent",
+          "violations": [],
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "impact": "serious",
+              "tags": [
+                "cat.color",
+                "wcag2aa",
+                "wcag143",
+                "TTv5",
+                "TT13.c",
+                "EN-301-549",
+                "EN-9.1.4.3",
+                "ACT",
+                "RGAAv4",
+                "RGAA-3.2.1"
+              ],
+              "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+              "help": "Elements must meet minimum color contrast ratio thresholds",
+              "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI",
+              "nodes": [
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(1) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(2) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(3) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(4) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                },
+                {
+                  "any": [
+                    {
+                      "id": "color-contrast",
+                      "data": {
+                        "messageKey": "nonBmp"
+                      },
+                      "relatedNodes": [],
+                      "impact": "serious",
+                      "message": "Element content contains only non-text characters"
+                    }
+                  ],
+                  "all": [],
+                  "none": [],
+                  "impact": "serious",
+                  "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+                  "target": [
+                    "li:nth-child(5) > .text-xl.block[aria-hidden=\"true\"]"
+                  ],
+                  "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+                }
+              ]
+            }
+          ],
+          "passedRules": 18,
+          "manualReview": [
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(1) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(2) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(3) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(4) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            },
+            {
+              "rule": "color-contrast",
+              "target": [
+                "li:nth-child(5) > .text-xl.block[aria-hidden=\"true\"]"
+              ],
+              "foreground": [
+                103,
+                232,
+                249
+              ],
+              "background": [
+                4,
+                7,
+                12
+              ],
+              "contrastRatio": 13.91851881442053,
+              "threshold": 4.5,
+              "result": "PASS",
+              "method": "Rendered computed colors; raw axe glyph finding retained"
+            }
+          ]
+        },
+        {
+          "scope": "header",
+          "violations": [],
+          "incomplete": [],
+          "passedRules": 13,
+          "manualReview": []
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

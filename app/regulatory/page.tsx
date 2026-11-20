@@ -1,13 +1,15 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
-  ...publicSocialMetadata("Regulatory | Cyber Sentinels", "Governance-aware regulatory information for Cyber Sentinels operational trust workflows.", "/regulatory"),
+  robots: { index: false, follow: true },
+  ...publicSocialMetadata("Regulatory | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/regulatory"),
   title: "Regulatory | Cyber Sentinels",
-  description: "Governance-aware regulatory information for Cyber Sentinels operational trust workflows.",
-  alternates: { canonical: "/regulatory" },
+  description: "Publication status: this page is under review; an approved version has not been published.",
+  alternates: publicPageAlternates("/regulatory"),
 };
 
 export default function RegulatoryPage() {

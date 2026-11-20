@@ -102,7 +102,7 @@ function cookieRequest(receipt: LocalConsentReceipt) {
   };
 }
 
-export function ConsentManager({ preferencePage = false }: { preferencePage?: boolean }) {
+export function ConsentManager({ preferencePage = false }: { preferencePage?: boolean; locale?: "en" | "es" }) {
   const pathname = usePathname();
   const locale = useConsentLocale(pathname);
   const [choices, setChoices] = useState<ConsentChoices>(strictConsentChoices);
@@ -352,7 +352,7 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
           className="absolute right-3 top-3 z-10 flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-zinc-600 bg-zinc-950 text-xl leading-none text-zinc-100 shadow-md hover:border-cyan-400 hover:text-white sm:right-4 sm:top-4"
           onClick={() => setManaging(false)}
         >
-          <span aria-hidden="true">×</span>
+          <span aria-hidden="true">Ã—</span>
         </button>
         <div className="overscroll-contain overflow-y-auto p-4 sm:p-6">
           {status}
@@ -364,6 +364,6 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
     </div>
   );
   if (showConsentBanner) return <ConsentBanner state={saving ? "saving" : "open"} error={error} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onManage={() => setManaging(true)}/>;
-  if (savedToast) return <aside data-notice="preferences-saved" className="pointer-events-none fixed bottom-4 right-4 z-[90] max-w-sm rounded-xl border border-cyan-900 bg-[#071018] p-4 text-sm text-cyan-50 shadow-xl" role="status" aria-live="polite"><p>{syncStatus === "synced" ? consentText(locale, "savedSynced", "Privacy choice saved and receipt persisted.") : syncStatus === "failed_terminal" ? consentText(locale, "savedLocallyUnavailable", "Privacy choice stored locally. Receipt persistence is temporarily unavailable.") : syncStatus === "rejected" ? consentText(locale, "savedLocallyRejected", "Privacy choice stored locally, but the server rejected its receipt.") : consentText(locale, "savedPending", "Privacy choice stored locally. Receipt synchronisation is pending.")}</p>{locale === "es" ? <button type="button" className="pointer-events-auto mt-3 min-h-11 rounded px-2 font-semibold underline" onClick={() => setSavedToast(null)} aria-label="Cerrar la notificación de preferencias guardadas">Cerrar</button> : <button type="button" className="pointer-events-auto mt-3 min-h-11 rounded px-2 font-semibold underline" onClick={() => setSavedToast(null)} aria-label="Dismiss saved preferences notification">Dismiss</button>}</aside>;
+  if (savedToast) return <aside data-notice="preferences-saved" className="pointer-events-none fixed bottom-4 right-4 z-[90] max-w-sm rounded-xl border border-cyan-900 bg-[#071018] p-4 text-sm text-cyan-50 shadow-xl" role="status" aria-live="polite"><p>{syncStatus === "synced" ? consentText(locale, "savedSynced", "Privacy choice saved and receipt persisted.") : syncStatus === "failed_terminal" ? consentText(locale, "savedLocallyUnavailable", "Privacy choice stored locally. Receipt persistence is temporarily unavailable.") : syncStatus === "rejected" ? consentText(locale, "savedLocallyRejected", "Privacy choice stored locally, but the server rejected its receipt.") : consentText(locale, "savedPending", "Privacy choice stored locally. Receipt synchronisation is pending.")}</p>{locale === "es" ? <button type="button" className="pointer-events-auto mt-3 min-h-11 rounded px-2 font-semibold underline" onClick={() => setSavedToast(null)} aria-label="Cerrar la notificaciÃ³n de preferencias guardadas">Cerrar</button> : <button type="button" className="pointer-events-auto mt-3 min-h-11 rounded px-2 font-semibold underline" onClick={() => setSavedToast(null)} aria-label="Dismiss saved preferences notification">Dismiss</button>}</aside>;
   return <span hidden data-state={syncStatus} />;
 }

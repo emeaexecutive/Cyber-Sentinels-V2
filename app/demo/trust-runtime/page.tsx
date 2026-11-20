@@ -1,3 +1,5 @@
+import { hasPublicSupabaseEnv } from "@/lib/env";
+import { AuthUnavailable } from "@/components/auth-unavailable";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -19,6 +21,7 @@ function values(value: unknown) {
 }
 
 export default async function TrustRuntimeDemoPage({ searchParams }: { searchParams: Promise<{ entityId?: string }> }) {
+  if (!hasPublicSupabaseEnv()) return <AuthUnavailable />;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/demo/trust-runtime");

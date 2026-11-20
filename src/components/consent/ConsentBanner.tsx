@@ -5,7 +5,7 @@ import { consentText, useConsentLocale } from "@/src/lib/consent/localization";
 
 const equalAction = "min-h-12 w-full rounded-lg border border-cyan-700 bg-cyan-950/50 px-5 py-3 text-sm font-semibold text-cyan-50 hover:bg-cyan-900/60 sm:w-auto";
 
-export function ConsentBanner({ state, error, onAcceptAll, onRejectOptional, onManage }: { state: "open" | "saving"; error?: string | null; onAcceptAll: () => void; onRejectOptional: () => void; onManage: () => void }) {
+export function ConsentBanner({ state, error, onAcceptAll, onRejectOptional, onManage }: { locale?: "en" | "es"; state: "open" | "saving"; error?: string | null; onAcceptAll: () => void; onRejectOptional: () => void; onManage: () => void }) {
   const busy = state === "saving";
   const locale = useConsentLocale();
   const dialog = useRef<HTMLDivElement>(null); const returnFocus = useRef<HTMLElement | null>(null);

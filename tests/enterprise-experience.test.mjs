@@ -161,7 +161,8 @@ test("purpose-built Enterprise routes avoid the hydration-shifting public adopti
   assert.match(rail, /purposeBuiltAdoptionRoutes/);
   assert.match(rail, /"\/enterprise\/buyer-documentation"/);
   assert.match(rail, /"\/enterprise\/pilot-checklist"/);
-  assert.match(rail, /purposeBuiltAdoptionRoutes\.has\(pathname\)/);
+  assert.match(rail, /getSpanishSourcePath\(pathname\) \?\? pathname/);
+  assert.match(rail, /purposeBuiltAdoptionRoutes\.has\(sourcePath\)/);
 });
 
 test("public navigation avoids protected Enterprise routes and footer discovery includes both resources", async () => {

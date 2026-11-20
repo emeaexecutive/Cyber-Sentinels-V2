@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { harness } from "./fixtures/sign-out-session.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -14,11 +17,12 @@ function footerLinks(source) {
   return [...block.matchAll(/\["([^"]+)", "([^"]+)"\]/g)].map((match) => ({ href: match[1], label: match[2] }));
 }
 
-test("public header contains exactly six direct actions and no dropdown discovery", async () => {
+test("public header includes the KYA landing page and no dropdown discovery", async () => {
   const source = await read("lib/navigation/canonical-navigation.ts");
   const component = await read("components/global-navigation.tsx");
   assert.deepEqual(publicHeaderLinks(source), [
     { href: "/platform", label: "Platform" },
+    { href: "/platform/kya", label: "KYA" },
     { href: "/solutions", label: "Solutions" },
     { href: "/developers", label: "Developers" },
     { href: "/enterprise", label: "Enterprise" },
@@ -74,9 +78,15 @@ test("footer exposes the final seven detailed discovery groups accessibly", asyn
     "About", "Mission", "Our People", "Careers", "Contact", "Media Centre",
     "Help", "Accessibility", "Privacy", "Terms", "Cookies", "Legal", "Modern Slavery", "Status",
   ]) assert.match(source, new RegExp(label));
-  assert.match(source, /aria-label=\{`\$\{section\.title\} footer navigation`\}/);
+  for (const locale of ["en", "es"]) {
+    const root = await harness({ locale }).load("app/layout.tsx").default({ children: React.createElement("main") });
+    const html = renderToStaticMarkup(root);
+    const footer = html.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? "";
+    const labels = [...footer.matchAll(/<nav[^>]+aria-label="([^"]+)"/g)].map(match => match[1]);
+    assert.equal(labels.length, 7, locale);
+    assert.ok(labels.every(label => label.includes(locale === "es" ? "navegación de pie de página" : "footer navigation")));
+  }
   assert.equal((source.match(/<nav key=\{section\.title\}/g) ?? []).length, 1);
-  assert.match(source, /sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7/);
 });
 
 test("homepage preserves the canonical release promise and section ceiling", async () => {

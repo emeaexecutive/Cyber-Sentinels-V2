@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "updated_at": "2026-10-20",
+  "controls": {
+    "external_spend_usd": 0,
+    "external_posting_authorized": false,
+    "indexing_requests_authorized": false,
+    "founder_approval_required": true
+  },
+  "items": [
+    {
+      "id": "what-is-ai-agent-authority",
+      "question": "What is AI agent authority?",
+      "title": "What Is AI Agent Authority? | Cyber Sentinels",
+      "meta_description": "Learn how AI agent identity differs from delegated authority, and why permission must match each action, purpose and policy.",
+      "draft_path": "docs/gtm/drafts/what-is-ai-agent-authority.md",
+      "internal_links": ["/platform", "/developers"],
+      "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
+      "founder_approval_required": true,
+      "published": false
+    },
+    {
+      "id": "zero-trust-execution-controls",
+      "question": "Why do AI agents need Zero Trust execution controls?",
+      "title": "Zero Trust Execution Controls for AI Agents",
+      "meta_description": "See why agent actions need current, least-privilege authorization at the point of execution—not only a one-time identity check.",
+      "draft_path": "docs/gtm/drafts/zero-trust-execution-controls.md",
+      "internal_links": ["/platform", "/trust"],
+      "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
+      "founder_approval_required": true,
+      "published": false
+    },
+    {
+      "id": "agent-acts-without-permission",
+      "question": "What happens when an AI agent acts without permission?",
+      "title": "When an AI Agent Acts Without Permission",
+      "meta_description": "A practical response starts by containing the action, preserving evidence, checking downstream effects and restoring appropriate authority.",
+      "draft_path": "docs/gtm/drafts/agent-acts-without-permission.md",
+      "internal_links": ["/platform", "/verification-replay"],
+      "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
+      "founder_approval_required": true,
+      "published": false
+    },
+    {
+      "id": "agent-identity-vs-authority",
+      "question": "How is AI agent identity different from AI agent authority?",
+      "title": "AI Agent Identity vs Authority",
+      "meta_description": "Identity answers who or what is acting; authority answers which actions are permitted, for what purpose and under which policy.",
+      "draft_path": "docs/gtm/drafts/agent-identity-vs-authority.md",
+      "internal_links": ["/developers", "/platform"],
+      "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
+      "founder_approval_required": true,
+      "published": false
+    },
+    {
+      "id": "mcp-tool-authorization",
+      "question": "Who authorizes an AI agent's MCP tool call?",
+      "title": "MCP Security: Who Authorises the Tool Call?",
+      "meta_description": "MCP tool availability is not action authority. Learn the questions teams should answer before an agent can affect a target.",
+      "draft_path": "docs/gtm/drafts/mcp-tool-authorization.md",
+      "internal_links": ["/platform", "/developers"],
+      "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
+      "founder_approval_required": true,
+      "published": false
+    },
+    {
+      "id": "evidence-receipts-replay",
+      "question": "How do evidence, receipts and Replay support AI accountability?",
+      "title": "Evidence and Replay for AI Accountability",
+      "meta_description": "Understand how decision evidence can help teams review an AI action without confusing an authorization record with proof of execution.",
+      "draft_path": "docs/gtm/drafts/evidence-receipts-replay.md",
+      "internal_links": ["/verification-replay", "/trust"],
+      "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
+      "founder_approval_required": true,
+      "published": false
+    },
+    {
+      "id": "contain-autonomous-agent-swarm",
+      "question": "How can an organisation contain an autonomous agent swarm?",
+      "title": "How to Contain an Autonomous Agent Swarm",
+      "meta_description": "Plan layered containment around authority, tool boundaries, provider credentials, evidence and tested human response—not a promised remote kill switch.",
+      "draft_path": "docs/gtm/drafts/contain-autonomous-agent-swarm.md",
+      "internal_links": ["/platform", "/trust"],
+      "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
+      "founder_approval_required": true,
+      "published": false
+    },
+    {
+      "id": "cyber-sentinels-tenente-story",
+      "question": "What is the story behind Cyber Sentinels and TENENTE?",
+      "title": "Cyber Sentinels and TENENTE: Our Story",
+      "meta_description": "Built in Aragón, the TENENTE story connects watchfulness, guardianship and the need for accountable authority in an agentic world.",
+      "draft_path": "docs/gtm/drafts/cyber-sentinels-tenente-story.md",
+      "internal_links": ["/about", "/platform"],
+      "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
+      "founder_approval_required": true,
+      "published": false
+    }
+  ]
+}

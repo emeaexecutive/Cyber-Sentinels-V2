@@ -35,6 +35,7 @@ export function PrivacyPageContent() {
             </Link>
           ))}
         </div>
+        <p role="status" className="mt-8 text-sm text-amber-100">{spanish ? "El aviso de privacidad está en revisión. Todavía no se ha publicado una versión aprobada." : "The privacy notice is under review. An approved version has not been published."}</p>
         <section className="mt-10 grid gap-5 rounded-xl border border-zinc-800 bg-black p-6">
           <h2 className="text-2xl font-semibold">{spanish ? "Principios de privacidad" : "Privacy principles"}</h2>
           <p className="text-sm leading-7 text-zinc-400">

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 import test from "node:test";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { harness } from "./fixtures/sign-out-session.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -44,9 +47,12 @@ test("Documents library and HTML reader are public, semantic, responsive and acc
   assert.match(library, /Download Cyber Sentinels whitepaper PDF/);
   assert.match(library, /sm:flex-row/);
   assert.match(reader, /<h1/);
-  assert.ok((reader.match(/<h2/g) ?? []).length >= 3);
+  const readerModule = harness().load("app/documents/operational-trust-whitepaper/page.tsx");
+  const rendered = renderToStaticMarkup(React.createElement(readerModule.default));
+  assert.ok((rendered.match(/<h2/g) ?? []).length >= 12);
+  assert.equal((rendered.match(/<details/g) ?? []).length, 12, "All technical sections remain available through native disclosures");
   assert.match(reader, /Cyber Sentinels Operational Trust Whitepaper/);
-  assert.match(reader, /alternates: \{ canonical: "\/documents\/operational-trust-whitepaper" \}/);
+  assert.equal(readerModule.metadata.alternates.canonical, "/documents/operational-trust-whitepaper");
   assert.doesNotMatch(`${library}\n${reader}`, /noindex|robots:\s*\{[^}]*index:\s*false/i);
   assert.match(layout, /\["\/documents", "Documents"\]/);
   assert.match(visibility, /"\/documents"/);

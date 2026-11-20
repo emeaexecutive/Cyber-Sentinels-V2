@@ -1,0 +1,34 @@
+{
+  "mode": "PREPARED ONLY; NOT APPLIED",
+  "project": "cyber-sentinels-v2",
+  "target": "preview",
+  "gitBranch": "website/spanish-public-completion-20261108",
+  "supabaseProjectRef": "agpyhygpfmppjkxwcpac",
+  "intendedPublicSupabaseUrl": "https://agpyhygpfmppjkxwcpac.supabase.co",
+  "productionProjectRefForbidden": "kecgtsfibkypjuaxqbjx",
+  "bindings": [
+    { "key": "NEXT_PUBLIC_SUPABASE_URL", "source": "existing authorised Staging project", "secret": false },
+    { "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY", "source": "public key belonging to that Staging project", "secret": false },
+    { "key": "SUPABASE_URL", "source": "same Staging URL; audit inherited alias", "secret": false },
+    { "key": "SUPABASE_SERVICE_ROLE_KEY", "source": "existing Staging server credential; never a Production key", "secret": true },
+    { "key": "CONSENT_COOKIE_SECRET", "source": "independent non-production secret", "secret": true },
+    { "key": "CONSENT_DEFAULT_ENTERPRISE_ID", "source": "existing approved synthetic Staging tenant; creating one requires write approval", "secret": false },
+    { "key": "NEXT_PUBLIC_SITE_URL", "source": "exact isolated Preview origin, not a public Production alias", "secret": false },
+    { "key": "CYBER_SENTINELS_PUBLIC_ORIGIN", "source": "same isolated Preview origin", "secret": false },
+    { "key": "NEXT_PUBLIC_TURNSTILE_SITE_KEY", "source": "reviewed live challenge site configured for the exact Preview hostname", "secret": false },
+    { "key": "TURNSTILE_SECRET_KEY", "source": "matching non-production challenge secret", "secret": true },
+    { "key": "TURNSTILE_MODE", "source": "live for real hosted challenge qualification", "secret": false },
+    { "key": "TURNSTILE_EXPECTED_HOSTNAME", "source": "exact approved Preview hostname", "secret": false }
+  ],
+  "requiredBeforeApplication": [
+    "Explicit approval for branch-specific Preview binding changes",
+    "Review inherited Preview database and provider settings; metadata inventory was truncated",
+    "Prove all database credentials belong to Staging and do not reuse Production secrets",
+    "Read-only verification of private Auth redirects, CAPTCHA, mail configuration and backups; dashboard access currently unavailable",
+    "Prevent inherited Stripe/live provider credentials from enabling real-money operations"
+  ],
+  "websiteMigrationStatus": "Consent schema/RPC present by read-only inspection; no new website migration proposed",
+  "executionMigrationStatus": "Separate PR132 required; both v2 approval/dispatch RPCs absent from Staging on 2026-11-08",
+  "syntheticWritesAuthorised": false,
+  "productionPromotionAuthorised": false
+}

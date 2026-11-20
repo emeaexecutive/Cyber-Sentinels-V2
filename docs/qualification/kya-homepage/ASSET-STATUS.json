@@ -1,0 +1,31 @@
+{
+  "status": "ORIGINAL PNG SUPPLIED AND INTEGRATED",
+  "originalKyaPngFound": true,
+  "searched": [
+    "repository public assets",
+    "available user attachments",
+    "tracked PNG names and KYA-named repository files"
+  ],
+  "existingUnrelatedAsset": {
+    "path": "public/cyber-sentinels-hero.png",
+    "sha256": "6498c2d6a2b7dc0d0273e5c5f3bc56574111641760a443375a30c71bee0e5308",
+    "usedAsKyaOriginal": false
+  },
+  "replacementRasterCreated": false,
+  "accessibleTextFlowRetained": true,
+  "fallbackExplicitlyAuthorizedByUser": true,
+  "approvedVisualSpecification": "LANDING-VISUAL-SPEC.md",
+  "renderedFlowStages": 6,
+  "originalAsset": {
+    "suppliedName": "KYA™ — AI Agent Trust Flow.png",
+    "repositoryPath": "public/kya-ai-agent-trust-flow.png",
+    "sha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
+    "width": 1254,
+    "height": 1254,
+    "locales": [
+      "en",
+      "es"
+    ],
+    "bytesUnchanged": true
+  }
+}

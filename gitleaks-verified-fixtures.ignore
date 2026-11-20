@@ -33,7 +33,6 @@ f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405
 f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json:generic-api-key:134
 f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json:generic-api-key:160
 # Exact historical SOC metadata, reviewed in Execution03; no path/rule exclusions.
-
 # Execution07 reviewed synthetic public-key evidence fingerprints.
 88ad22c083ffd2a5a0fd5c823858b938b567b98f:artifacts/execution07/treasury/demo/race-unknown.json:generic-api-key:134
 88ad22c083ffd2a5a0fd5c823858b938b567b98f:artifacts/execution07/treasury/demo/race-unknown.json:generic-api-key:160

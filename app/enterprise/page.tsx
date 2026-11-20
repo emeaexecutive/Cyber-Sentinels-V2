@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -135,5 +136,5 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Enterprise | Cyber Sentinels", "Deployment, security, compliance, data residency, pilot adoption, procurement and enterprise support.", "/enterprise"),
   title: "Enterprise | Cyber Sentinels",
   description: "Deployment, security, compliance, data residency, pilot adoption, procurement and enterprise support.",
-  alternates: { canonical: "/enterprise" },
+  alternates: publicPageAlternates("/enterprise"),
 };

@@ -10,3 +10,5 @@ artifacts/execution07/** -text
 docs/qualification/EXECUTION07-*.md -text
 supabase/migrations/20261117135536_fail_closed_email_ownership.sql text eol=lf
 tests/fixtures/ownership-email-baseline.sql text eol=lf
+artifacts/kya-homepage/** -text
+docs/qualification/kya-homepage/** -text

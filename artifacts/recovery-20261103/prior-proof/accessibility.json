@@ -1,0 +1,66 @@
+{
+  "results": [
+    {
+      "path": "/pricing",
+      "violations": [],
+      "incomplete": 0
+    },
+    {
+      "path": "/",
+      "violations": [],
+      "incomplete": 0
+    },
+    {
+      "path": "/platform",
+      "violations": [],
+      "incomplete": 2
+    },
+    {
+      "path": "/solutions",
+      "violations": [],
+      "incomplete": 0
+    },
+    {
+      "path": "/developers",
+      "violations": [],
+      "incomplete": 0
+    },
+    {
+      "path": "/enterprise",
+      "violations": [],
+      "incomplete": 1
+    },
+    {
+      "path": "/enterprise-access",
+      "violations": [],
+      "incomplete": 0
+    },
+    {
+      "path": "/about",
+      "violations": [],
+      "incomplete": 0
+    },
+    {
+      "path": "/help",
+      "violations": [],
+      "incomplete": 0
+    },
+    {
+      "path": "/security",
+      "violations": [],
+      "incomplete": 0
+    },
+    {
+      "path": "/resources/agent-security/tenente-swarm",
+      "violations": [],
+      "incomplete": 0
+    },
+    {
+      "path": "/investor",
+      "violations": [],
+      "incomplete": 1
+    }
+  ],
+  "violations": 0,
+  "note": "Automated axe checks; does not certify full accessibility compliance."
+}

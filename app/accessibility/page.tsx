@@ -1,13 +1,15 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
-  ...publicSocialMetadata("Accessibility | Cyber Sentinels", "Cyber Sentinels accessibility commitments and support information.", "/accessibility"),
+  robots: { index: false, follow: true },
+  ...publicSocialMetadata("Accessibility | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/accessibility"),
   title: "Accessibility | Cyber Sentinels",
-  description: "Cyber Sentinels accessibility commitments and support information.",
-  alternates: { canonical: "/accessibility" },
+  description: "Publication status: this page is under review; an approved version has not been published.",
+  alternates: publicPageAlternates("/accessibility"),
 };
 
 export default function AccessibilityPage() {

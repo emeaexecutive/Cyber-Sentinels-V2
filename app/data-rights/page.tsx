@@ -1,3 +1,6 @@
+export const metadata = { robots: { index: false, follow: true } };
+import { LegalDraftPage } from "@/components/legal-draft-page";
+import { hasPublicSupabaseEnv } from "@/lib/env";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
@@ -75,13 +78,15 @@ export default async function DataRightsPage({
 }: {
   searchParams?: Promise<Record<string, string | undefined>>;
 }) {
+  if (!hasPublicSupabaseEnv()) return <LegalDraftPage title="Data Rights" subtitle="" sections={[]} />;
   const params = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const requesterEmail = user?.email ?? "";
+  if (!user) return <LegalDraftPage title="Data Rights" subtitle="" sections={[]} />;
+  const requesterEmail = user.email ?? "";
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">

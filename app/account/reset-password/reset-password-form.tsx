@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { PASSWORD_MIN_LENGTH, validateNewPassword } from "@/lib/auth/password-recovery";
 
+import { accountCopy, accountHref, type AccountLocale } from "@/lib/i18n/account";
+
 type CompletionResponse = {
   ok?: boolean;
   code?: string;
@@ -12,7 +14,8 @@ type CompletionResponse = {
   next?: string;
 };
 
-export function ResetPasswordForm() {
+export function ResetPasswordForm({ locale = "en" }: { locale?: AccountLocale } = {}) {
+  const copy = accountCopy[locale];
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [nonce, setNonce] = useState("");
@@ -21,7 +24,7 @@ export function ResetPasswordForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
-  const [nextPath, setNextPath] = useState("/login?password_updated=1");
+  const [nextPath, setNextPath] = useState(accountHref("/login?password_updated=1", locale));
   const [loading, setLoading] = useState(false);
 
   async function updatePassword() {
@@ -29,17 +32,17 @@ export function ResetPasswordForm() {
 
     const policyError = validateNewPassword(password);
     if (policyError) {
-      setMessage(policyError);
+      setMessage(copy.minimum.replace("{minimum}", String(PASSWORD_MIN_LENGTH)));
       return;
     }
 
     if (password !== confirmPassword) {
-      setMessage("Passwords do not match.");
+      setMessage(copy.mismatch);
       return;
     }
 
     if (needsNonce && !nonce) {
-      setMessage("Enter the security code we sent to your email.");
+      setMessage(copy.nonceNeeded);
       return;
     }
 
@@ -57,7 +60,8 @@ export function ResetPasswordForm() {
         if (result.code === "REAUTHENTICATION_REQUIRED") {
           setNeedsNonce(true);
         }
-        setMessage(result.error || "We couldn't update your password. Request a new reset link and try again.");
+        const errors: Record<string, string> = { WEAK_PASSWORD: copy.weakPassword, RECOVERY_SIGN_OUT_FAILED: copy.signOutIncomplete, PASSWORD_MISMATCH: copy.mismatch, REAUTHENTICATION_REQUIRED: copy.nonceNeeded, REAUTHENTICATION_INVALID: copy.nonceInvalid, REAUTHENTICATION_FAILED: copy.nonceFailed, RECOVERY_SESSION_INVALID: copy.expiredTitle, WRONG_ORIGIN: copy.unverified };
+        setMessage(locale === "en" ? result.error || copy.failure : errors[result.code ?? ""] || copy.failure);
         return;
       }
 
@@ -65,11 +69,11 @@ export function ResetPasswordForm() {
       setConfirmPassword("");
       setNonce("");
       setSuccess(true);
-      setNextPath(result.next || "/login?password_updated=1");
-      setMessage(result.message || "Password updated successfully.");
-      window.location.replace("/login?password_updated=1");
+      setNextPath(accountHref("/login?password_updated=1", locale));
+      setMessage(copy.success);
+      window.location.replace(accountHref("/login?password_updated=1", locale));
     } catch {
-      setMessage("We couldn't update your password. Request a new reset link and try again.");
+      setMessage(copy.failure);
     } finally {
       setLoading(false);
     }
@@ -78,12 +82,12 @@ export function ResetPasswordForm() {
   if (success) {
     return (
       <div className="mt-8" role="status" aria-live="polite">
-        <h1 className="text-3xl font-semibold tracking-tight">Password updated successfully.</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">{copy.success}</h1>
         <p className="mt-4 text-sm leading-6 text-zinc-400">
-          Your recovery session has ended. Sign in with your new password to continue.
+          {copy.successBody}
         </p>
         <Link href={nextPath} className="brand-primary-action mt-7 block w-full p-4 text-center">
-          Continue to sign in
+          {copy.continue}
         </Link>
       </div>
     );
@@ -91,17 +95,17 @@ export function ResetPasswordForm() {
 
   return (
     <div className="mt-8">
-      <h1 className="text-3xl font-semibold tracking-tight">Set a new password</h1>
+      <h1 className="text-3xl font-semibold tracking-tight">{copy.newTitle}</h1>
       <p className="mt-3 text-sm leading-6 text-zinc-400">
-        Use at least {PASSWORD_MIN_LENGTH} characters. This reset link can only be used once.
+        {copy.minimum.replace("{minimum}", String(PASSWORD_MIN_LENGTH))} {copy.singleUse}
       </p>
 
       <form className="mt-7 grid gap-5" onSubmit={(event) => { event.preventDefault(); void updatePassword(); }}>
         <label className="grid gap-2 text-sm font-medium text-zinc-200">
-          New password
+          {copy.newPassword}
           <span className="flex overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 focus-within:border-cyan-700">
             <input
-              aria-label="New password"
+              aria-label={copy.newPassword}
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
@@ -114,18 +118,18 @@ export function ResetPasswordForm() {
               type="button"
               onClick={() => setShowPassword((current) => !current)}
               className="px-4 text-xs font-semibold text-zinc-400 hover:text-white"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? copy.hidePassword : copy.showPassword}
             >
-              {showPassword ? "Hide" : "Show"}
+              {showPassword ? copy.hide : copy.show}
             </button>
           </span>
         </label>
 
         <label className="grid gap-2 text-sm font-medium text-zinc-200">
-          Confirm new password
+          {copy.confirmPassword}
           <span className="flex overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 focus-within:border-cyan-700">
             <input
-              aria-label="Confirm new password"
+              aria-label={copy.confirmPassword}
               required
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
@@ -138,16 +142,16 @@ export function ResetPasswordForm() {
               type="button"
               onClick={() => setShowConfirmPassword((current) => !current)}
               className="px-4 text-xs font-semibold text-zinc-400 hover:text-white"
-              aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
+              aria-label={showConfirmPassword ? copy.hideConfirm : copy.showConfirm}
             >
-              {showConfirmPassword ? "Hide" : "Show"}
+              {showConfirmPassword ? copy.hide : copy.show}
             </button>
           </span>
         </label>
 
         {needsNonce ? (
           <label className="grid gap-2 text-sm font-medium text-zinc-200">
-            Security code
+            {copy.securityCode}
             <input
               value={nonce}
               onChange={(event) => setNonce(event.target.value.trim())}
@@ -164,7 +168,7 @@ export function ResetPasswordForm() {
           type="submit"
           className="brand-primary-action w-full p-4 disabled:opacity-50"
         >
-          {loading ? "Updating..." : "Update password"}
+          {loading ? copy.updating : copy.update}
         </button>
 
         {message ? (

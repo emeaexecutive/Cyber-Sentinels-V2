@@ -1,0 +1,157 @@
+{
+  "sameIgnoringLineEndings": 2861,
+  "productionFiles": 2882,
+  "differentOrProductionOnly": [
+    {
+      "path": ".github/workflows/production-verify.yml",
+      "status": "different"
+    },
+    {
+      "path": "app/demo/page.tsx",
+      "status": "different"
+    },
+    {
+      "path": "app/demo/trust-runtime/page.tsx",
+      "status": "different"
+    },
+    {
+      "path": "app/enterprise-access/page.tsx",
+      "status": "different"
+    },
+    {
+      "path": "app/globals.css",
+      "status": "different"
+    },
+    {
+      "path": "app/help/page.tsx",
+      "status": "different"
+    },
+    {
+      "path": "app/layout.tsx",
+      "status": "different"
+    },
+    {
+      "path": "app/page.tsx",
+      "status": "different"
+    },
+    {
+      "path": "app/pricing/page.tsx",
+      "status": "different"
+    },
+    {
+      "path": "app/solutions/page.tsx",
+      "status": "different"
+    },
+    {
+      "path": "app/verification-receipts/page.tsx",
+      "status": "different"
+    },
+    {
+      "path": "app/world-id-preview/page.tsx",
+      "status": "different"
+    },
+    {
+      "path": "components/executive-summary.tsx",
+      "status": "different"
+    },
+    {
+      "path": "components/global-navigation.tsx",
+      "status": "different"
+    },
+    {
+      "path": "components/legal-draft-page.tsx",
+      "status": "different"
+    },
+    {
+      "path": "components/public-page-adoption-rail.tsx",
+      "status": "different"
+    },
+    {
+      "path": "package-lock.json",
+      "status": "different"
+    },
+    {
+      "path": "package.json",
+      "status": "different"
+    },
+    {
+      "path": "tests/dependency-baseline.test.mjs",
+      "status": "different"
+    },
+    {
+      "path": "tests/public-surface-navigation.test.mjs",
+      "status": "different"
+    },
+    {
+      "path": "vercel.json",
+      "status": "different"
+    }
+  ],
+  "candidateOnly": [
+    ".dockerignore",
+    ".github/agents/analytics.agent.md",
+    ".github/agents/distribution.agent.md",
+    ".github/agents/editorial.agent.md",
+    ".github/agents/geo-discovery.agent.md",
+    ".github/agents/market-intelligence.agent.md",
+    ".github/agents/technical-seo.agent.md",
+    ".gitignore",
+    "artifacts/recovery-20261103/HANDOFF.md",
+    "artifacts/recovery-20261103/VERIFICATION.md",
+    "artifacts/recovery-20261103/auth-and-contact.png",
+    "artifacts/recovery-20261103/interactions.json",
+    "artifacts/recovery-20261103/manifest.txt",
+    "artifacts/recovery-20261103/native-build-result.json",
+    "artifacts/recovery-20261103/open-prs.json",
+    "artifacts/recovery-20261103/prior-proof/REPORT.md",
+    "artifacts/recovery-20261103/prior-proof/accessibility.json",
+    "artifacts/recovery-20261103/prior-proof/arabic-navigation.png",
+    "artifacts/recovery-20261103/prior-proof/header-desktop.png",
+    "artifacts/recovery-20261103/prior-proof/interactions.json",
+    "artifacts/recovery-20261103/prior-proof/language-mobile.png",
+    "artifacts/recovery-20261103/prior-proof/pricing-cards-desktop.png",
+    "artifacts/recovery-20261103/prior-proof/verification-summary.json",
+    "artifacts/recovery-20261103/proof/arabic-navigation.png",
+    "artifacts/recovery-20261103/proof/header-desktop.png",
+    "artifacts/recovery-20261103/proof/language-mobile.png",
+    "artifacts/recovery-20261103/proof/pricing-1024.png",
+    "artifacts/recovery-20261103/proof/pricing-1440.png",
+    "artifacts/recovery-20261103/proof/pricing-390.png",
+    "artifacts/recovery-20261103/proof/pricing-768.png",
+    "artifacts/recovery-20261103/proof/pricing-cards-desktop.png",
+    "artifacts/recovery-20261103/provenance.json",
+    "artifacts/recovery-20261103/route-smoke.json",
+    "artifacts/recovery-20261103/source-manifest.json",
+    "artifacts/recovery-20261103/verification-summary.json",
+    "components/auth-unavailable.tsx",
+    "components/pricing-card.tsx",
+    "components/public-language-selector.tsx",
+    "docs/gtm/30-day-execution-plan.md",
+    "docs/gtm/OPERATING_POLICY.md",
+    "docs/gtm/analytics-baseline.md",
+    "docs/gtm/distribution-drafts.md",
+    "docs/gtm/drafts/agent-acts-without-permission.md",
+    "docs/gtm/drafts/agent-identity-vs-authority.md",
+    "docs/gtm/drafts/contain-autonomous-agent-swarm.md",
+    "docs/gtm/drafts/cyber-sentinels-tenente-story.md",
+    "docs/gtm/drafts/evidence-receipts-replay.md",
+    "docs/gtm/drafts/mcp-tool-authorization.md",
+    "docs/gtm/drafts/what-is-ai-agent-authority.md",
+    "docs/gtm/drafts/zero-trust-execution-controls.md",
+    "docs/gtm/editorial-queue.json",
+    "docs/gtm/market-intelligence-2026-10-20.md",
+    "docs/gtm/seo-geo-baseline-2026-10-20.md",
+    "docs/product/TENENTE_PRODUCT_DEFINITION.md",
+    "packages/cyber-sentinels-sdk/.gitignore",
+    "scripts/gtm/frontmatter.mjs",
+    "scripts/gtm/validate-workflow.mjs",
+    "supabase/.gitignore",
+    "tests/gtm-workflow.test.mjs",
+    "tests/public-help-preview.test.mjs",
+    "tests/tenente-product-definition.test.mjs",
+    "tests/website-auth-entry.test.mjs",
+    "tools/release/website-recovery-build.mjs",
+    "tools/release/website-recovery-interactions.mjs",
+    "tools/release/website-recovery-smoke.mjs"
+  ]
+}

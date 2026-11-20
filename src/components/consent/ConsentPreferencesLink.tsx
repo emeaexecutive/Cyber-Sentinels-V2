@@ -2,7 +2,7 @@
 
 import { consentText, useConsentLocale } from "@/src/lib/consent/localization";
 
-export function ConsentPreferencesLink() {
+export function ConsentPreferencesLink(_props: { locale?: "en" | "es" } = {}) {
   const locale = useConsentLocale();
   return (
     <button

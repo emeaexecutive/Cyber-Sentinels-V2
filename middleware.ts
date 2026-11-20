@@ -10,6 +10,7 @@ import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
 import { isPasswordRecoverySession, isRecoveryWorkflowPath, PASSWORD_RECOVERY_COOKIE, PASSWORD_RECOVERY_PATH } from "@/lib/auth/password-recovery";
 import { isJudgeMeWebhookCallback } from "@/lib/providers/judgeme-route";
 import { approvalBoundary, isTenantAdminSurface } from "@/lib/auth/approval-boundary";
+import { isPublishedSpanishPath, publicEnglishFallbackHref, resolveSpanishRequestPath } from "@/lib/i18n/public-locales";
 
 const adminVerifiedCookieName = "cyber_admin_verified";
 
@@ -294,6 +295,14 @@ function redirectTo(req: NextRequest, path: string) {
   return preventIndexing(NextResponse.redirect(new URL(path, req.url)));
 }
 
+function trustedLocaleHeaders(req: NextRequest, locale: "en" | "es", sourcePath?: string) {
+  const headers = new Headers(req.headers);
+  headers.set("x-public-locale", locale);
+  if (sourcePath) headers.set("x-public-source-path", sourcePath);
+  else headers.delete("x-public-source-path");
+  return headers;
+}
+
 function protectedSurfaceUnavailable(req?: NextRequest) {
   const spanish = req && (req.nextUrl.searchParams.get("lang")?.toLowerCase() === "es" || req.nextUrl.pathname === "/es" || req.nextUrl.pathname.startsWith("/es/"));
   const response = preventIndexing(
@@ -304,6 +313,8 @@ function protectedSurfaceUnavailable(req?: NextRequest) {
 }
 
 export async function middleware(req: NextRequest) {
+  req.headers.delete("x-public-locale");
+  req.headers.delete("x-public-source-path");
   const { pathname, search } = req.nextUrl;
   const refreshedCookies: CookieToSet[] = [];
   const refreshedHeaders = new Headers();
@@ -311,7 +322,7 @@ export async function middleware(req: NextRequest) {
     // Indexing policy only: never bypass or replace the existing auth checks.
     const isSearchAsset = pathname === "/robots.txt" || pathname === "/sitemap.xml" || pathname.startsWith("/_next/")
       || pathname === "/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf";
-    if (!isSearchAsset && !isIndexablePublicRoute(pathname)) {
+    if (!isSearchAsset && !isIndexablePublicRoute(pathname) && !isPublishedSpanishPath(pathname)) {
       response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
     }
     for (const { name, value, options } of refreshedCookies) {
@@ -370,6 +381,29 @@ export async function middleware(req: NextRequest) {
 
 async function applicationMiddleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
+  const spanishRoute = resolveSpanishRequestPath(pathname);
+  if (spanishRoute.kind === "translated") {
+    const requestHeaders = trustedLocaleHeaders(req, "es", spanishRoute.sourcePath);
+    // Real locale routes avoid an internal rewrite re-entering middleware and
+    // clearing the trusted locale before the page and root layout render.
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
+  if (spanishRoute.kind === "unavailable") {
+    const destination = new URL(req.nextUrl.href);
+    destination.host = req.headers.get("host") ?? destination.host;
+    destination.pathname = "/es/unavailable";
+    destination.search = "";
+    destination.searchParams.set("path", `${spanishRoute.sourcePath}${search}`);
+    return NextResponse.redirect(destination);
+  }
+  if (spanishRoute.kind === "unavailable-page") {
+    const requestHeaders = trustedLocaleHeaders(
+      req,
+      "es",
+      publicEnglishFallbackHref(req.nextUrl.searchParams.get("path")),
+    );
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
   const boundary = approvalBoundary(pathname, req.method);
   if (pathname.startsWith("/api/") && boundary !== "CUSTOMER") {
     // API keys verify owner approval in the route; callbacks verify signatures.
@@ -385,7 +419,7 @@ async function applicationMiddleware(req: NextRequest) {
       "/api/providers/world-id/callback",
     ].includes(pathname) || pathname.startsWith("/api/trust-events/ingest/") || isJudgeMeWebhookCallback(pathname, req.method))
   ) {
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: trustedLocaleHeaders(req, "en") } });
   }
   // Enterprise consent-admin APIs authorize workspace owner/admin roles in the
   // route and are not restricted to the platform-wide founder allowlist.
@@ -395,7 +429,7 @@ async function applicationMiddleware(req: NextRequest) {
     (pathname.startsWith("/api/") && !protectsAdmin);
 
   if (!protectsUser && !protectsAdmin) {
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: trustedLocaleHeaders(req, "en") } });
   }
 
   if (!hasPublicSupabaseEnv()) {
@@ -411,7 +445,7 @@ async function applicationMiddleware(req: NextRequest) {
 
   let response = NextResponse.next({
     request: {
-      headers: req.headers,
+      headers: trustedLocaleHeaders(req, "en"),
     },
   });
   response = preventIndexing(response);

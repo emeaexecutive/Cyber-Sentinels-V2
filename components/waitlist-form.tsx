@@ -44,7 +44,8 @@ export function WaitlistForm() {
         </button>
       </div>
       <div className="mt-3">
-        <TurnstileField action="waitlist"
+        <TurnstileField
+          action="waitlist"
           siteKey={turnstileSiteKey}
           onTokenChange={setTurnstileToken}
           resetKey={turnstileResetKey}

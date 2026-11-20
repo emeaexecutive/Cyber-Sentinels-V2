@@ -1,0 +1,167 @@
+{
+  "environment": "ILLUSTRATIVE BROWSER MODEL",
+  "hosted": false,
+  "productionGateway": false,
+  "race": [
+    {
+      "decision": "ALLOW",
+      "reason": "TRUSTED_SHARED_SCOPE_RESERVED",
+      "requestId": "final-slot-agent-1"
+    },
+    {
+      "decision": "DENY",
+      "reason": "COLLECTIVE_LIMIT_EXCEEDED",
+      "requestId": "final-slot-agent-2"
+    }
+  ],
+  "used": 3,
+  "stopped": false,
+  "handedOff": true,
+  "unknown": [],
+  "observed": 1,
+  "estimatedCostMicros": 3000,
+  "events": [
+    {
+      "sequence": 1,
+      "kind": "DECISION",
+      "details": {
+        "agent": "agent-1",
+        "decision": "ALLOW",
+        "reason": "TRUSTED_SHARED_SCOPE_RESERVED",
+        "requestId": "initial",
+        "quotaScope": "fictional:river-crossing",
+        "policyVersion": "illustrative-loop-v1",
+        "consumed": 1
+      },
+      "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "synthetic": true,
+      "digest": "742cb52e35466e30dc71f13915d3de6688f27c3a41625020de4be2836840d78d"
+    },
+    {
+      "sequence": 2,
+      "kind": "TOOL_FAILURE",
+      "details": {
+        "agent": "agent-1",
+        "requestId": "initial",
+        "outcome": "FAILED",
+        "reservationConsumed": true,
+        "automaticRetry": false
+      },
+      "previousHash": "742cb52e35466e30dc71f13915d3de6688f27c3a41625020de4be2836840d78d",
+      "synthetic": true,
+      "digest": "58c42e277ee8f1e95920b43e8a3f2491f80ebd2eacce0e5bb100e145b26aeb70"
+    },
+    {
+      "sequence": 3,
+      "kind": "DECISION",
+      "details": {
+        "agent": "agent-1",
+        "decision": "ALLOW",
+        "reason": "TRUSTED_SHARED_SCOPE_RESERVED",
+        "requestId": "retry",
+        "quotaScope": "fictional:river-crossing",
+        "policyVersion": "illustrative-loop-v1",
+        "consumed": 2
+      },
+      "previousHash": "58c42e277ee8f1e95920b43e8a3f2491f80ebd2eacce0e5bb100e145b26aeb70",
+      "synthetic": true,
+      "digest": "8af13249e8f833d66c0483829811fb27c85692057f267c317f4236bcf0568d52"
+    },
+    {
+      "sequence": 4,
+      "kind": "TOOL_FAILURE",
+      "details": {
+        "agent": "agent-1",
+        "requestId": "retry",
+        "outcome": "FAILED",
+        "reservationConsumed": true,
+        "automaticRetry": false
+      },
+      "previousHash": "8af13249e8f833d66c0483829811fb27c85692057f267c317f4236bcf0568d52",
+      "synthetic": true,
+      "digest": "baebcfe78615ddf2c48584a580ddc466c6a11e5c73c66eab2235834b64e536c2"
+    },
+    {
+      "sequence": 5,
+      "kind": "HANDOFF",
+      "details": {
+        "from": "agent-1",
+        "to": "agent-2",
+        "quotaScope": "fictional:river-crossing",
+        "remaining": 1,
+        "extraAuthority": false
+      },
+      "previousHash": "baebcfe78615ddf2c48584a580ddc466c6a11e5c73c66eab2235834b64e536c2",
+      "synthetic": true,
+      "digest": "c8e62b24334fa92a8ba396580a0b4c6154b1fd66ca001ad53770f4822f5222f7"
+    },
+    {
+      "sequence": 6,
+      "kind": "DECISION",
+      "details": {
+        "agent": "agent-1",
+        "decision": "ALLOW",
+        "reason": "TRUSTED_SHARED_SCOPE_RESERVED",
+        "requestId": "final-slot-agent-1",
+        "quotaScope": "fictional:river-crossing",
+        "policyVersion": "illustrative-loop-v1",
+        "consumed": 3
+      },
+      "previousHash": "c8e62b24334fa92a8ba396580a0b4c6154b1fd66ca001ad53770f4822f5222f7",
+      "synthetic": true,
+      "digest": "b0458d1a31f378d13296ef3671e9df1284e90bc05acc024dbdd814a7fcbc9471"
+    },
+    {
+      "sequence": 7,
+      "kind": "DESTINATION_OBSERVATION",
+      "details": {
+        "agent": "agent-1",
+        "requestId": "final-slot-agent-1",
+        "effects": 1,
+        "source": "separate-browser-ledger",
+        "outcome": "COMPLETED"
+      },
+      "previousHash": "b0458d1a31f378d13296ef3671e9df1284e90bc05acc024dbdd814a7fcbc9471",
+      "synthetic": true,
+      "digest": "e61fe6b6f97a5f419998ffcb2310970a3378d3c566c4b28cf49da9928206e074"
+    },
+    {
+      "sequence": 8,
+      "kind": "DECISION",
+      "details": {
+        "agent": "agent-2",
+        "decision": "DENY",
+        "reason": "COLLECTIVE_LIMIT_EXCEEDED",
+        "requestId": "final-slot-agent-2",
+        "quotaScope": "fictional:river-crossing",
+        "policyVersion": "illustrative-loop-v1",
+        "consumed": 3
+      },
+      "previousHash": "e61fe6b6f97a5f419998ffcb2310970a3378d3c566c4b28cf49da9928206e074",
+      "synthetic": true,
+      "digest": "22f7522df3306ecf068c23188d46a580bbfc8da0e5ae26b3663887efbaca38f5"
+    },
+    {
+      "sequence": 9,
+      "kind": "DESTINATION_OBSERVATION",
+      "details": {
+        "agent": "agent-2",
+        "requestId": "final-slot-agent-2",
+        "effects": 0,
+        "source": "separate-browser-ledger",
+        "deniedRequest": true
+      },
+      "previousHash": "22f7522df3306ecf068c23188d46a580bbfc8da0e5ae26b3663887efbaca38f5",
+      "synthetic": true,
+      "digest": "65b293f286dc6ec1190dff56aa0c6efdd730e7f1caa8620cc624cea452281364"
+    }
+  ],
+  "policy": {
+    "version": "illustrative-loop-v1",
+    "quotaScope": "fictional:river-crossing",
+    "maxAttempts": 3,
+    "allowedRetries": 2,
+    "estimatedCostMicrosPerAttempt": 1000,
+    "estimatedSpendCapMicros": 3000
+  }
+}

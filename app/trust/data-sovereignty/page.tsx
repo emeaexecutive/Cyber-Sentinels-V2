@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { ExecutiveSummary } from "@/components/executive-summary";
@@ -86,5 +87,5 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("AI and Data Sovereignty | Cyber Sentinels", "Enterprise data control, provider boundaries, retention and deployment transparency.", "/trust/data-sovereignty"),
   title: "AI and Data Sovereignty | Cyber Sentinels",
   description: "Enterprise data control, provider boundaries, retention and deployment transparency.",
-  alternates: { canonical: "/trust/data-sovereignty" },
+  alternates: publicPageAlternates("/trust/data-sovereignty"),
 };

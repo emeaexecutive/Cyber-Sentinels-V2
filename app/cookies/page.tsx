@@ -1,13 +1,15 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
-  ...publicSocialMetadata("Cookies and Preferences | Cyber Sentinels", "How Cyber Sentinels uses cookies, browser storage and privacy preferences.", "/cookies"),
+  robots: { index: false, follow: true },
+  ...publicSocialMetadata("Cookies and Preferences | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/cookies"),
   title: "Cookies and Preferences | Cyber Sentinels",
-  description: "How Cyber Sentinels uses cookies, browser storage and privacy preferences.",
-  alternates: { canonical: "/cookies" },
+  description: "Publication status: this page is under review; an approved version has not been published.",
+  alternates: publicPageAlternates("/cookies"),
 };
 
 export default function CookiesPage() {

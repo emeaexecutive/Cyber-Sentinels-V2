@@ -1,0 +1,61 @@
+{
+  "result": "PASS",
+  "results": [
+    {
+      "route": "/legal",
+      "status": 200,
+      "unapprovedPolicyWithheld": true
+    },
+    {
+      "route": "/terms",
+      "status": 200,
+      "unapprovedPolicyWithheld": true
+    },
+    {
+      "route": "/cookies",
+      "status": 200,
+      "unapprovedPolicyWithheld": true
+    },
+    {
+      "route": "/security",
+      "status": 200,
+      "unapprovedPolicyWithheld": true
+    },
+    {
+      "route": "/modern-slavery",
+      "status": 200,
+      "unapprovedPolicyWithheld": true
+    },
+    {
+      "route": "/privacy",
+      "status": 200,
+      "unapprovedPolicyWithheld": true
+    },
+    {
+      "route": "/how-to-use",
+      "status": 200,
+      "unapprovedPolicyWithheld": true
+    },
+    {
+      "route": "/data-rights",
+      "status": 503,
+      "protectedMissingAuthGatePreserved": true
+    },
+    {
+      "route": "/contact",
+      "destination": "/enterprise-access?intent=intro_call",
+      "status": 200
+    },
+    {
+      "conversion": "approved mailbox inspected; CAPTCHA and empty-form guard retained; nothing submitted"
+    },
+    {
+      "route": "/funding",
+      "investorMailto": true
+    },
+    {
+      "route": "/help",
+      "publicGuidance": true
+    }
+  ]
+}

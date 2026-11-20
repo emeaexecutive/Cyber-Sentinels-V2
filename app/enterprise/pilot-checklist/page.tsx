@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -151,7 +152,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Enterprise Pilot Checklist | Cyber Sentinels", "Plan a controlled Cyber Sentinels enterprise pilot with clear ownership, success criteria, evidence requirements, rollback controls and production-readiness gates.", "/enterprise/pilot-checklist"),
   title: "Enterprise Pilot Checklist | Cyber Sentinels",
   description: "Plan a controlled Cyber Sentinels enterprise pilot with clear ownership, success criteria, evidence requirements, rollback controls and production-readiness gates.",
-  alternates: { canonical: "/enterprise/pilot-checklist" },
+  alternates: publicPageAlternates("/enterprise/pilot-checklist"),
   openGraph: {
     type: "website",
     url: "/enterprise/pilot-checklist",

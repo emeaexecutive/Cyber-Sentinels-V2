@@ -1,0 +1,166 @@
+{
+  "method": "GET only; identified release user agent; no submission/message",
+  "defaultUserAgent403": "Recorded separately as automated-client rejection; identified client returned 200",
+  "results": [
+    {
+      "path": "/help",
+      "status": 200,
+      "renderError": false,
+      "h1": [
+        "Cyber Sentinels Help Center"
+      ],
+      "forms": 0,
+      "turnstileReferenced": false
+    },
+    {
+      "path": "/enterprise-access?intent=demo",
+      "status": 200,
+      "renderError": false,
+      "h1": [
+        "Request Enterprise Demo"
+      ],
+      "forms": 1,
+      "turnstileReferenced": true
+    },
+    {
+      "path": "/enterprise-access?intent=pilot",
+      "status": 200,
+      "renderError": false,
+      "h1": [
+        "Start Pilot"
+      ],
+      "forms": 1,
+      "turnstileReferenced": true
+    },
+    {
+      "path": "/funding",
+      "status": 200,
+      "renderError": false,
+      "h1": [
+        "Fund the Trust Layer for the AI Era"
+      ],
+      "forms": 0,
+      "turnstileReferenced": false
+    },
+    {
+      "path": "/investor",
+      "status": 200,
+      "renderError": false,
+      "h1": [
+        "Operational Trust Intelligence\u2122 for intelligent enterprises."
+      ],
+      "forms": 0,
+      "turnstileReferenced": false
+    },
+    {
+      "path": "/login",
+      "status": 200,
+      "renderError": false,
+      "h1": [
+        "Sign in"
+      ],
+      "forms": 0,
+      "turnstileReferenced": true
+    },
+    {
+      "path": "/pricing",
+      "status": 200,
+      "renderError": false,
+      "h1": [
+        "Start with one decision workflow and expand when the evidence proves value."
+      ],
+      "forms": 0,
+      "turnstileReferenced": false
+    },
+    {
+      "path": "/privacy/preferences",
+      "status": 200,
+      "renderError": false,
+      "h1": [],
+      "forms": 0,
+      "turnstileReferenced": false
+    },
+    {
+      "path": "/privacy/cookies",
+      "status": 200,
+      "renderError": false,
+      "h1": [
+        "Technologies by purpose"
+      ],
+      "forms": 0,
+      "turnstileReferenced": false
+    },
+    {
+      "path": "/_next/static/chunks/31255-e503184aa247e8ac.js",
+      "status": 200,
+      "renderError": false,
+      "h1": [],
+      "forms": 0,
+      "turnstileReferenced": false,
+      "note": "Static asset; an error-boundary string inside JS is not a rendered error page."
+    },
+    {
+      "path": "/_next/static/chunks/39686-f28172a7df1aab2e.js",
+      "status": 200,
+      "renderError": false,
+      "h1": [],
+      "forms": 0,
+      "turnstileReferenced": false,
+      "note": "Static asset; an error-boundary string inside JS is not a rendered error page."
+    },
+    {
+      "path": "/_next/static/chunks/44530001-620714ccd16168b1.js",
+      "status": 200,
+      "renderError": false,
+      "h1": [],
+      "forms": 0,
+      "turnstileReferenced": false,
+      "note": "Static asset; an error-boundary string inside JS is not a rendered error page."
+    },
+    {
+      "path": "/_next/static/chunks/4bd1b696-741ff92a1798b49d.js",
+      "status": 200,
+      "renderError": false,
+      "h1": [],
+      "forms": 0,
+      "turnstileReferenced": false,
+      "note": "Static asset; an error-boundary string inside JS is not a rendered error page."
+    },
+    {
+      "path": "/_next/static/chunks/52619-4bc6d045a4fea703.js",
+      "status": 200,
+      "renderError": false,
+      "h1": [],
+      "forms": 0,
+      "turnstileReferenced": false,
+      "note": "Static asset; an error-boundary string inside JS is not a rendered error page."
+    },
+    {
+      "path": "/_next/static/chunks/64102-c7cb81a478732fc7.js",
+      "status": 200,
+      "renderError": false,
+      "h1": [],
+      "forms": 0,
+      "turnstileReferenced": false,
+      "note": "Static asset; an error-boundary string inside JS is not a rendered error page."
+    },
+    {
+      "path": "/_next/static/chunks/app/enterprise-access/page-0ffd042679d39c4b.js",
+      "status": 200,
+      "renderError": false,
+      "h1": [],
+      "forms": 0,
+      "turnstileReferenced": true,
+      "note": "Static asset; an error-boundary string inside JS is not a rendered error page."
+    },
+    {
+      "path": "/_next/static/chunks/app/error-cd3eeec716dd4b1a.js",
+      "status": 200,
+      "renderError": false,
+      "h1": [],
+      "forms": 0,
+      "turnstileReferenced": false,
+      "note": "Static asset; an error-boundary string inside JS is not a rendered error page."
+    }
+  ]
+}
