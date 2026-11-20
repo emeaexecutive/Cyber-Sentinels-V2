@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import {catalog} from './public-catalog.mjs';
+const dir='lib/i18n/es-public-batches/';
+const ids=JSON.parse(fs.readFileSync(dir+'source-ids.json','utf8'));
+const names=fs.readdirSync(dir).filter(f=>/^\d+\.json$/.test(f)).sort((a,b)=>parseInt(a)-parseInt(b));
+const batches=names.map(n=>JSON.parse(fs.readFileSync(dir+n,'utf8')));
+const map=new Map(ids.map((id,i)=>[id,batches.flat()[i]]));
+map.set('a8e30f36d1384b92','Autenticación de cargas de trabajo del cliente (requiere cualificación)');
+map.set('87c2a9c2cc566ac3','Una carga de trabajo de máquina registrada puede solicitar una decisión mediante un token OIDC/OAuth de corta duración solo después de que el operador del servicio haya fijado el emisor aprobado por el cliente, la URL de JWKS y la audiencia. El propietario o administrador del tenant debe vincular el sujeto del emisor a un agente registrado. El token debe contener las declaraciones coincidentes tenant_id, workload_id, subject, scope, jti, issuer, audience, issued-at y expiry. El servidor vuelve a comprobar la vinculación y la autoridad vigentes del tenant; el cuerpo no puede elegir el agente. Esta ruta no ejecuta acciones y no está habilitada para clientes alojados hasta que se cualifiquen la configuración del emisor y el aislamiento entre tenants.');
+map.set('fc015dcd2609a674','La clave de API se utiliza solo para gestionar vinculaciones como propietario o administrador. Obtenga el token de corta duración del emisor configurado y páselo en cada decisión; el SDK nunca lo almacena. Utilice un tenant de identidad ajeno a Production y una carga de trabajo de prueba. Nunca pegue tokens de acceso en código de navegador, control de versiones, solicitudes de soporte ni registros.');
+const actual=catalog(),translated=actual.map(m=>{if(!map.has(m.id))throw Error('Missing translation '+m.id);return map.get(m.id);});
+let offset=0;
+names.forEach((n,i)=>{const end=i===names.length-1?translated.length:offset+batches[i].length;fs.writeFileSync(dir+n,JSON.stringify(translated.slice(offset,end),null,2)+'\n');offset=end;});
+fs.writeFileSync(dir+'source-ids.json',JSON.stringify(actual.map(m=>m.id),null,2)+'\n');
+fs.writeFileSync('artifacts/spanish-completion/messages.json',JSON.stringify(actual,null,2)+'\n');
+console.log('Reconciled three workload paragraphs; retained all previous translation IDs');

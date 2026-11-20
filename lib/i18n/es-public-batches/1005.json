@@ -1,4 +1,7 @@
 [
+  "Una solicitud útil identifica al actor y la empresa, la acción propuesta, el recurso, el entorno y el propósito. El servicio resuelve concesiones y políticas actuales desde un estado fiable. La afirmación del agente de que su responsable aprobó la acción es una prueba a evaluar, no una concesión que pueda otorgarse a sí mismo.",
+  "¿Cómo aplicar mínimo privilegio a los agentes de IA?",
+  "Conceda solo las acciones, los destinos y el periodo necesarios para el propósito asignado. Distinga leer de editar, redactar de publicar y usar una herramienta de acceder a todas las cuentas que esta alcanza. El control de permisos debe situarse en el componente que realiza la acción.",
   "Un agente de soporte puede leer un caso y redactar una respuesta sin permiso para enviarla ni reembolsar dinero. Vincule cada acción al caso, al cliente y al propósito; exija una concesión separada para enviar o mover dinero. La delegación debe reducir permisos y la revocación debe comprobarse antes del siguiente efecto.",
   "Inventaríe las rutas de ejecución, retire credenciales innecesarias y pruebe que las solicitudes fuera de alcance no puedan eludir la decisión. Registre fallos de control y resultados sin resolver por separado de la autorización. Una política escrita o una entrada de registro no demuestra mínimo privilegio aplicado.",
   "¿Cómo detienen ALLOW, REVIEW y DENY las acciones no autorizadas?",

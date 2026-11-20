@@ -1,6 +1,6 @@
 {
-  "messages": 1108,
-  "publicRoutes": 45,
+  "messages": 1111,
+  "publicRoutes": 46,
   "generated": [
     {
       "source": "components/enterprise-visuals.tsx",
@@ -125,8 +125,8 @@
     {
       "source": "app/developers/quickstart/page.tsx",
       "destination": "app/es/developers/quickstart/page.tsx",
-      "displayEdits": 41,
-      "sourceHash": "3ca6fb58e991ba17342116e55f5837ebb6cf828220cb360dff2f40ecd80d1357"
+      "displayEdits": 44,
+      "sourceHash": "8e9cd617a0f7f3fb6a77238b1bdd95bfde678c1d1f6ce9e8b9e4f1eb2ca0400d"
     },
     {
       "source": "app/governance/page.tsx",

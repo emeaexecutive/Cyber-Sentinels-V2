@@ -47,6 +47,17 @@ export default function DeveloperQuickstartPage() {
         <li><h2 className="text-xl font-semibold">{"9. Reconstruir la decisión"}</h2><p className="mt-2 text-sm text-zinc-400">{"Examine la cronología canónica con referencias a pruebas, autoridad, políticas, decisiones y resúmenes criptográficos. Obtendrá la vista ordenada de reconstrucción de la interacción."}</p><pre className={`${code} mt-3`}>{`await cs.trust.getReplay(result.transaction_id);`}</pre></li>
       </ol>
 
+      <section className="mt-12"><h2 className="text-2xl font-semibold">{"Autenticación de cargas de trabajo del cliente (requiere cualificación)"}</h2><p className="mt-2 text-sm text-zinc-400">{"Una carga de trabajo de máquina registrada puede solicitar una decisión mediante un token OIDC/OAuth de corta duración solo después de que el operador del servicio haya fijado el emisor aprobado por el cliente, la URL de JWKS y la audiencia. El propietario o administrador del tenant debe vincular el sujeto del emisor a un agente registrado. El token debe contener las declaraciones coincidentes tenant_id, workload_id, subject, scope, jti, issuer, audience, issued-at y expiry. El servidor vuelve a comprobar la vinculación y la autoridad vigentes del tenant; el cuerpo no puede elegir el agente. Esta ruta no ejecuta acciones y no está habilitada para clientes alojados hasta que se cualifiquen la configuración del emisor y el aislamiento entre tenants."}</p><pre className={`${code} mt-4`}>{`const bindings = await cs.agents.listWorkloadBindings(agent.id);
+const binding = await cs.agents.registerWorkloadBinding(agent.id, {
+  subject: "synthetic-test-workload",
+  scopes: ["trust:request"],
+  expires_at: "2026-12-31T23:59:59Z"
+});
+const decision = await cs.workloads.requestDecision(agent.id, workloadAccessToken, {
+  action: { type: "read_repository", target: "repository:a", purpose: "deployment_evidence_review", environment: "staging" }
+}, crypto.randomUUID());
+await cs.agents.revokeWorkloadBinding(agent.id, binding.binding_id);`}</pre><p className="mt-2 text-sm text-zinc-400">{"La clave de API se utiliza solo para gestionar vinculaciones como propietario o administrador. Obtenga el token de corta duración del emisor configurado y páselo en cada decisión; el SDK nunca lo almacena. Utilice un tenant de identidad ajeno a Production y una carga de trabajo de prueba. Nunca pegue tokens de acceso en código de navegador, control de versiones, solicitudes de soporte ni registros."}</p></section>
+
       <section className="mt-12"><h2 className="text-2xl font-semibold">{"Las pruebas del cliente son afirmaciones, no demostraciones"}</h2><p className="mt-2 text-sm text-zinc-400">{"Envíe pruebas solo para un agente registrado bajo el mismo cliente de API. La ruta pública deriva la identidad del proveedor de la clave y guarda el resultado como AGENT_ASSERTED / INCONCLUSIVE. Las pruebas nativas y verificadas de proveedores usan sus rutas autenticadas existentes del servidor."}</p><pre className={`${code} mt-4`}>{`await cs.evidence.submit({
   provider: { key: "self", class: "APPLICATION_SIGNAL", event_id: "alpha-log-001", finding: "ACTION_PLANNED" },
   type: "AGENT_ACTIVITY_LOG",
@@ -66,8 +77,13 @@ GET  /api/v1/agents/{agentId}/authorities
 POST /api/v1/agents/{agentId}/authorities
 GET  /api/v1/agents/{agentId}/authorities/{authorityId}
 POST /api/v1/agents/{agentId}/authorities/{authorityId}/revoke
+GET  /api/v1/agents/{agentId}/workload-bindings
+POST /api/v1/agents/{agentId}/workload-bindings
+POST /api/v1/agents/{agentId}/workload-bindings/{bindingId}/revoke
 GET  /api/v1/agents/{agentId}/trust-state
 POST /api/v1/trust/decisions
+POST /api/v1/workloads/{agentId}/decisions
+POST /api/v1/tools/opengraph/site
 GET  /api/v1/reviews/{reviewReference}
 POST /api/v1/reviews/{reviewReference}/resolve
 POST /api/v1/evidence

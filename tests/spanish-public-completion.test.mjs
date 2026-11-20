@@ -45,7 +45,7 @@ test('Spanish API presentation preserves every machine contract field',()=>{
       assert.deepEqual(translatedContract,originalContract,`${method} ${path}`);
       assert.ok(translated.summary);operations++;
     }
-  }assert.equal(operations,26);
+  }assert.equal(operations,31);
   const page=readFileSync('app/es/developers/api-reference/page.tsx','utf8');
   assert.ok(page.includes('.split("/")'),'URL localisation must not modify schema delimiters');
   assert.ok(!page.includes('.split("/es")'));

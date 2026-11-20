@@ -340,7 +340,10 @@ export async function middleware(req: NextRequest) {
   const recoveryMutation = ["/api/auth/password-reset/request", "/api/auth/password-reset/complete", "/api/auth/logout"].includes(pathname);
   if (!isRecoveryWorkflowPath(pathname) || (!["GET", "HEAD"].includes(req.method) && !recoveryMutation)) {
     let recovery = req.cookies.has(PASSWORD_RECOVERY_COOKIE);
-    const bearer = req.headers.get("authorization")?.match(/^Bearer (ey[^ ]+\.[^ ]+\.[^ ]+)$/i)?.[1];
+    // Workload tokens are verified by the pinned workload verifier, never Auth.
+    // Session cookies and the recovery marker are still checked on this route.
+    const workloadDecision = /^\/api\/v1\/workloads\/[^/]+\/decisions$/.test(pathname) && req.method === "POST";
+    const bearer = workloadDecision ? undefined : req.headers.get("authorization")?.match(/^Bearer (ey[^ ]+\.[^ ]+\.[^ ]+)$/i)?.[1];
     const hasSessionCookie = req.cookies.getAll().some(({ name }) => name.startsWith("sb-") && name.includes("auth-token") && !name.includes("code-verifier"));
     if (bearer || hasSessionCookie) {
       if (!hasPublicSupabaseEnv()) return protectedSurfaceUnavailable(req);

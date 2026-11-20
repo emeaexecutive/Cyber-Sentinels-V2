@@ -1,4 +1,7 @@
 [
+  "Descripción técnica de la capa de confianza operativa para agentes de IA, identidad, autoridad delegada, decisiones de política, pruebas, recibos y reconstrucción.",
+  "El documento técnico V1 de Cyber Sentinels.",
+  "Metodología | Cyber Sentinels",
   "Cómo Cyber Sentinels recopila, normaliza y evalúa las pruebas de confianza operativa.",
   "Recopilar",
   "Conserve las pruebas de procesos, identidad, sesión y proveedores disponibles en ese momento y amparadas por consentimiento.",
@@ -125,8 +128,5 @@
   "La identidad no es autoridad",
   "La autoridad de un agente es el permiso otorgado por una parte responsable para actuar dentro de unos límites. La identidad identifica al actor; la autoridad describe lo que puede hacer. La autenticación comprueba la identidad o credencial presentada; la autorización comprueba si la solicitud actual encaja en esa autoridad y política.",
   "El registro da al agente una identidad operativa y una persona responsable. Una credencial puede demostrar posesión de una clave. Ni el registro ni una autenticación correcta conceden autoridad empresarial. La concesión de autoridad es un registro independiente y acotado de acciones, destinos, propósito, entorno y periodo permitidos.",
-  "Un agente autenticado en un servicio documental puede tener permiso para leer un manual público, pero no para exportar un archivo de clientes. La identidad es la misma; el destino, el propósito y el efecto solicitado cambian la pregunta de autorización. Una credencial válida no es autoridad ilimitada.",
-  "Una solicitud útil identifica al actor y la empresa, la acción propuesta, el recurso, el entorno y el propósito. El servicio resuelve concesiones y políticas actuales desde un estado fiable. La afirmación del agente de que su responsable aprobó la acción es una prueba a evaluar, no una concesión que pueda otorgarse a sí mismo.",
-  "¿Cómo aplicar mínimo privilegio a los agentes de IA?",
-  "Conceda solo las acciones, los destinos y el periodo necesarios para el propósito asignado. Distinga leer de editar, redactar de publicar y usar una herramienta de acceder a todas las cuentas que esta alcanza. El control de permisos debe situarse en el componente que realiza la acción."
+  "Un agente autenticado en un servicio documental puede tener permiso para leer un manual público, pero no para exportar un archivo de clientes. La identidad es la misma; el destino, el propósito y el efecto solicitado cambian la pregunta de autorización. Una credencial válida no es autoridad ilimitada."
 ]

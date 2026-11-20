@@ -1,4 +1,7 @@
 [
+  "Continuidad conservada",
+  "El resultado final conserva su conexión con la reconstrucción, las pruebas y el recibo de verificación.",
+  "Asigne a cada decisión sensible una persona responsable y una justificación revisable.",
   "Abra la cadena de pruebas antes de avanzar el proceso.",
   "Asigne el escalado y la revisión a una persona identificada.",
   "Registre la acción, su justificación y el cambio de confianza resultante.",
@@ -125,8 +128,5 @@
   "El estado de cada capacidad es explícito.",
   "La edición completa de 20 secciones incluye inventario de rutas, límites de claves de API, semántica de revisión, matriz de proveedores, arquitectura de despliegue y referencias de verificación.",
   "Todos los documentos",
-  "Documento técnico de confianza operativa de Cyber Sentinels",
-  "Descripción técnica de la capa de confianza operativa para agentes de IA, identidad, autoridad delegada, decisiones de política, pruebas, recibos y reconstrucción.",
-  "El documento técnico V1 de Cyber Sentinels.",
-  "Metodología | Cyber Sentinels"
+  "Documento técnico de confianza operativa de Cyber Sentinels"
 ]

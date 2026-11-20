@@ -5210,6 +5210,27 @@
     ]
   },
   {
+    "id": "a8e30f36d1384b92",
+    "en": "Customer workload authentication (qualification required)",
+    "files": [
+      "app/developers/quickstart/page.tsx"
+    ]
+  },
+  {
+    "id": "87c2a9c2cc566ac3",
+    "en": "A registered machine workload may request a decision using a short-lived OIDC/OAuth token only after the service operator has pinned the customer-approved issuer, JWKS URL, and audience. A tenant owner or administrator must bind the issuer subject to one registered agent. The token must contain the matching tenant_id, workload_id, subject, scope, jti, issuer, audience, issued-at, and expiry claims. The server rechecks current tenant binding and authority; the body cannot choose the agent. This route does not dispatch actions, and it is not enabled for hosted customers until issuer configuration and tenant-isolation qualification pass.",
+    "files": [
+      "app/developers/quickstart/page.tsx"
+    ]
+  },
+  {
+    "id": "fc015dcd2609a674",
+    "en": "The API key is used only for owner/admin binding management. Obtain the short-lived token from the configured issuer and pass it per decision; the SDK never stores it. Use a non-Production identity tenant and test workload. Never paste access tokens into browser code, source control, support tickets, or logs.",
+    "files": [
+      "app/developers/quickstart/page.tsx"
+    ]
+  },
+  {
     "id": "2430c97f76132262",
     "en": "Client evidence is assertion, not proof",
     "files": [

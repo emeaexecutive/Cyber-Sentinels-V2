@@ -109,6 +109,9 @@
   "Recupere el recibo canónico mínimo de la transacción. Es una proyección de la decisión, no una prueba de ejecución posterior.",
   "9. Reconstruir la decisión",
   "Examine la cronología canónica con referencias a pruebas, autoridad, políticas, decisiones y resúmenes criptográficos. Obtendrá la vista ordenada de reconstrucción de la interacción.",
+  "Autenticación de cargas de trabajo del cliente (requiere cualificación)",
+  "Una carga de trabajo de máquina registrada puede solicitar una decisión mediante un token OIDC/OAuth de corta duración solo después de que el operador del servicio haya fijado el emisor aprobado por el cliente, la URL de JWKS y la audiencia. El propietario o administrador del tenant debe vincular el sujeto del emisor a un agente registrado. El token debe contener las declaraciones coincidentes tenant_id, workload_id, subject, scope, jti, issuer, audience, issued-at y expiry. El servidor vuelve a comprobar la vinculación y la autoridad vigentes del tenant; el cuerpo no puede elegir el agente. Esta ruta no ejecuta acciones y no está habilitada para clientes alojados hasta que se cualifiquen la configuración del emisor y el aislamiento entre tenants.",
+  "La clave de API se utiliza solo para gestionar vinculaciones como propietario o administrador. Obtenga el token de corta duración del emisor configurado y páselo en cada decisión; el SDK nunca lo almacena. Utilice un tenant de identidad ajeno a Production y una carga de trabajo de prueba. Nunca pegue tokens de acceso en código de navegador, control de versiones, solicitudes de soporte ni registros.",
   "Las pruebas del cliente son afirmaciones, no demostraciones",
   "Envíe pruebas solo para un agente registrado bajo el mismo cliente de API. La ruta pública deriva la identidad del proveedor de la clave y guarda el resultado como AGENT_ASSERTED / INCONCLUSIVE. Las pruebas nativas y verificadas de proveedores usan sus rutas autenticadas existentes del servidor.",
   "Rutas exactas de V1",
@@ -125,8 +128,5 @@
   "Persona revisora asignada",
   "Una persona identificada recibe el motivo de escalado, el estado actual de confianza y el contexto de autorización.",
   "Transición registrada",
-  "La acción revisora, su justificación y el cambio resultante de confianza entran en la cronología de reconstrucción.",
-  "Continuidad conservada",
-  "El resultado final conserva su conexión con la reconstrucción, las pruebas y el recibo de verificación.",
-  "Asigne a cada decisión sensible una persona responsable y una justificación revisable."
+  "La acción revisora, su justificación y el cambio resultante de confianza entran en la cronología de reconstrucción."
 ]
