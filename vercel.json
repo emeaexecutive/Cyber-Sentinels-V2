@@ -10,7 +10,9 @@
       "feat/real-provider-qualification": false,
       "fix/login-security-check": false,
       "feat/tenente-swarm-authority-control": false,
-      "fix/codeql-coordinated-3-38": false
+      "fix/codeql-coordinated-3-38": false,
+      "codex/governed-soc-runtime-20261112": false,
+      "release/execution16-consolidated-pr139": false
     }
   },
   "cleanUrls": true,
