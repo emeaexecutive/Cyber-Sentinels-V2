@@ -26,3 +26,17 @@ evidence.
 Validation must reproduce GitHub's full-ref checkout and report zero findings
 after the fingerprint exception. This disposition does not authorize credential
 rotation, hosted changes, PR merge or deployment.
+
+## Consolidated-candidate ancestry
+
+The consolidated release candidate also contains
+`3f27eac2384d2179ce9938e1bb2bb5b953318901`, a reviewed ownership-repair migration.
+Gitleaks reports 15 `generic-api-key` false positives in its saved
+`pg_policies` expectation tuples. Each flagged value is one of the stored role,
+policy qualifier/check or MD5 catalogue fields used to reject schema drift; the
+lines contain no provider credential and no secret assignment.
+
+The 15 exact commit/path/rule/line fingerprints in
+`gitleaks-verified-fixtures.ignore` cover only this historical migration.
+They are a separate consolidated-ancestry disposition and do not weaken the
+scanner for migrations generally.
