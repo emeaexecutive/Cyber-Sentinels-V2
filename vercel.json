@@ -12,7 +12,8 @@
       "feat/tenente-swarm-authority-control": false,
       "fix/codeql-coordinated-3-38": false,
       "codex/governed-soc-runtime-20261112": false,
-      "release/execution16-consolidated-pr139": false
+      "release/execution16-consolidated-pr139": false,
+      "release/execution19-qualified-candidate": false
     }
   },
   "cleanUrls": true,
