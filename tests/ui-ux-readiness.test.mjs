@@ -34,14 +34,21 @@ test("footer cookie preferences remains a keyboard and touch-friendly dialog tri
   ]);
 
   assert.match(layout, /<ConsentPreferencesLink locale=\{locale\}/);
-  const component=harness().load("src/components/consent/ConsentPreferencesLink.tsx").ConsentPreferencesLink;
+  const h = harness();
+  let activeLocale = "en";
+  // This unit test exercises the click callback. Supply the hook's locale at
+  // its boundary instead of invoking a real React hook outside a renderer.
+  h.load("src/lib/consent/localization.ts").useConsentLocale = () => activeLocale;
+  const component=h.load("src/components/consent/ConsentPreferencesLink.tsx").ConsentPreferencesLink;
   const previousWindow=globalThis.window;
   const events=[];
   globalThis.window={dispatchEvent:event=>events.push(event.type)};
   try {
     for(const locale of ["en","es"]){
+      activeLocale = locale;
       const button=component({locale});
       assert.equal(button.type,"button");assert.equal(button.props.type,"button");
+      assert.equal(button.props.children, locale === "es" ? "Preferencias de confianza" : "Cookie preferences");
       button.props.onClick();
     }
     assert.deepEqual(events,["cs:open-consent-preferences","cs:open-consent-preferences"]);

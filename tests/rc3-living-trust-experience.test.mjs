@@ -64,7 +64,7 @@ test("CISO and CIO buyer journeys preserve canonical proof and readiness surface
   assert.match(home, /href="\/developers\/docs"/);
   for (const href of ["/replay/demo", "/platform#trust-fabric"]) assert.match(demoPage, new RegExp(`href[:=]"${href.replaceAll("/", "\\/")}"`));
   assert.match(legacyDemo,/redirect\("\/demo"\)/);
-  assert.equal((home.match(/<a\b/g) ?? []).length, 2);
+  assert.deepEqual([...home.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map(match => match[1]), ["/enterprise-access?intent=demo", "/developers/docs", "/platform/kya", "/platform#agent-authority", "/kya-ai-agent-trust-flow.png"]);
   assert.match(platform, /href="\/developers"/);
   assert.match(platform, /href="\/enterprise\/pilot"/);
 });
