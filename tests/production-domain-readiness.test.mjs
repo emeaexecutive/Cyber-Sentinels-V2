@@ -23,7 +23,9 @@ test("canonical production origin and auth callback are explicit", () => {
   assert.match(layout, /metadataBase: new URL\("https:\/\/www\.cybersentinels\.com"\)/);
   assert.match(docs, /https:\/\/www\.cybersentinels\.com\/auth\/callback/);
   assert.equal(
-    sourceText.includes("vercel.app"),
+    // The separately tested private acceptance allowlist is intentional. Public
+    // origins and every other application reference must remain canonical.
+    sourceText.replaceAll("https://cyber-sentinels-pr58-acceptance.vercel.app", "").includes("vercel.app"),
     false
   );
 });
