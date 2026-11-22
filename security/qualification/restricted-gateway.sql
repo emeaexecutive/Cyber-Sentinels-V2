@@ -1,0 +1,75 @@
+-- LOCAL REVIEW BUNDLE ONLY. No application schema or existing hosted grants changed.
+begin;
+create role execution20_gateway_owner nologin nosuperuser nobypassrls nocreatedb nocreaterole noinherit noreplication;
+create role execution20_gateway_login login nosuperuser nobypassrls nocreatedb nocreaterole noinherit noreplication;
+alter role execution20_gateway_login set search_path='';
+alter role execution20_gateway_login set statement_timeout='3s';
+alter role execution20_gateway_login set lock_timeout='1s';
+create schema qualification20;
+revoke all on schema qualification20 from public;
+grant usage on schema qualification20 to execution20_gateway_owner,execution20_gateway_login;
+create table qualification20.runs(db_role name primary key,tenant_id text not null,subject_id text not null,run_id text unique not null,destination text not null check(destination like 'synthetic:%'));
+create table qualification20.agents(run_id text not null,agent_id text not null,identity_digest text not null,primary key(run_id,agent_id));
+create table qualification20.decisions(run_id text not null,request_id text not null,payload jsonb not null,result jsonb not null,primary key(run_id,request_id));
+revoke all on all tables in schema qualification20 from public;
+grant select on qualification20.runs to execution20_gateway_owner;
+grant select,insert on qualification20.agents,qualification20.decisions to execution20_gateway_owner;
+alter table qualification20.runs enable row level security;
+alter table qualification20.runs force row level security;
+alter table qualification20.agents enable row level security;
+alter table qualification20.agents force row level security;
+alter table qualification20.decisions enable row level security;
+alter table qualification20.decisions force row level security;
+create policy own_run on qualification20.runs to execution20_gateway_owner using(db_role=session_user);
+create policy own_agents on qualification20.agents to execution20_gateway_owner using(exists(select 1 from qualification20.runs r where r.db_role=session_user and r.run_id=agents.run_id)) with check(exists(select 1 from qualification20.runs r where r.db_role=session_user and r.run_id=agents.run_id));
+create policy own_decisions on qualification20.decisions to execution20_gateway_owner using(exists(select 1 from qualification20.runs r where r.db_role=session_user and r.run_id=decisions.run_id)) with check(exists(select 1 from qualification20.runs r where r.db_role=session_user and r.run_id=decisions.run_id));
+create function qualification20.execute_fixed(op text,t text,s text,r text,p jsonb,request text) returns jsonb language plpgsql security definer set search_path='' as $$
+declare bound qualification20.runs; allowed text[]; result jsonb; prior qualification20.decisions; old_digest text;
+begin
+ select * into strict bound from qualification20.runs where db_role=session_user;
+ if t is distinct from bound.tenant_id or s is distinct from bound.subject_id or r is distinct from bound.run_id then raise exception 'SYNTHETIC_SCOPE_DENIED'; end if;
+ if p is null or jsonb_typeof(p)<>'object' or octet_length(p::text)>8192 then raise exception 'PAYLOAD_DENIED'; end if;
+ allowed := case op when 'schema' then array[]::text[] when 'agent' then array['agentId','identityDigest'] when 'authority' then array['agentId','authorityId'] when 'decision' then array['agentId','authorityId','action','target','purpose','consequence'] when 'review' then array['transactionId'] when 'replay' then array['transactionId'] else null end;
+ if allowed is null or p-allowed <> '{}'::jsonb then raise exception 'OPERATION_FIELDS_DENIED'; end if;
+ if op='schema' then return jsonb_build_object('synthetic',true,'runId',r,'version','restricted-v1'); end if;
+ if op='agent' then
+  if p->>'agentId' not like 'synthetic:%' or p->>'identityDigest' !~ '^[a-f0-9]{64}$' or not (p ?& array['agentId','identityDigest']) then raise exception 'AGENT_DENIED'; end if;
+  insert into qualification20.agents values(r,p->>'agentId',p->>'identityDigest') on conflict do nothing;
+  select identity_digest into old_digest from qualification20.agents where run_id=r and agent_id=p->>'agentId';
+  if old_digest<>p->>'identityDigest' then raise exception 'AGENT_DIGEST_CHANGED'; end if;
+  return jsonb_build_object('agentId',p->>'agentId','synthetic',true);
+ end if;
+ if op in ('authority','decision') then
+  if not exists(select 1 from qualification20.agents where run_id=r and agent_id=p->>'agentId') or p->>'authorityId' is distinct from 'synthetic:mandate' then raise exception 'AUTHORITY_DENIED'; end if;
+  if op='authority' then return jsonb_build_object('authorityId','synthetic:mandate','synthetic',true,'destination',bound.destination); end if;
+  if request is null or request !~ '^[A-Za-z0-9_.:-]{8,180}$' or not(p ?& allowed) or p->>'target' is distinct from bound.destination or p->>'action' is distinct from 'SIMULATE' or p->>'purpose' is distinct from 'QUALIFICATION' or p->>'consequence' is null or p->>'consequence' not in ('LOW','MODERATE','HIGH') then raise exception 'DESTINATION_OR_ACTION_DENIED'; end if;
+  result:=jsonb_build_object('transactionId',request,'decision',case when p->>'consequence'='HIGH' then 'REVIEW' else 'ALLOW' end,'synthetic',true,'destinationEffects',0);
+  insert into qualification20.decisions values(r,request,p,result) on conflict do nothing;
+  select * into strict prior from qualification20.decisions where run_id=r and request_id=request;
+  if prior.payload<>p then raise exception 'IDEMPOTENCY_BINDING_DENIED'; end if;
+  return prior.result;
+ end if;
+ select d.result into strict result from qualification20.decisions d where d.run_id=r and d.request_id=p->>'transactionId';
+ return jsonb_build_object('synthetic',true,'record',result,'hostedExecutionQualified',false);
+end $$;
+revoke all on function qualification20.execute_fixed(text,text,text,text,jsonb,text) from public;
+grant execute on function qualification20.execute_fixed(text,text,text,text,jsonb,text) to execution20_gateway_owner;
+-- The login receives precisely six named wrappers. It never receives the dispatcher.
+create function qualification20.schema_read(t text,s text,r text,p jsonb,request text default null) returns jsonb language sql security definer set search_path='' as $$ select qualification20.execute_fixed('schema',t,s,r,p,request) $$;
+create function qualification20.agent_register(t text,s text,r text,p jsonb,request text default null) returns jsonb language sql security definer set search_path='' as $$ select qualification20.execute_fixed('agent',t,s,r,p,request) $$;
+create function qualification20.authority_read(t text,s text,r text,p jsonb,request text default null) returns jsonb language sql security definer set search_path='' as $$ select qualification20.execute_fixed('authority',t,s,r,p,request) $$;
+create function qualification20.decision_create(t text,s text,r text,p jsonb,request text default null) returns jsonb language sql security definer set search_path='' as $$ select qualification20.execute_fixed('decision',t,s,r,p,request) $$;
+create function qualification20.review_read(t text,s text,r text,p jsonb,request text default null) returns jsonb language sql security definer set search_path='' as $$ select qualification20.execute_fixed('review',t,s,r,p,request) $$;
+create function qualification20.replay_read(t text,s text,r text,p jsonb,request text default null) returns jsonb language sql security definer set search_path='' as $$ select qualification20.execute_fixed('replay',t,s,r,p,request) $$;
+revoke all on all functions in schema qualification20 from public;
+grant create on schema qualification20 to execution20_gateway_owner;
+alter function qualification20.execute_fixed(text,text,text,text,jsonb,text) owner to execution20_gateway_owner;
+alter function qualification20.schema_read(text,text,text,jsonb,text) owner to execution20_gateway_owner;
+alter function qualification20.agent_register(text,text,text,jsonb,text) owner to execution20_gateway_owner;
+alter function qualification20.authority_read(text,text,text,jsonb,text) owner to execution20_gateway_owner;
+alter function qualification20.decision_create(text,text,text,jsonb,text) owner to execution20_gateway_owner;
+alter function qualification20.review_read(text,text,text,jsonb,text) owner to execution20_gateway_owner;
+alter function qualification20.replay_read(text,text,text,jsonb,text) owner to execution20_gateway_owner;
+revoke create on schema qualification20 from execution20_gateway_owner;
+grant execute on function qualification20.schema_read(text,text,text,jsonb,text),qualification20.agent_register(text,text,text,jsonb,text),qualification20.authority_read(text,text,text,jsonb,text),qualification20.decision_create(text,text,text,jsonb,text),qualification20.review_read(text,text,text,jsonb,text),qualification20.replay_read(text,text,text,jsonb,text) to execution20_gateway_login;
+commit;
