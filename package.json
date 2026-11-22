@@ -10,6 +10,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "test:soc": "node --import tsx --test tests/soc-workflow.test.mjs tests/soc-copilot.test.mjs tests/soc-operations.test.mjs tests/soc-persistence-sql.test.mjs",
+    "demo:soc": "node --import tsx tools/soc/incident-demo.mjs",
+    "test:soc-browser": "node --import tsx --test tests/soc-console-browser.mjs",
     "docker:verify": "node tools/docker-verify.mjs",
     "test:hopae": "node --experimental-strip-types --test tests/hopae-assurance.test.mjs tests/hopae-provider-integration.test.mjs",
     "test:providers": "node --experimental-strip-types --test tests/provider-abstraction.test.mjs",
@@ -177,7 +180,7 @@
     "@worldcoin/idkit": "^4.2.3",
     "@worldcoin/idkit-core": "^4.2.4",
     "lucide-react": "^0.468.0",
-    "next": "15.5.28",
+    "next": "15.5.29",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "stripe": "22.4.0"
@@ -190,7 +193,7 @@
     "@types/react-dom": "19.2.4",
     "autoprefixer": "^10.5.4",
     "eslint": "^9.17.0",
-    "eslint-config-next": "15.5.28",
+    "eslint-config-next": "15.5.29",
     "pg": "^8.22.0",
     "postcss": "8.5.25",
     "supabase": "2.116.0",

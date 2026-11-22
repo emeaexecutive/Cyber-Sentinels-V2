@@ -59,3 +59,13 @@ test('Console cancellation route verifies signed command, returns status and pro
  const previous=process.env.NATIVE_DESTINATION_EVIDENCE_KEY;const runtimeKey=randomBytes(32).toString('hex');process.env.NATIVE_DESTINATION_EVIDENCE_KEY=runtimeKey;projected.length=0;
  try{const envelope=signCancellation(command,keys.privateKey);const result=await POST(request({action:'cancel',envelope}));assert.equal(result.status,200);assert.equal((await result.json()).receipt.cancellationStatus,'CANCELLED');assert.equal(new Set(projected.map(e=>e.digest)).size,3);assert.ok(projected.every(e=>verifyCancellationEvidence(e,runtimeKey)));const snapshot=(await(await GET(new Request(url,{headers:{'x-enterprise-id':tenant}}))).json()).snapshot;assert.equal(snapshot.leases[0].taskId,'workflow:1');assert.ok(snapshot.receipts.some(r=>r.cancellationStatus==='CANCELLED'));const before=await h.read();envelope.command.reason='tamper';assert.equal((await POST(request({action:'cancel',envelope}))).status,503);assert.deepEqual(await h.read(),before);assert.equal(h.effects(),0);}finally{if(previous===undefined)delete process.env.NATIVE_DESTINATION_EVIDENCE_KEY;else process.env.NATIVE_DESTINATION_EVIDENCE_KEY=previous;}
 });
+
+test('SOC route sanitizes malformed nested envelopes and invalid citation commands',async()=>{
+ process.env.TENENTE_SWARM_CONSOLE_ENABLED='true';role='owner';signedIn=true;
+ const before=await h.read();
+ for(const body of [{action:'soc-ingest',envelope:{origin:{secret:'must-not-echo'}}},{action:'soc-ingest',envelope:{warning:{},origin:{claims:{},signature:'x'},relays:[null]}},{action:'soc-investigate',alertDigest:'must-not-echo'},{action:'soc-feedback',alertDigest:'a'.repeat(64),falsePositive:'yes'}]){
+  const response=await POST(request(body));assert.equal(response.status,400);assert.deepEqual(await response.json(),{error:'SWARM_INPUT_INVALID'});
+ }
+ assert.deepEqual(await h.read(),before);
+});
+

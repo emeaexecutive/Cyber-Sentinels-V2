@@ -1,11 +1,17 @@
 import { cancellationRuntime, type SignedCancellation } from "./cancellation.ts";
 import { detectSwarmAnomalies } from "./prevention-kit.ts";
+import { GovernedSoc, SOC_AGENTS } from "../soc/workflow.ts";
+import { investigateWithCopilot } from "../soc/copilot.ts";
 import { SwarmContainment, type Actor, type SwarmStore, type SwarmDependencies, type Collective, type Member } from "./containment.ts";
 
 /** Authentication and tenant binding are supplied by the server, never by request JSON. */
 export function swarmOperations(store: SwarmStore, authenticate: () => Promise<Actor>, now = Date.now, dependencies: Pick<SwarmDependencies, "containmentKey"> & { cancellationEvidenceKey?: () => string; cancellationProject?: (event: import("./containment.ts").SwarmEvent) => Promise<void> } = {}) {
   const unavailable = async (): Promise<never> => { throw new Error("SWARM_EXECUTION_RESOLVER_UNAVAILABLE"); };
   const control = new SwarmContainment({ ...dependencies, store, authenticate, now, resolve: unavailable, heartbeatKey: unavailable, verifyOutcome: unavailable });
+  const soc = new GovernedSoc({ store, control, authenticate, now,
+    destination: { execute: unavailable, observe: unavailable },
+    ...(process.env.OPENAI_API_KEY && process.env.OPENAI_SOC_MODEL ? { investigate: async (tenant: string, evidence: import("./containment.ts").SwarmEvent[]) => investigateWithCopilot({ tenantId: tenant, question: "Explain the recorded warning and observed facts. Report uncertainty.", evidence }, { apiKey: process.env.OPENAI_API_KEY!, model: process.env.OPENAI_SOC_MODEL! }) } : {}),
+  });
   async function operator() {
     const actor = await authenticate();
     if (actor.kind !== "human" || actor.controlledBy.length || actor.expiresAt <= now() || !actor.permissions.includes("swarm:audit")) throw new Error("SWARM_INDEPENDENT_OPERATOR_REQUIRED");
@@ -24,12 +30,36 @@ export function swarmOperations(store: SwarmStore, authenticate: () => Promise<A
         receipts: state.events.slice(-100).map(e => ({ sequence: e.sequence, kind: e.kind, subjectId: e.subjectId, at: e.at, digest: e.digest, previousHash: e.previousHash, cancellationStatus: typeof e.details.cancellationStatus === "string" ? e.details.cancellationStatus : null })),
         totalReceipts: state.events.length,
         anomalies: detectSwarmAnomalies(state.events),
+        soc: {
+          timeline: state.events.filter(e => e.kind.startsWith("SOC_")).slice(-100),
+          totalAlerts: state.events.filter(e => e.kind === "SOC_ALERT").length,
+          modelConfigured: Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_SOC_MODEL),
+          responseDispatchEnabled: false,
+        },
       }));
     },
     async command(input: unknown) {
       const actor = await operator();
       if (!input || typeof input !== "object" || Array.isArray(input)) throw new TypeError("Invalid operation.");
       const value = input as Record<string, unknown>;
+      if (["soc-register", "soc-ingest", "soc-investigate", "soc-feedback"].includes(String(value.action))) {
+        if (!actor.permissions.includes("swarm:manage")) throw Error("SOC_OPERATOR_REQUIRED");
+        if (value.action === "soc-register") {
+          if (typeof value.role !== "string" || !Object.hasOwn(SOC_AGENTS, value.role) || typeof value.ownerId !== "string" || !value.ownerId.trim() || value.ownerId.length > 240) throw TypeError("Registered role and named owner required.");
+          return soc.registerAgent(actor.tenantId, "server-session", value.role as keyof typeof SOC_AGENTS, value.ownerId.trim());
+        }
+        if (value.action === "soc-ingest") {
+          const record = (v: unknown): v is Record<string, unknown> => Boolean(v && typeof v === "object" && !Array.isArray(v));
+          const hop = (v: unknown) => record(v) && record(v.claims) && typeof v.signature === "string";
+          const envelope = value.envelope;
+          if (!record(envelope) || !record(envelope.warning) || !hop(envelope.origin) || !Array.isArray(envelope.relays) || envelope.relays.length < 1 || envelope.relays.length > 4 || !envelope.relays.every(hop) || JSON.stringify(envelope).length > 4096) throw TypeError("Signed warning required.");
+          return (await soc.ingest(actor.tenantId, "server-session", value.envelope as import("./watchtower-signals.ts").WarningEnvelope)).evidence;
+        }
+        if (typeof value.alertDigest !== "string" || !/^[a-f0-9]{64}$/.test(value.alertDigest)) throw TypeError("Alert digest required.");
+        if (value.action === "soc-investigate") return soc.investigate(actor.tenantId, "server-session", value.alertDigest);
+        if (typeof value.falsePositive !== "boolean") throw TypeError("Analyst feedback required.");
+        return soc.feedback(actor.tenantId, "server-session", value.alertDigest, value.falsePositive);
+      }
       if (value.action === "cancel" || value.action === "reconcile-cancellation") {
         if (!dependencies.containmentKey || !dependencies.cancellationEvidenceKey || !value.envelope) throw new TypeError("Signed cancellation required.");
         const runtime = cancellationRuntime({ store, authenticate, now, key: dependencies.containmentKey, runtimeKey: dependencies.cancellationEvidenceKey, project: dependencies.cancellationProject });

@@ -1,0 +1,2363 @@
+{
+  "date": "2026-11-12",
+  "repository": "emeaexecutive/Cyber-Sentinels-V2",
+  "scope": "Connected GitHub PR metadata, changed filenames, commit statuses and workflow summaries; first page workflow API limit applies.",
+  "prs": [
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/116",
+        "number": 116,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "## Summary\n\nHardens disaster-recovery capture and Employment Decision Governance, adds authority-of-record qualification, and rehearses the Production migration chain against the verified 12 October backup. The rehearsal exposed service-role approval updates that could omit an actor or self-approve. A new forward migration and session-bound server action require an audited transition and reject self-approval.\n\nDraft; no merge or deployment. Production and live account dispositions are unchanged. Automatic Vercel deployment is disabled for this PR branch.\n\n## Current qualification\n\n- Verified original custom archive: 4,103,536 bytes; SHA-256 `081310d3c1f64aaacf3c2207efa62bfa7641c81a670d5e23de6d11ae64784307`. Original archive and manifest preserved.\n- Fresh isolated PostgreSQL restore and all 15 migrations passed. Ledger 119→134; all 11,133 original rows across 284 tables preserved. Exactly five PENDING approval rows and five request events were backfilled.\n- Restored native database: 35 approval/V1/RLS/Trust Gateway checks, 25 authority/HTTP/MCP/receipt/Replay/Trust Memory checks, and five guarded failure/retry controls passed. Synthetic administrators and provider sessions only; no hosted-browser or external-provider result is inferred.\n- Full local suite: 2,048 passed, zero failed/skipped. Final core-closure suite including the new approval regression: 22 passed. Security-closure: 16 passed. Typecheck passed; lint passed with 18 pre-existing warnings; redacted Gitleaks scan of staged files passed. Local production build passed. On `d6fa4f4`, CodeQL/analyze, Gitleaks, [CI verify](https://github.com/emeaexecutive/Cyber-Sentinels-V2/actions/runs/38229517849/job/114745250101) and [secret-free Docker qualification](https://github.com/emeaexecutive/Cyber-Sentinels-V2/actions/runs/38229517849/job/114745250166) all passed. Supabase Preview was skipped and is not counted as a pass. Vercel and GitHub deployment queries returned zero deployments for this push.\n- Staging's current effective application schema matches the original 14-migration result. The new fix produces five expected differences requiring Staging application and qualification. Six local-only and 21 Staging-only versions (seven same-name pairs) are inventoried; no history was rewritten.\n- One Storage object was separately captured and verified. This does not prove synchronized DB/Storage recovery. Native libpq verified-TLS controls cover the laptop-to-pooler hop; the reported backend `ssl = f` is not a whole-chain TLS pass.\n\n## Review evidence\n\n- [Rehearsal, exact reviewed migration commands, failure handling and approval gates](docs/operations/PRODUCTION-MIGRATION-REHEARSAL-20261012.md)\n- [Qualification evidence with dated superseding addendum](docs/governance/PR-116-QUALIFICATION-EVIDENCE.md)\n- [Backup, restore, TLS and separate Storage verification](docs/operations/PRODUCTION-BACKUP-VERIFICATION-20261012.md)\n- [Source/execution hashes and row-preservation results](docs/operations/migration-rehearsal-20261012.json)\n- [Staging ledger reconciliation](docs/operations/migration-ledger-reconciliation-20261012.json)\n\nThe prior hosted Staging employment/authority migrations and Preview checks remain historical evidence for their tested commit, not qualification of this new approval RPC. Spanish governance traceability remains in `docs/governance/SPANISH-EMPLOYMENT-DECISION-GOVERNANCE.md`; no legal-compliance claim is made.\n\n## Remaining gates — Production NO-GO\n\n1. Keith reviews the private redacted five-account inventory, selects two distinct authorized administrators and decides every live account disposition. No live account has been approved, rejected or suspended during rehearsal.\n2. Qualify the new migration, server action and administrator bootstrap on Staging. Preserve historical ledger rows; any separate history repair needs source provenance and approval.\n3. Approve a current recovery point, operator/change window and coordinated application/account transition. Applying approval enforcement makes all five existing accounts PENDING and denies their V1 keys until audited approval. The old admin page cannot write after the new privilege revocation.\n4. Explicit owner approval is required before merge, deployment or Production migration execution. Offsite retention/recovery ownership, synchronized Storage requirements and legal/DPO decisions remain separate release decisions.\n\nThe reviewed generated Production SQL exactly matches the successful guarded rehearsal and rejects ledger drift. It has not been executed against Production. No automatic reverse migration or destructive restore is authorized.\n",
+        "title": "Harden recovery and governance; rehearse Production migrations",
+        "base": "main",
+        "base_sha": "94a530cfacbc4470a3f02ff8b08dfc60cd3e13de",
+        "head": "feat/authority-of-record-tenente",
+        "head_sha": "1138150889ec1237a848073f352881d93b72484b",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "cb21781065e35d4e68c9e64fc8437a7fda884298",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-10-10T15:56:22Z",
+        "updated_at": "2026-10-19T16:03:23Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 30,
+        "changed_files": 264,
+        "additions": 35705,
+        "deletions": 643,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/116",
+        "display_title": "Harden recovery and governance; rehearse Production migrations"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": []
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 39282491635,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 378,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39282491635/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39282491635/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 39282491640,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 356,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39282491640/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39282491640/logs",
+                "workflow_id": 326790531
+              },
+              {
+                "id": 39282491627,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 395,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39282491627/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39282491627/logs",
+                "workflow_id": 317466170
+              }
+            ]
+          },
+          "isError": false
+        }
+      },
+      "files": {
+        "filenames": [
+          ".gitleaksignore",
+          ".vercelignore",
+          "app/access-pending/page.tsx",
+          "app/admin/access-approvals/page.tsx",
+          "app/admin/employment-governance/page.tsx",
+          "app/admin/founder-control/page.tsx",
+          "app/api/admin/data-rights/[id]/status/route.ts",
+          "app/api/admin/evidence/[id]/decision/route.ts",
+          "app/api/admin/verification-cases/[id]/decision/route.ts",
+          "app/api/ai-governance/analyze/route.ts",
+          "app/api/auth/password-reset/request/route.ts",
+          "app/api/auth/submit/route.ts",
+          "app/api/auth/turnstile/route.ts",
+          "app/api/employment/decisions/route.ts",
+          "app/api/enterprise-access/route.ts",
+          "app/api/evidence/download/route.ts",
+          "app/api/evidence/route.ts",
+          "app/api/evidence/upload/route.ts",
+          "app/api/operational-entities/[entityId]/delegated-authority/route.ts",
+          "app/api/passports/[id]/decision/route.ts",
+          "app/api/permissions/check/route.ts",
+          "app/api/ready/route.ts",
+          "app/api/trust-algorithm/run/route.ts",
+          "app/api/trust/certifications/route.ts",
+          "app/api/trust/check/route.ts",
+          "app/api/trust/decision/route.ts",
+          "app/api/trust/transactions/[transactionId]/receipt/route.ts",
+          "app/api/v1/tools/opengraph/site/route.ts",
+          "app/api/waitlist/route.ts",
+          "app/back-office/page.tsx",
+          "app/dashboard/replay/[entityId]/page.tsx",
+          "app/developers/quickstart/page.tsx",
+          "app/evidence-vault/page.tsx",
+          "app/feedback/page.tsx",
+          "app/login/page.tsx",
+          "app/operational-entities/[entityId]/page.tsx",
+          "app/pro-waitlist/page.tsx",
+          "app/trust-graph-engine/page.tsx",
+          "app/trust-graph-explorer/page.tsx",
+          "app/verifier-network/page.tsx",
+          "app/verify-email/page.tsx",
+          "app/workspace/page.tsx",
+          "components/tenente-authority-panel.tsx",
+          "components/turnstile-field.tsx",
+          "components/waitlist-form.tsx",
+          "config/environments/registry.json",
+          "config/product-capabilities.json",
+          "docs/API_MATURITY.md",
+          "docs/CYBER_SENTINELS_CAPABILITY_TRUTH_MATRIX.md",
+          "docs/architecture/LOCATION_ASSURANCE_POST_GO_DESIGN.md",
+          "docs/authority-of-record/IMPLEMENTATION_REPORT.md",
+          "docs/authority-of-record/LOCAL_QUALIFICATION.json",
+          "docs/authority-of-record/LOCAL_SCHEMA_QUALIFICATION.json",
+          "docs/authority-of-record/README.md",
+          "docs/authority-of-record/TEST_MATRIX.md",
+          "docs/authority-of-record/VALIDATION.json",
+          "docs/governance/PR-116-QUALIFICATION-EVIDENCE.md",
+          "docs/governance/SPANISH-EMPLOYMENT-DECISION-GOVERNANCE.md",
+          "docs/operations/PRODUCTION-BACKUP-VERIFICATION-20261012.md",
+          "docs/operations/PRODUCTION-MIGRATION-REHEARSAL-20261012.md",
+          "docs/operations/STAGING-CLOSURE-20261019.md",
+          "docs/operations/STAGING-TURNSTILE-DIAGNOSIS-20261019.md",
+          "docs/operations/TURNSTILE-P0-AUDIT-20261019.md",
+          "docs/operations/disaster-recovery.md",
+          "docs/operations/isolated-restore-execution-20261009.md",
+          "docs/operations/isolated-restore-preflight-20261009.md",
+          "docs/operations/migration-approval-tests-20261012.json",
+          "docs/operations/migration-authority-tests-20261012.json",
+          "docs/operations/migration-baselines-20261012.json",
+          "docs/operations/migration-failure-repair-guarded-20261012.json",
+          "docs/operations/migration-ledger-reconciliation-20261012.json",
+          "docs/operations/migration-rehearsal-20261012.json",
+          "docs/operations/migration-staging-comparison-20261012.json",
+          "docs/operations/production-recovery-verification-20261012.json",
+          "docs/operations/recovery-blocker-resolution-20261010.md",
+          "docs/operations/recovery-capture-runbook.md",
+          "docs/operations/recovery-closure-20261009.md",
+          "docs/operations/recovery-closure-20261010.md",
+          "docs/operations/recovery-extension-classification-20261009.md",
+          "docs/operations/recovery-restore-validation-20261012.json",
+          "docs/operations/recovery-storage-verification-20261012.json",
+          "docs/operations/recovery-test-plan.md",
+          "docs/operations/recovery-tls-20261012.json",
+          "docs/operations/staging-session-delta-equivalence-20261019.json",
+          "docs/operations/storage-recovery-closure-20261010.md",
+          "docs/operations/templates/production-write-quiescence-attestation.template.json",
+          "docs/production-recovery-procedure.md",
+          "docs/release/APPROVED_MODEL_STATE_CLOSURE_20261006.md",
+          "docs/release/APPROVED_MODEL_STATE_EVIDENCE_20261006.json",
+          "docs/release/CORE_APPROVAL_BOUNDARY.md",
+          "docs/release/CORE_CANONICAL_SCHEMA.md",
+          "docs/release/CORE_CLOSURE_EVIDENCE_20261008.json",
+          "docs/release/CORE_FINAL_CLOSURE_20261008.md",
+          "docs/release/CORE_RC_FILESET_20261008.json",
+          "docs/release/CORE_RELEASE_CLOSURE_20261006.md",
+          "docs/release/CORE_RELEASE_EVIDENCE_20261006.json",
+          "docs/release/CORE_SCHEMA_DIFFERENCE_CLOSURE.json",
+          "docs/release/CORE_SCHEMA_DIFFERENCE_CLOSURE.md",
+          "docs/release/CORE_SCHEMA_DRIFT_20261006.md",
+          "docs/release/CORE_TRUST_MEMORY_PROVENANCE.json",
+          "docs/release/FINAL_STAGING_QUALIFICATION_20261005.md",
+          "docs/release/RC_SECRET_CLOSURE_20261006.md",
+          "docs/release/RC_STAGING_SECURITY_PROOF_20261004.md",
+          "docs/release/STAGING_ORIGIN_CLOSURE_20261005.md",
+          "examples/agent-gamma/gamma.mjs",
+          "examples/powershell/agent-gamma.ps1",
+          "lib/auth/approval-boundary.ts",
+          "lib/auth/login-experience.ts",
+          "lib/auth/password-recovery.ts",
+          "lib/auth/protected-auth.ts",
+          "lib/auth/update-account-approval.ts",
+          "lib/bot-protection.ts",
+          "lib/employment/decision-governance.ts",
+          "lib/operational-entities/delegated-authority-server.ts",
+          "lib/operational-entities/delegated-authority.ts",
+          "lib/operational-entities/federated-evidence.ts",
+          "lib/operational-entities/http-tool-adapter.ts",
+          "lib/operational-entities/native-enforcement-server.ts",
+          "lib/operational-entities/native-enforcement.ts",
+          "lib/providers/judgeme-route.ts",
+          "lib/providers/opengraph-executor.ts",
+          "lib/providers/opengraph-test-adapter.ts",
+          "lib/public-api/v1/api-key-crypto.ts",
+          "lib/public-api/v1/authentication.ts",
+          "lib/public-api/v1/contracts.ts",
+          "lib/public-api/v1/environment.ts",
+          "lib/public-api/v1/openapi.ts",
+          "lib/public-api/v1/opengraph-gateway-input.ts",
+          "lib/public-api/v1/opengraph-gateway.ts",
+          "lib/public-api/v1/runtime.ts",
+          "lib/readiness/project-binding.ts",
+          "lib/supabase/protected-auth.ts",
+          "lib/trust-fabric/model-approval.ts",
+          "lib/trust-fabric/model-state-integrity.ts",
+          "lib/trust-receipts/authority-signature-server.ts",
+          "lib/trust-receipts/authority-signature.ts",
+          "lib/trust-transaction/action-envelope.ts",
+          "lib/trust-transaction/model-approval-server.ts",
+          "lib/trust-transaction/server.ts",
+          "middleware.ts",
+          "package.json",
+          "packages/cyber-sentinels-sdk/src/index.ts",
+          "src/lib/consensus/http.ts",
+          "src/lib/employment/decision-service.ts",
+          "src/lib/opengraph/workflow.ts",
+          "src/lib/trust-transaction/canonical.ts",
+          "supabase/canonical-schema-contract.json",
+          "supabase/migrations/202610040001_p0p1_security_closure.sql",
+          "supabase/migrations/202610040002_account_access_approval.sql",
+          "supabase/migrations/202610040003_require_approved_accounts_for_data_api.sql",
+          "supabase/migrations/202610040004_lock_legacy_passport_decision_writes.sql",
+          "supabase/migrations/20261006105554_model_approval_evidence_lifecycle.sql",
+          "supabase/migrations/20261006110619_model_state_replay_event_contract.sql",
+          "supabase/migrations/20261007150222_account_approval_default_deny.sql",
+          "supabase/migrations/20261007150224_canonical_trust_memory_function_reconciliation.sql",
+          "supabase/migrations/20261007150835_canonical_workspace_bootstrap.sql",
+          "supabase/migrations/20261008093614_canonical_application_access_grants.sql",
+          "supabase/migrations/20261008105722_canonical_application_schema_reconciliation.sql",
+          "supabase/migrations/20261008112858_evidence_download_approval_revalidation.sql",
+          "supabase/migrations/20261008120422_authority_of_record_exact_execution.sql",
+          "supabase/migrations/20261010110000_employment_access_governance_hardening.sql",
+          "supabase/migrations/20261012084456_audited_account_approval_transition.sql",
+          "supabase/migrations/20261012122704_require_active_customer_sessions.sql",
+          "tests/agent-gamma-boundary.test.mjs",
+          "tests/api-key-stability.test.mjs",
+          "tests/authority-of-record-http.test.mjs",
+          "tests/authority-of-record-tenente.test.mjs",
+          "tests/backup-recovery-security.test.mjs",
+          "tests/canonical-trust-transaction.test.mjs",
+          "tests/consolidation-operational-simplification.test.mjs",
+          "tests/cyber-sentinels-sdk.test.mjs",
+          "tests/deployment-route-inclusion.test.mjs",
+          "tests/employment-decision-governance.test.mjs",
+          "tests/environment-safety.test.mjs",
+          "tests/evidence-download-approval.test.mjs",
+          "tests/external-agent-client-parity.test.mjs",
+          "tests/final-blocker-sweep.test.mjs",
+          "tests/final-execution-readiness.test.mjs",
+          "tests/fixtures/account-approval-boundary.sql",
+          "tests/fixtures/authority-of-record.mjs",
+          "tests/fixtures/model-approval.mjs",
+          "tests/fixtures/opengraph-canonical.mjs",
+          "tests/fixtures/sign-out-session.mjs",
+          "tests/judgeme-webhook-runtime.test.mjs",
+          "tests/live/staging-approval-lifecycle.test.mjs",
+          "tests/live/staging-rls-governance.test.mjs",
+          "tests/live/staging-security-closure.test.mjs",
+          "tests/login-experience.test.mjs",
+          "tests/login-navigation-browser.mjs",
+          "tests/login-turnstile-browser.mjs",
+          "tests/migration-namespace-reconciliation.test.mjs",
+          "tests/model-approval-receipt.test.mjs",
+          "tests/model-approval.test.mjs",
+          "tests/native-delegated-authority-integration.test.mjs",
+          "tests/opengraph-boundary.test.mjs",
+          "tests/opengraph-executor.test.mjs",
+          "tests/opengraph-gateway-input.test.mjs",
+          "tests/password-recovery-flow.test.mjs",
+          "tests/permissions-check-retired.test.mjs",
+          "tests/product-capability-registry.test.mjs",
+          "tests/production-domain-readiness.test.mjs",
+          "tests/react-19-2-8-compatibility.test.mjs",
+          "tests/readiness-project-binding.test.mjs",
+          "tests/readiness-route-binding.test.mjs",
+          "tests/request-demo-api.test.mjs",
+          "tests/rls/account-approval-default-deny.test.mjs",
+          "tests/rls/active-customer-session.test.mjs",
+          "tests/rls/audited-account-transition.test.mjs",
+          "tests/rls/legacy-security-closure-runtime.test.mjs",
+          "tests/rls/legacy-security-closure.test.mjs",
+          "tests/rls/trust-event-foundation.test.mjs",
+          "tests/schema-equivalence.test.mjs",
+          "tests/sign-out.test.mjs",
+          "tests/supabase-ssr-auth-regression.test.mjs",
+          "tests/synthetic-interaction-trust.test.mjs",
+          "tests/turnstile-action-integration.test.mjs",
+          "tests/turnstile-configuration.test.mjs",
+          "tests/turnstile-routes-integration.test.mjs",
+          "tests/waitlist-approval-boundary.test.mjs",
+          "tests/workspace-owner-creation.test.mjs",
+          "tools/docker-verify.mjs",
+          "tools/qualification/authority-of-record-local.mjs",
+          "tools/qualification/setup-authority-of-record-local.mjs",
+          "tools/release/application-catalog.mjs",
+          "tools/release/approval-boundary-inventory.mjs",
+          "tools/release/backup-production.ps1",
+          "tools/release/backup-recovery-point.mjs",
+          "tools/release/backup-storage-current.mjs",
+          "tools/release/classify-recovery-extensions.mjs",
+          "tools/release/effective-application-schema.sql",
+          "tools/release/environment-safety.ts",
+          "tools/release/generate-production-migration-plan.mjs",
+          "tools/release/live-staging-guard.ts",
+          "tools/release/migration-execution.mjs",
+          "tools/release/migration-rehearsal-approval-worker.mjs",
+          "tools/release/recovery-application-http.mjs",
+          "tools/release/recovery-continuity.mjs",
+          "tools/release/recovery-dependency-probe.mjs",
+          "tools/release/recovery-drill.mjs",
+          "tools/release/recovery-extension-catalog.sql",
+          "tools/release/recovery-extension-probes.sql",
+          "tools/release/recovery-local-proxy.mjs",
+          "tools/release/recovery-local-stack.mjs",
+          "tools/release/recovery-post-hardening.mjs",
+          "tools/release/recovery-restore-20261009.mjs",
+          "tools/release/recovery-runtime.mjs",
+          "tools/release/recovery-security.sql",
+          "tools/release/recovery-snapshot-catalog.sql",
+          "tools/release/recovery-storage-file-backend.mjs",
+          "tools/release/recovery-storage-fixture.mjs",
+          "tools/release/recovery-storage-payload-drill.mjs",
+          "tools/release/recovery-storage-stack.mjs",
+          "tools/release/recovery-storage.mjs",
+          "tools/release/recovery-structural.mjs",
+          "tools/release/recovery-tools.Dockerfile",
+          "tools/release/rehearse-production-migrations.mjs",
+          "tools/release/reviewed-schema-equivalences.json",
+          "tools/release/run-migration-approval-tests.mjs",
+          "tools/release/run-recovery-drill.ps1",
+          "tools/release/schema-contract.mjs",
+          "tools/release/schema-equivalence.mjs",
+          "tools/release/set-staging-qualification-credential.ps1",
+          "tools/release/storage-backup-credentials.mjs",
+          "vercel.json"
+        ]
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/118",
+        "number": 118,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "TENENTE swarm operations enforce shared atomic authority budgets and independently enrolled signed runtime containment through the canonical Trust Gateway and controlled HTTP/MCP adapters. This candidate adds authenticated first-party cancellation delivery: tenant/task/execution-bound signed commands, durable acknowledgement, queued cancellation, bounded delivery observation, transport abort and uncertain-outcome reconciliation. Cancellation transitions persist through canonical receipts, Replay and Trust Memory. The operations console exposes the signed-command workflow.\n\nExact candidate: f144fd079043c72c981a3a29e029cad39e89a3cc.\n\nValidation: 2,262/2,262 full regression tests, including 88 swarm checks; 14/14 disposable PostgreSQL cancellation/concurrency tests; typecheck, lint and optimized build pass. Changed-file lint is clean (ten pre-existing full-lint warnings). Redacted changed-source scan passes. Five concurrent agents per HTTP/MCP transport produced six downstream calls including failure/retry, exactly EUR500 simulated aggregate spend, and zero calls after parent revocation. Queued cancellation produced zero effects and three authenticated transitions persisted to the SQL journal, Replay and Trust Memory.\n\nIn-flight HTTP and HTTP-carried MCP aborts are explicitly CANCELLATION_UNCONFIRMED, not proof that a remote side effect was reversed. Third-party cancellation remains unsupported. Hosted operator workflows, deployed signing configuration and cross-instance latency remain unqualified. This draft PR is not release approval. Existing forward migrations have not been applied to hosted projects; this cancellation change introduces no migration. No merge or deployment is requested. Automatic Vercel deployment remains disabled for this branch.\n\nEvidence: docs/swarm-authority/CANCELLATION-QUALIFICATION-20261020.md and cancellation-evidence-20261020/manifest.json contain exact paths, tested source hashes, compressed logs and proof limits. CPTO-CLOSURE-20261020.md, ACCEPTANCE-32-20261020.md and OPERATIONS-RUNBOOK-20261020.md preserve prior evidence and recovery gates. Frozen Core RC, original backup and unrelated worktree changes are preserved. No shared Staging or Production changes were made for this cancellation implementation.\r\n\nFinal CI for f144fd079043c72c981a3a29e029cad39e89a3cc: all active checks passed (verification, secret-free Docker qualification, CodeQL/analyze, gitleaks). Supabase Preview skipped. Qualification run: https://github.com/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39428629007 . No merge or deployment performed.\r\n",
+        "title": "TENENTE swarm: authority enforcement and authenticated runtime cancellation",
+        "base": "feat/authority-of-record-tenente",
+        "base_sha": "1138150889ec1237a848073f352881d93b72484b",
+        "head": "feat/tenente-swarm-authority-control",
+        "head_sha": "f144fd079043c72c981a3a29e029cad39e89a3cc",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "86bdbc113af1c9180944b1e9e1fa660538e68876",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-10-20T10:47:00Z",
+        "updated_at": "2026-10-20T13:20:22Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 10,
+        "changed_files": 111,
+        "additions": 4740,
+        "deletions": 21,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/118",
+        "display_title": "TENENTE swarm: authority enforcement and authenticated runtime cancellation"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": []
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 39428629867,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 363,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39428629867/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39428629867/logs",
+                "workflow_id": 326790531
+              },
+              {
+                "id": 39428629052,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 385,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39428629052/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39428629052/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 39428629007,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 402,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39428629007/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39428629007/logs",
+                "workflow_id": 317466170
+              }
+            ]
+          },
+          "isError": false
+        }
+      },
+      "files": {
+        "filenames": [
+          ".github/workflows/secret-scan.yml",
+          "TENENTE_SWARM_CODEX_COMPLETE.md",
+          "app/about-us/page.tsx",
+          "app/api/tenente/swarm/route.ts",
+          "app/api/v1/agents/[agentId]/heartbeat/route.ts",
+          "app/platform/page.tsx",
+          "app/tenente/swarm/page.tsx",
+          "app/tenente/swarm/swarm-console.tsx",
+          "docs/operations/REQUIREMENTS-EVIDENCE-RECONCILIATION-20261019.md",
+          "docs/operations/reconciliation-validation-20261019.json",
+          "docs/swarm-authority/ACCEPTANCE-32-20261020.md",
+          "docs/swarm-authority/ADVERSARIAL-RESULTS.md",
+          "docs/swarm-authority/CANCELLATION-QUALIFICATION-20261020.md",
+          "docs/swarm-authority/CAPABILITY-RECONCILIATION-20261020.md",
+          "docs/swarm-authority/CONTRACT-QUALIFICATION-20261020.md",
+          "docs/swarm-authority/CPTO-CLOSURE-20261020.md",
+          "docs/swarm-authority/IMPLEMENTATION.md",
+          "docs/swarm-authority/OPERATIONS-RUNBOOK-20261020.md",
+          "docs/swarm-authority/PR-DISPOSITION-20261020.md",
+          "docs/swarm-authority/RUNBOOK.md",
+          "docs/swarm-authority/SWARM-CONTROL-20261019.md",
+          "docs/swarm-authority/WEBSITE-AUDIT-20261020.md",
+          "docs/swarm-authority/cancellation-evidence-20261020/build.log.gz",
+          "docs/swarm-authority/cancellation-evidence-20261020/changed-lint.log.gz",
+          "docs/swarm-authority/cancellation-evidence-20261020/full-regressions.log.gz",
+          "docs/swarm-authority/cancellation-evidence-20261020/initial-loopback-port-error.log.gz",
+          "docs/swarm-authority/cancellation-evidence-20261020/initial-typecheck-errors.log.gz",
+          "docs/swarm-authority/cancellation-evidence-20261020/lint.log.gz",
+          "docs/swarm-authority/cancellation-evidence-20261020/manifest.json",
+          "docs/swarm-authority/cancellation-evidence-20261020/postgres.log.gz",
+          "docs/swarm-authority/cancellation-evidence-20261020/swarm-focused.log.gz",
+          "docs/swarm-authority/cancellation-evidence-20261020/typecheck.log.gz",
+          "docs/swarm-authority/cpto-evidence-20261020/archive-rehash.json",
+          "docs/swarm-authority/cpto-evidence-20261020/browser-audit.json",
+          "docs/swarm-authority/cpto-evidence-20261020/browser-final.json",
+          "docs/swarm-authority/cpto-evidence-20261020/build.log.gz",
+          "docs/swarm-authority/cpto-evidence-20261020/deployments.json",
+          "docs/swarm-authority/cpto-evidence-20261020/final-focused.log.gz",
+          "docs/swarm-authority/cpto-evidence-20261020/final-local-about-desktop.png",
+          "docs/swarm-authority/cpto-evidence-20261020/final-local-about-mobile.png",
+          "docs/swarm-authority/cpto-evidence-20261020/final-local-mobile-menu.png",
+          "docs/swarm-authority/cpto-evidence-20261020/final-local-platform-desktop.png",
+          "docs/swarm-authority/cpto-evidence-20261020/final-local-platform-mobile.png",
+          "docs/swarm-authority/cpto-evidence-20261020/final-public-about-desktop.png",
+          "docs/swarm-authority/cpto-evidence-20261020/final-public-about-mobile.png",
+          "docs/swarm-authority/cpto-evidence-20261020/final-public-platform-desktop.png",
+          "docs/swarm-authority/cpto-evidence-20261020/final-public-platform-mobile.png",
+          "docs/swarm-authority/cpto-evidence-20261020/full-regressions.log.gz",
+          "docs/swarm-authority/cpto-evidence-20261020/lint.log.gz",
+          "docs/swarm-authority/cpto-evidence-20261020/manifest.json",
+          "docs/swarm-authority/cpto-evidence-20261020/postgres-network.log.gz",
+          "docs/swarm-authority/cpto-evidence-20261020/postgres-rls.log.gz",
+          "docs/swarm-authority/cpto-evidence-20261020/public-http.json",
+          "docs/swarm-authority/cpto-evidence-20261020/resource-timeout-attempt.log.gz",
+          "docs/swarm-authority/cpto-evidence-20261020/schema-readonly.json",
+          "docs/swarm-authority/cpto-evidence-20261020/storage-rehash.json",
+          "docs/swarm-authority/cpto-evidence-20261020/typecheck.log.gz",
+          "docs/swarm-authority/evidence-20261020/build.log.gz",
+          "docs/swarm-authority/evidence-20261020/lint.log.gz",
+          "docs/swarm-authority/evidence-20261020/regressions.log.gz",
+          "docs/swarm-authority/evidence-20261020/swarm.log.gz",
+          "docs/swarm-authority/evidence-20261020/typecheck.log.gz",
+          "docs/swarm-authority/proposed-persistence.sql",
+          "docs/swarm-authority/qualification-evidence-20261019.json",
+          "docs/swarm-authority/qualification-evidence-20261020.json",
+          "gitleaks-verified-fixtures.ignore",
+          "lib/core/authority-graph.ts",
+          "lib/core/entity-identity.ts",
+          "lib/operational-entities/delegated-authority-server.ts",
+          "lib/operational-entities/http-tool-adapter.ts",
+          "lib/operational-entities/native-enforcement-server.ts",
+          "lib/operational-entities/native-enforcement.ts",
+          "lib/public-api/v1/openapi.ts",
+          "lib/swarm/cancellation.ts",
+          "lib/swarm/containment-keys-server.ts",
+          "lib/swarm/containment.ts",
+          "lib/swarm/evidence-projection-server.ts",
+          "lib/swarm/evidence-projection.ts",
+          "lib/swarm/native-guard.ts",
+          "lib/swarm/native-server-controls.ts",
+          "lib/swarm/operations.ts",
+          "lib/swarm/prevention-kit.ts",
+          "lib/swarm/projection-recovery.ts",
+          "lib/swarm/rpc-persistence.ts",
+          "lib/swarm/runtime-heartbeat-server.ts",
+          "lib/swarm/store.ts",
+          "package.json",
+          "packages/cyber-sentinels-sdk/README.md",
+          "packages/cyber-sentinels-sdk/src/index.ts",
+          "supabase/migrations/20261020091324_tenente_swarm_authority_control.sql",
+          "supabase/migrations/20261020100706_tenente_swarm_projection_recovery.sql",
+          "tests/authority-of-record-tenente.test.mjs",
+          "tests/fixtures/swarm-control.mjs",
+          "tests/fixtures/swarm-schema.mjs",
+          "tests/fixtures/swarm-sql.mjs",
+          "tests/migration-namespace-reconciliation.test.mjs",
+          "tests/rls/swarm-authority.test.mjs",
+          "tests/swarm-authority.test.mjs",
+          "tests/swarm-budget.test.mjs",
+          "tests/swarm-cancellation.test.mjs",
+          "tests/swarm-contract.test.mjs",
+          "tests/swarm-http-budget.test.mjs",
+          "tests/swarm-memory-projection.test.mjs",
+          "tests/swarm-native-server-controls.test.mjs",
+          "tests/swarm-operations.test.mjs",
+          "tests/swarm-prevention-kit.test.mjs",
+          "tests/swarm-projection-recovery.test.mjs",
+          "tests/swarm-projection-sql.test.mjs",
+          "tests/swarm-route.test.mjs",
+          "tests/swarm-runtime-heartbeat.test.mjs",
+          "vercel.json"
+        ]
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/123",
+        "number": 123,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "Stacked on draft #118. Retains qualification property tests and enterprise-context checks, and adds a runnable five-agent TENENTE demonstration using existing authority, native enforcement, shared budget, cancellation, evidence projection and Replay modules.\n\nRun `npm run demo:swarm` (Windows: `npm.cmd run demo:swarm`). This executes nine scenarios, demonstration tests, and the existing `npm run test:swarm-authority` suite.\n\nCoordinator plans bounded work; Research reads a synthetic ledger; Analysis derives a refund; Execution requests it through native enforcement; Audit independently checks receipt hashes and Replay. JSON records identities, delegation chains, requests, policy decisions, execution outcomes and verification results.\n\nValidated: ALLOW, REVIEW, DENY, forged delegation, cross-tenant access, revocation, shared-budget exhaustion, ambiguous cancellation, and missing evidence. Actual runners: 9 demonstration + 87 authority + 11 route/server-control tests passed (107 total), zero failures/skips. Changed-file ESLint passed. Evidence and raw output: artifacts/swarm-demo/summary.json, test-results.json, qualification.txt and demo-tests.tap.\n\nThis is a deterministic single-process demonstration with synthetic identity/policy/destination dependencies and in-memory persistence. Replay projections are exported, not persisted to hosted databases. Non-refund task outcomes remain dispatched; unknown refund outcomes retain reservations. No production, hosted staging, credentials or migration changes. Keep #118 and #123 draft and unmerged.\r\n",
+        "title": "test(swarm): delegation property tests, enterprise-context interface and maturity matrix",
+        "base": "feat/tenente-swarm-authority-control",
+        "base_sha": "f144fd079043c72c981a3a29e029cad39e89a3cc",
+        "head": "swarm/qualification-hardening",
+        "head_sha": "43af4fcf96481039fcb920ce7871b3bf39842e2b",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": null,
+        "user": {
+          "login": "emeaexecutive",
+          "name": null,
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-10-21T21:58:20Z",
+        "updated_at": "2026-10-22T13:52:17Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 2,
+        "changed_files": null,
+        "additions": null,
+        "deletions": null,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/123",
+        "display_title": "test(swarm): delegation property tests, enterprise-context interface and maturity matrix"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/2DHw9xELbrNU38P7g3jbmUZXVpGJ"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 39787350411,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 401,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39787350411/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39787350411/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 39787350794,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 418,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39787350794/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39787350794/logs",
+                "workflow_id": 317466170
+              },
+              {
+                "id": 39787350128,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 379,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39787350128/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39787350128/logs",
+                "workflow_id": 326790531
+              }
+            ]
+          },
+          "isError": false
+        }
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/128",
+        "number": 128,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "High-consequence authorization could be reserved again using a fresh idempotency key, and authority revocation or approval expiry during asynchronous reservation could reach the adapter. This PR adds a database single-use invariant for HIGH/CRITICAL transactions and reloads current authority and approval time immediately before dispatch, after asynchronous swarm guards.\n\nThe controlled-provider composition tests now require both authority reads in order. They retain one-reservation/one-provider-call assertions and explicitly assert one decision, graph, Replay, Memory, acknowledgement and outcome write, with no new writes or dispatch on historical replay. The prior CI failure counted authority reads, not duplicate execution or evidence; no production security check was removed or relaxed.\n\nValidation on final head ab88dbfc848ee09f1ef08d28fd3f1d871981165f: https://github.com/emeaexecutive/Cyber-Sentinels-V2/actions/runs/40915662245 — verify and docker-build PASS on Node 22. npm test including pretest: 2,277 passed, 0 failed, 2 existing Windows-only skips on Linux (2,279 TAP records, not unique scenarios). Auth browser: 31 passed, 0 skipped. Lint, typecheck and build PASS; CodeQL and redacted secret scan PASS. Focused local enforcement/composition: 36 passed; approval SQL/dispatch race regressions: 7 passed.\n\nStacked on PR #123 (swarm/qualification-hardening). No merge, deployment or hosted migration performed. Migration gate: preflight existing duplicate HIGH/CRITICAL REQUESTED transactions before applying the partial unique index; preserve historical evidence. A reservation conservatively consumes approval even if a later dispatch check blocks it. Destination-side commit enforcement, full policy-change race testing, hosted concurrency and complete exported-evidence verification remain outstanding. The separate founder demo was preserved and is not a qualified combined hosted release candidate.",
+        "title": "Prevent high-consequence approval reuse and revalidate before tool dispatch",
+        "base": "swarm/qualification-hardening",
+        "base_sha": "43af4fcf96481039fcb920ce7871b3bf39842e2b",
+        "head": "audit/authority-closure-review",
+        "head_sha": "ab88dbfc848ee09f1ef08d28fd3f1d871981165f",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "0506f520f3197a581067ea29b377e2eae3e9ea55",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-10-29T07:14:52Z",
+        "updated_at": "2026-11-03T22:51:36Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 8,
+        "changed_files": 7,
+        "additions": 220,
+        "deletions": 4,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/128",
+        "display_title": "Prevent high-consequence approval reuse and revalidate before tool dispatch"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/BV8SxDBXqgqQA17CgBvGnDHC5Ltz"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 40915662194,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 409,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/40915662194/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/40915662194/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 40915662121,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 387,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/40915662121/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/40915662121/logs",
+                "workflow_id": 326790531
+              },
+              {
+                "id": 40915662245,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 426,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/40915662245/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/40915662245/logs",
+                "workflow_id": 317466170
+              }
+            ]
+          },
+          "isError": false
+        }
+      },
+      "files": {
+        "filenames": [
+          "docs/authority-of-record/TWELVE_SCENARIO_AUDIT_20261029.md",
+          "lib/operational-entities/native-enforcement.ts",
+          "package.json",
+          "supabase/migrations/20261028230354_single_use_high_consequence_approval.sql",
+          "tests/controlled-provider-outcome-qualification.test.mjs",
+          "tests/twelve-scenario-approval-sql.test.mjs",
+          "tests/twelve-scenario-execution.test.mjs"
+        ]
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/129",
+        "number": 129,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "Qualify the approved website release at exact SHA 9a3c77e47cd679744355a28f16f7796cde4cf7b8 through required GitHub CI. Includes pricing/navigation/Translate fixes, contact routing, Help and neutral legal review notices. Production promotion is conditional on CI and deployed verification. No merge requested; no database, Auth configuration, API handler, middleware or security-enforcement changes are authorized.",
+        "title": "Release approved website changes for 3 November 2026",
+        "base": "main",
+        "base_sha": "63a0e0f550f65b4beb3c52afabdba0481b510e69",
+        "head": "release/website-only-20261103",
+        "head_sha": "6a0c1813abcfadb9dd8d2af2b29baa569f33b8af",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": null,
+        "user": {
+          "login": "emeaexecutive",
+          "name": null,
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-03T20:20:44Z",
+        "updated_at": "2026-11-03T22:27:51Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 8,
+        "changed_files": null,
+        "additions": null,
+        "deletions": null,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/129",
+        "display_title": "Release approved website changes for 3 November 2026"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/Dzxmgia1z6TFFgj2VYZv7c355KBq"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 41730551161,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 415,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41730551161/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41730551161/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 41730551026,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 393,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41730551026/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41730551026/logs",
+                "workflow_id": 326790531
+              },
+              {
+                "id": 41730551016,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 432,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41730551016/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41730551016/logs",
+                "workflow_id": 317466170
+              }
+            ]
+          },
+          "isError": false
+        }
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/130",
+        "number": 130,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": false,
+        "body": "## Summary\n- Add a workload OIDC token verifier pinned to server-configured issuer, audience, and HTTPS JWKS; require validated signature, expiry, tenant, workload, subject, JTI, and the sole `trust:request` scope.\n- Add owner/admin registration, listing, and revocation for tenant-owned workload bindings, plus a workload-only decision route that derives agent identity from the token and delegates to the existing canonical decision path.\n- Add a service-role-only workload-binding migration, OpenAPI/SDK/PowerShell documentation, and focused security/contract tests.\n\n## Security boundaries and limitations\n- Workload credentials can request decisions only; this PR does not dispatch provider actions. ALLOW is not execution proof. HubSpot enforcement and uncertain-outcome reconciliation remain PR B.\n- JWTs are bearer credentials during their short lifetime; no persistent JTI replay store is included. Bindings are revocable and decision requests require idempotency keys.\n- The migration is not applied and no hosted issuer/database test has been performed. Hosted qualification remains blocked on approved non-production issuer/JWKS/audience configuration and database-backed cross-tenant/revocation tests.\n- This PR uses the existing public API key authentication and current tenant owner/admin checks; it does not add the feature branch's separate account-approval schema.\n\n## Validation\n- Public API regression suite plus workload identity: 152 tests passed; the focused workload identity/schema suite: 7 passed.\n- `npm run typecheck`, targeted ESLint, PowerShell parser, and `npm run build` passed.\n- `npm audit --omit=dev`: zero production dependency advisories. `npm ci` reported 14 moderate findings in the full dependency set; none were auto-fixed.\n\nNo production deployment, schema application, provider credentials, or customer data are included.",
+        "title": "feat(auth): tenant-bound OIDC workload API",
+        "base": "main",
+        "base_sha": "63a0e0f550f65b4beb3c52afabdba0481b510e69",
+        "head": "feat/tenente-workload-identity-pr-a",
+        "head_sha": "e155cd35cf8f12fae94186c1fb3e7c55c86a2be8",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": null,
+        "user": {
+          "login": "emeaexecutive",
+          "name": null,
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-04T17:18:18Z",
+        "updated_at": "2026-11-04T18:06:12Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 1,
+        "changed_files": null,
+        "additions": null,
+        "deletions": null,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/130",
+        "display_title": "feat(auth): tenant-bound OIDC workload API"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/9m2CHLwjMfkKp2FXArysrri8tVe4"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 41876289740,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 394,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41876289740/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41876289740/logs",
+                "workflow_id": 326790531
+              },
+              {
+                "id": 41876289724,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 433,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41876289724/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41876289724/logs",
+                "workflow_id": 317466170
+              },
+              {
+                "id": 41876289708,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 416,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41876289708/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/41876289708/logs",
+                "workflow_id": 323916032
+              }
+            ]
+          },
+          "isError": false
+        }
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/131",
+        "number": 131,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "﻿Different request keys previously reserved the same human-approved action and could each invoke the adapter. This change requires an irrevocable database dispatch claim immediately before the adapter and fails closed when that boundary is unavailable. Approval issuance captures the database scope; provider exceptions retain UNKNOWN and cannot release the claim for retry.\n\nDepends on the separate SQL/tests PR #132. Neither PR is authorised for hosted migration application or Production deployment. Deploying this application without the new RPCs intentionally disables approval issuance and dispatch. No hosted synthetic writes occurred.\n\nValidation at 44b3c04f7f8431524c8a8d93d2f74751d957c2a4: 42 native/reservation/composition tests, targeted ESLint, typecheck and local Production build passed. Required GitHub verify, Docker, CodeQL, secret scan and Vercel checks passed. The dependent SQL candidate has 23 real local PostgreSQL17/loopback HTTP tests, including 12 concurrent keys -> one effect, scope substitutions -> zero, lost responses, crash-before-dispatch and a policy change during an observed database lock wait. The dedicated SQL CI tests the exact PR head, including lint/typecheck/full tests/build. This is local/CI proof on a minimal predecessor schema fixture, not full Staging/provider qualification.\r\n",
+        "title": "fix: require durable single-use approval dispatch claims",
+        "base": "main",
+        "base_sha": "63a0e0f550f65b4beb3c52afabdba0481b510e69",
+        "head": "fix/approval-single-use-20261106",
+        "head_sha": "44b3c04f7f8431524c8a8d93d2f74751d957c2a4",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "14911b8b1a15205376bbabc9675a844f99cfcc5f",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-08T13:36:01Z",
+        "updated_at": "2026-11-08T14:07:56Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 9,
+        "changed_files": 97,
+        "additions": 14253,
+        "deletions": 500,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/131",
+        "display_title": "fix: require durable single-use approval dispatch claims"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/2vmxsWdKLsVsRXK93DDWmzpT5oR1"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 42485741203,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 395,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42485741203/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42485741203/logs",
+                "workflow_id": 326790531
+              },
+              {
+                "id": 42485741199,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 417,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42485741199/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42485741199/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 42485741196,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 434,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42485741196/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42485741196/logs",
+                "workflow_id": 317466170
+              }
+            ]
+          },
+          "isError": false
+        }
+      },
+      "files": {
+        "filenames": [
+          "app/accessibility/page.tsx",
+          "app/ai-governance/page.tsx",
+          "app/careers/page.tsx",
+          "app/cookies/page.tsx",
+          "app/corporate-sustainability/page.tsx",
+          "app/data-rights/page.tsx",
+          "app/demo/page.tsx",
+          "app/demo/trust-runtime/page.tsx",
+          "app/enterprise-access/page.tsx",
+          "app/globals.css",
+          "app/help/page.tsx",
+          "app/how-to-use/page.tsx",
+          "app/layout.tsx",
+          "app/legal/page.tsx",
+          "app/media-centre/page.tsx",
+          "app/modern-slavery-statement/page.tsx",
+          "app/our-people/page.tsx",
+          "app/page.tsx",
+          "app/pricing/page.tsx",
+          "app/privacy/page.tsx",
+          "app/regulatory/page.tsx",
+          "app/security/page.tsx",
+          "app/solutions/page.tsx",
+          "app/terms/page.tsx",
+          "app/transparency/page.tsx",
+          "app/verification-receipts/page.tsx",
+          "app/world-id-preview/page.tsx",
+          "artifacts/recovery-20261103/HANDOFF.md",
+          "artifacts/recovery-20261103/P0-RELEASE-DECISION.md",
+          "artifacts/recovery-20261103/P0-SUMMARY.json",
+          "artifacts/recovery-20261103/P0-VERIFICATION.md",
+          "artifacts/recovery-20261103/VERIFICATION.md",
+          "artifacts/recovery-20261103/auth-and-contact.png",
+          "artifacts/recovery-20261103/environment-names.json",
+          "artifacts/recovery-20261103/hosted-critical-paths.json",
+          "artifacts/recovery-20261103/interactions.json",
+          "artifacts/recovery-20261103/legal-publication-notice.png",
+          "artifacts/recovery-20261103/legal-review-inventory.json",
+          "artifacts/recovery-20261103/manifest.txt",
+          "artifacts/recovery-20261103/native-build-result.json",
+          "artifacts/recovery-20261103/open-prs.json",
+          "artifacts/recovery-20261103/p0-browser-results.json",
+          "artifacts/recovery-20261103/p0-file-manifest.txt",
+          "artifacts/recovery-20261103/p0-source-manifest.json",
+          "artifacts/recovery-20261103/prior-proof/REPORT.md",
+          "artifacts/recovery-20261103/prior-proof/accessibility.json",
+          "artifacts/recovery-20261103/prior-proof/arabic-navigation.png",
+          "artifacts/recovery-20261103/prior-proof/header-desktop.png",
+          "artifacts/recovery-20261103/prior-proof/interactions.json",
+          "artifacts/recovery-20261103/prior-proof/language-mobile.png",
+          "artifacts/recovery-20261103/prior-proof/pricing-cards-desktop.png",
+          "artifacts/recovery-20261103/prior-proof/verification-summary.json",
+          "artifacts/recovery-20261103/production-audit.json",
+          "artifacts/recovery-20261103/production-equivalence.json",
+          "artifacts/recovery-20261103/production-extra-files.json",
+          "artifacts/recovery-20261103/production-source-manifest.json",
+          "artifacts/recovery-20261103/proof/arabic-navigation.png",
+          "artifacts/recovery-20261103/proof/header-desktop.png",
+          "artifacts/recovery-20261103/proof/language-mobile.png",
+          "artifacts/recovery-20261103/proof/pricing-1024.png",
+          "artifacts/recovery-20261103/proof/pricing-1440.png",
+          "artifacts/recovery-20261103/proof/pricing-390.png",
+          "artifacts/recovery-20261103/proof/pricing-768.png",
+          "artifacts/recovery-20261103/proof/pricing-cards-desktop.png",
+          "artifacts/recovery-20261103/provenance.json",
+          "artifacts/recovery-20261103/public-mailbox-approval.json",
+          "artifacts/recovery-20261103/route-smoke.json",
+          "artifacts/recovery-20261103/source-identity.json",
+          "artifacts/recovery-20261103/source-manifest.json",
+          "artifacts/recovery-20261103/verification-summary.json",
+          "components/auth-unavailable.tsx",
+          "components/executive-summary.tsx",
+          "components/global-navigation.tsx",
+          "components/legal-draft-page.tsx",
+          "components/pricing-card.tsx",
+          "components/public-language-selector.tsx",
+          "components/public-page-adoption-rail.tsx",
+          "docs/APPROVAL-DISPATCH-SECURITY.md",
+          "lib/operational-entities/native-enforcement-server.ts",
+          "lib/operational-entities/native-enforcement.ts",
+          "next.config.mjs",
+          "package-lock.json",
+          "package.json",
+          "tests/controlled-provider-outcome-qualification.test.mjs",
+          "tests/enforcement-reservation-contract.test.mjs",
+          "tests/native-enforcement-outcome-proof.test.mjs",
+          "tests/public-help-preview.test.mjs",
+          "tests/public-positioning.test.mjs",
+          "tests/public-surface-navigation.test.mjs",
+          "tests/rc3-living-trust-experience.test.mjs",
+          "tests/rc4-enterprise-proof.test.mjs",
+          "tests/website-auth-entry.test.mjs",
+          "tests/website-release-gates.test.mjs",
+          "tools/release/website-p0-browser-checks.mjs",
+          "tools/release/website-recovery-build.mjs",
+          "tools/release/website-recovery-interactions.mjs",
+          "tools/release/website-recovery-smoke.mjs"
+        ]
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/132",
+        "number": 132,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "﻿This dependent SQL change makes approval consumption and dispatch grants durable. An immutable table is unique by tenant/canonical transaction, request and approval; only the winning committed insertion grants dispatch. Approval scope snapshots bind executor, agent, action/destination/environment, parameter digest, authority/delegation and policy versions. Legacy unscoped approvals fail closed. Auth roles cannot write consumption rows or invoke the service RPCs.\n\nDepends on application PR #131. The SQL has NOT been applied to Staging or Production. Separate founder approval is required before any hosted migration or synthetic writes. No history marker or unrelated migration should be replayed with it.\n\nValidation: 23/23 real local PostgreSQL17 tests with a real loopback HTTP destination. Twelve concurrent distinct keys produce exactly one effect. Scope substitutions, invalid/reused approvals, expiry and revocation produce zero additional effects. Lost provider/claim responses and a disconnected application after claim preserve UNKNOWN and cannot redispatch. A rollback before commit leaves the approval usable. The test predecessor schema is minimal: this does not replace a full Staging migration rehearsal or real provider qualification. A dedicated exact-head CI workflow runs the same SQL tests using an ephemeral PostgreSQL service.\n\nAvailability tradeoff: a crash between claim and dispatch can leave zero effects and UNKNOWN. No automatic lease/reclaim is provided. Independent reconciliation must determine destination outcome; generic exactly-once remote execution is not claimed.\r\n\r\n",
+        "title": "security: add atomic single-use approval consumption",
+        "base": "fix/approval-single-use-20261106",
+        "base_sha": "44b3c04f7f8431524c8a8d93d2f74751d957c2a4",
+        "head": "migration/approval-consumption-20261108",
+        "head_sha": "ad4a0e907a48bdb687351672355cddc5e74e2c00",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "50d4bb562545ccfe84741e28ba0034540ae96911",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-08T13:37:25Z",
+        "updated_at": "2026-11-08T14:08:02Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 3,
+        "changed_files": 8,
+        "additions": 2200,
+        "deletions": 0,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/132",
+        "display_title": "security: add atomic single-use approval consumption"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/6mUUzUKqsnWy4ce1XHEYMFTVMMN2"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 42486618392,
+                "name": "Atomic approval consumption",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 3,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42486618392/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42486618392/logs",
+                "workflow_id": 411168112
+              },
+              {
+                "id": 42486618522,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 437,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42486618522/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42486618522/logs",
+                "workflow_id": 317466170
+              },
+              {
+                "id": 42486618390,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 420,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42486618390/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42486618390/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 42486618382,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 398,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42486618382/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42486618382/logs",
+                "workflow_id": 326790531
+              }
+            ]
+          },
+          "isError": false
+        }
+      },
+      "files": {
+        "filenames": [
+          ".github/workflows/approval-single-use.yml",
+          "artifacts/approval-single-use/drift-classification.json",
+          "artifacts/approval-single-use/drift-read-only.json",
+          "artifacts/approval-single-use/postgres-evidence.json",
+          "docs/STAGING-RECONCILIATION-20261108.md",
+          "supabase/migrations/20261108100241_atomic_native_dispatch.sql",
+          "tests/fixtures/native-dispatch-database.sql",
+          "tests/native-dispatch-postgres.test.mjs"
+        ]
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/133",
+        "number": 133,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "The public website previously offered Spanish on five canonical pages; other public routes fell back to English. This candidate supplies real Spanish owners for all 42 canonical public pages, reciprocal metadata and sitemap entries, document language navigation, translated footer/adoption controls, and Spanish summaries for the unchanged 26-operation API contract. The 1,108-message catalogue includes diagram captions and accessible labels and preserves reviewed translations by message ID.\n\nUnpublished legal/company content remains a publication-under-review notice. Account controls, the consent controls and existing English PDF are explicitly identified as English. Technical disclosures retain their content and open hash-targeted sections. Public buttons wrap longer translated labels on mobile. The existing locale routing and Turnstile action-binding fixes are retained.\n\nThis PR contains website changes only. Approval-enforcement application and SQL work remain separate PRs #131 and #132. No cloud binding update, hosted synthetic write, migration application or Production promotion is included. `docs/PREVIEW-STAGING-BINDINGS.json` is a preparation manifest only. Existing translation and TENENTE worktrees are preserved.\n\nValidation at head `13a3485bb8a6ec8af720ec579bcf6b357003dec6`: all reported CI checks passed, including verify (audit/lint/typecheck/full tests/build), CodeQL, gitleaks, Docker qualification and the dedicated immutable-head browser workflow. Browser CI independently passed 84 HTTP routes, 168 rendering checks at asserted 390px/1440px widths, 114 link targets and four navigation/form checks with zero JavaScript/public asset errors. The final application-source local build passed. Twenty locale/catalogue/metadata/API presentation regressions passed. Protected workflow 503s and the unbound consent endpoint's 403 remain recorded as blockers, not successful backend tests. Supabase Preview was skipped; it does not establish hosted database qualification.\n\nPreview `dpl_EbJKhGVBZK3r76qxHcxAeXh4Sa9S` is READY at that exact head. Authenticated read-only GETs passed for Home, Spanish Home/Pricing/Platform/Help/Contact/Privacy, each with HTTP200, expected document language and real page content. This is public rendering evidence only.\n\nHosted positive Turnstile, direct Supabase CAPTCHA enforcement, Auth/consent persistence, private settings and provider execution remain unqualified. Staging is ACTIVE_HEALTHY, but the two new approval/dispatch RPCs are absent. Branch-specific Preview bindings, named migration application after drift reconciliation, and controlled synthetic writes require separate approvals. Production promotion approval is absent. Do not infer hosted readiness from a green build or local public rendering.\n",
+        "title": "website: complete English-Spanish public pages and qualification gates",
+        "base": "main",
+        "base_sha": "63a0e0f550f65b4beb3c52afabdba0481b510e69",
+        "head": "website/spanish-public-completion-20261108",
+        "head_sha": "13a3485bb8a6ec8af720ec579bcf6b357003dec6",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "c4b8414fadb932e76bc6400b27d0af156f789b36",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-08T14:55:30Z",
+        "updated_at": "2026-11-08T16:22:35Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 13,
+        "changed_files": 217,
+        "additions": 29383,
+        "deletions": 916,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/133",
+        "display_title": "website: complete English-Spanish public pages and qualification gates"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/EbJKhGVBZK3r76qxHcxAeXh4Sa9S"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 42498887633,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 425,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42498887633/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42498887633/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 42498887634,
+                "name": "Public website exact-head qualification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 5,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42498887634/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42498887634/logs",
+                "workflow_id": 411223607
+              },
+              {
+                "id": 42498887635,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 442,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42498887635/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42498887635/logs",
+                "workflow_id": 317466170
+              },
+              {
+                "id": 42498887630,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 403,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42498887630/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42498887630/logs",
+                "workflow_id": 326790531
+              }
+            ]
+          },
+          "isError": false
+        }
+      },
+      "files": {
+        "filenames": [
+          ".github/workflows/public-spanish-readonly.yml",
+          "app/about/mission/page.tsx",
+          "app/about/page.tsx",
+          "app/accessibility/page.tsx",
+          "app/ai-governance/page.tsx",
+          "app/api/auth/password-reset/request/route.ts",
+          "app/api/auth/turnstile/route.ts",
+          "app/api/enterprise-access/route.ts",
+          "app/api/waitlist/route.ts",
+          "app/careers/page.tsx",
+          "app/cookies/page.tsx",
+          "app/corporate-sustainability/page.tsx",
+          "app/data-rights/page.tsx",
+          "app/demo/page.tsx",
+          "app/demo/trust-runtime/page.tsx",
+          "app/developers/api-reference/page.tsx",
+          "app/developers/authentication/page.tsx",
+          "app/developers/docs/page.tsx",
+          "app/developers/page.tsx",
+          "app/developers/quickstart/page.tsx",
+          "app/documents/operational-trust-whitepaper/page.tsx",
+          "app/documents/page.tsx",
+          "app/enterprise-access/page.tsx",
+          "app/enterprise/agent-governance/page.tsx",
+          "app/enterprise/buyer-documentation/page.tsx",
+          "app/enterprise/hiring-security/page.tsx",
+          "app/enterprise/page.tsx",
+          "app/enterprise/pilot-checklist/page.tsx",
+          "app/enterprise/pilot/page.tsx",
+          "app/es/about/mission/page.tsx",
+          "app/es/about/page.tsx",
+          "app/es/accessibility/page.tsx",
+          "app/es/careers/page.tsx",
+          "app/es/cookies/page.tsx",
+          "app/es/developers/api-reference/page.tsx",
+          "app/es/developers/authentication/page.tsx",
+          "app/es/developers/docs/page.tsx",
+          "app/es/developers/page.tsx",
+          "app/es/developers/quickstart/page.tsx",
+          "app/es/documents/operational-trust-whitepaper/page.tsx",
+          "app/es/documents/page.tsx",
+          "app/es/enterprise-access/page.tsx",
+          "app/es/enterprise/agent-governance/page.tsx",
+          "app/es/enterprise/buyer-documentation/page.tsx",
+          "app/es/enterprise/hiring-security/page.tsx",
+          "app/es/enterprise/page.tsx",
+          "app/es/enterprise/pilot-checklist/page.tsx",
+          "app/es/enterprise/pilot/page.tsx",
+          "app/es/governance/page.tsx",
+          "app/es/help/page.tsx",
+          "app/es/journal/page.tsx",
+          "app/es/legal/page.tsx",
+          "app/es/media-centre/page.tsx",
+          "app/es/methodology/page.tsx",
+          "app/es/modern-slavery/page.tsx",
+          "app/es/our-people/page.tsx",
+          "app/es/page.tsx",
+          "app/es/platform/page.tsx",
+          "app/es/pricing/page.tsx",
+          "app/es/privacy/page.tsx",
+          "app/es/regulatory/page.tsx",
+          "app/es/resources/agent-security/[slug]/page.tsx",
+          "app/es/resources/agent-security/page.tsx",
+          "app/es/security/page.tsx",
+          "app/es/solutions/page.tsx",
+          "app/es/terms/page.tsx",
+          "app/es/trust/data-sovereignty/page.tsx",
+          "app/es/trust/page.tsx",
+          "app/es/unavailable/page.tsx",
+          "app/es/verification-replay/page.tsx",
+          "app/globals.css",
+          "app/governance/page.tsx",
+          "app/help/page.tsx",
+          "app/how-to-use/page.tsx",
+          "app/journal/page.tsx",
+          "app/layout.tsx",
+          "app/legal/page.tsx",
+          "app/login/page.tsx",
+          "app/media-centre/page.tsx",
+          "app/methodology/page.tsx",
+          "app/modern-slavery-statement/page.tsx",
+          "app/modern-slavery/page.tsx",
+          "app/our-people/page.tsx",
+          "app/page.tsx",
+          "app/platform/page.tsx",
+          "app/pricing/page.tsx",
+          "app/privacy/page.tsx",
+          "app/regulatory/page.tsx",
+          "app/security/page.tsx",
+          "app/sitemap.ts",
+          "app/solutions/page.tsx",
+          "app/terms/page.tsx",
+          "app/transparency/page.tsx",
+          "app/trust/data-sovereignty/page.tsx",
+          "app/trust/page.tsx",
+          "app/verification-receipts/page.tsx",
+          "app/verification-replay/page.tsx",
+          "app/world-id-preview/page.tsx",
+          "artifacts/recovery-20261103/HANDOFF.md",
+          "artifacts/recovery-20261103/P0-RELEASE-DECISION.md",
+          "artifacts/recovery-20261103/P0-SUMMARY.json",
+          "artifacts/recovery-20261103/P0-VERIFICATION.md",
+          "artifacts/recovery-20261103/VERIFICATION.md",
+          "artifacts/recovery-20261103/auth-and-contact.png",
+          "artifacts/recovery-20261103/environment-names.json",
+          "artifacts/recovery-20261103/hosted-critical-paths.json",
+          "artifacts/recovery-20261103/interactions.json",
+          "artifacts/recovery-20261103/legal-publication-notice.png",
+          "artifacts/recovery-20261103/legal-review-inventory.json",
+          "artifacts/recovery-20261103/manifest.txt",
+          "artifacts/recovery-20261103/native-build-result.json",
+          "artifacts/recovery-20261103/open-prs.json",
+          "artifacts/recovery-20261103/p0-browser-results.json",
+          "artifacts/recovery-20261103/p0-file-manifest.txt",
+          "artifacts/recovery-20261103/p0-source-manifest.json",
+          "artifacts/recovery-20261103/prior-proof/REPORT.md",
+          "artifacts/recovery-20261103/prior-proof/accessibility.json",
+          "artifacts/recovery-20261103/prior-proof/arabic-navigation.png",
+          "artifacts/recovery-20261103/prior-proof/header-desktop.png",
+          "artifacts/recovery-20261103/prior-proof/interactions.json",
+          "artifacts/recovery-20261103/prior-proof/language-mobile.png",
+          "artifacts/recovery-20261103/prior-proof/pricing-cards-desktop.png",
+          "artifacts/recovery-20261103/prior-proof/verification-summary.json",
+          "artifacts/recovery-20261103/production-audit.json",
+          "artifacts/recovery-20261103/production-equivalence.json",
+          "artifacts/recovery-20261103/production-extra-files.json",
+          "artifacts/recovery-20261103/production-source-manifest.json",
+          "artifacts/recovery-20261103/proof/arabic-navigation.png",
+          "artifacts/recovery-20261103/proof/header-desktop.png",
+          "artifacts/recovery-20261103/proof/language-mobile.png",
+          "artifacts/recovery-20261103/proof/pricing-1024.png",
+          "artifacts/recovery-20261103/proof/pricing-1440.png",
+          "artifacts/recovery-20261103/proof/pricing-390.png",
+          "artifacts/recovery-20261103/proof/pricing-768.png",
+          "artifacts/recovery-20261103/proof/pricing-cards-desktop.png",
+          "artifacts/recovery-20261103/provenance.json",
+          "artifacts/recovery-20261103/public-mailbox-approval.json",
+          "artifacts/recovery-20261103/route-smoke.json",
+          "artifacts/recovery-20261103/source-identity.json",
+          "artifacts/recovery-20261103/source-manifest.json",
+          "artifacts/recovery-20261103/verification-summary.json",
+          "artifacts/spanish-completion/generated-source-manifest.json",
+          "artifacts/spanish-completion/messages.json",
+          "components/auth-unavailable.tsx",
+          "components/evidence-disclaimer.tsx",
+          "components/executive-summary.tsx",
+          "components/global-navigation.tsx",
+          "components/i18n/es/enterprise-breadcrumbs.tsx",
+          "components/i18n/es/enterprise-cta-group.tsx",
+          "components/i18n/es/enterprise-visuals.tsx",
+          "components/i18n/es/search/security-resource.tsx",
+          "components/legal-draft-page.tsx",
+          "components/pricing-card.tsx",
+          "components/public-disclosure.tsx",
+          "components/public-language-selector.tsx",
+          "components/public-page-adoption-rail.tsx",
+          "components/search/security-resource.tsx",
+          "components/spanish-publication-notice.tsx",
+          "components/turnstile-field.tsx",
+          "components/waitlist-form.tsx",
+          "docs/PREVIEW-STAGING-BINDINGS.json",
+          "docs/SPANISH-PUBLIC-WEBSITE.md",
+          "lib/bot-protection.ts",
+          "lib/i18n/es-adoption.ts",
+          "lib/i18n/es-api-copy.ts",
+          "lib/i18n/es-enterprise-experience.ts",
+          "lib/i18n/es-metadata.ts",
+          "lib/i18n/es-public-batches/000.json",
+          "lib/i18n/es-public-batches/095.json",
+          "lib/i18n/es-public-batches/1005.json",
+          "lib/i18n/es-public-batches/225.json",
+          "lib/i18n/es-public-batches/355.json",
+          "lib/i18n/es-public-batches/485.json",
+          "lib/i18n/es-public-batches/615.json",
+          "lib/i18n/es-public-batches/745.json",
+          "lib/i18n/es-public-batches/875.json",
+          "lib/i18n/es-public-batches/source-ids.json",
+          "lib/i18n/es-search-resources.ts",
+          "lib/i18n/public-locales.ts",
+          "lib/i18n/public-notices.ts",
+          "lib/i18n/request-locale.ts",
+          "lib/search/metadata.ts",
+          "middleware.ts",
+          "next.config.mjs",
+          "package.json",
+          "src/components/consent/ConsentBanner.tsx",
+          "src/components/consent/ConsentManager.tsx",
+          "src/components/consent/ConsentPreferences.tsx",
+          "src/components/consent/ConsentPreferencesLink.tsx",
+          "src/components/consent/ConsentStatus.tsx",
+          "tests/enterprise-experience.test.mjs",
+          "tests/enterprise-trust-fabric-api-ui.test.mjs",
+          "tests/fixtures/sign-out-session.mjs",
+          "tests/password-recovery-flow.test.mjs",
+          "tests/production-domain-readiness.test.mjs",
+          "tests/public-help-preview.test.mjs",
+          "tests/public-i18n.test.mjs",
+          "tests/public-positioning.test.mjs",
+          "tests/public-surface-navigation.test.mjs",
+          "tests/rc3-living-trust-experience.test.mjs",
+          "tests/rc4-enterprise-proof.test.mjs",
+          "tests/request-demo-api.test.mjs",
+          "tests/search-authority.test.mjs",
+          "tests/spanish-public-completion.test.mjs",
+          "tests/turnstile-configuration.test.mjs",
+          "tests/ui-ux-readiness.test.mjs",
+          "tests/website-auth-entry.test.mjs",
+          "tests/website-release-gates.test.mjs",
+          "tests/whitepaper-publication.test.mjs",
+          "tools/i18n/complete-public-alternates.mjs",
+          "tools/i18n/generate-spanish-public.mjs",
+          "tools/i18n/public-catalog.mjs",
+          "tools/i18n/verify-public-browser.mjs",
+          "tools/release/website-p0-browser-checks.mjs",
+          "tools/release/website-recovery-build.mjs",
+          "tools/release/website-recovery-interactions.mjs",
+          "tools/release/website-recovery-smoke.mjs"
+        ]
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/134",
+        "number": 134,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "Controlled River proof at `25f82561435be959e4b14b61873fb454cc1aa51a`, based on PR #132 (`ad4a0e907a48bdb687351672355cddc5e74e2c00`). Pins PR #135 `202117ae82a48a7f8d536c29d5d700e8fbf11c70`.\n\nAll mandatory exact-head CI passed: verify, Docker, CodeQL, secret scan and PostgreSQL boundary, including the original 23 P0 regressions and nine River tests. Vercel Preview READY; Supabase Preview skipped and does not constitute database qualification.\n\nTwelve concurrent request keys produce one claim and destination effect; replay/revocation/wrong-target attempts produce zero prohibited effects. Lost acknowledgement remains UNKNOWN without redispatch. Composed signed-warning → bounded advisory → existing policy → SQL claim → controlled HTTP destination succeeds only within scope: actual export probe 200 → 423. Outside scope produces DENY and zero containment effects. Signed evidence retains independently observed claim/destination rows. Full Replay is verified locally; public exports minimize registry data.\n\nSynthetic identity/human approval fixtures and minimal predecessor schema remain explicit limitations. No hosted writes, migrations, Production changes or claim of general provider coverage.",
+        "title": "test(tenente): prove River Crossing at a controlled destination",
+        "base": "migration/approval-consumption-20261108",
+        "base_sha": "ad4a0e907a48bdb687351672355cddc5e74e2c00",
+        "head": "test/watchtower-river-boundary-20261109",
+        "head_sha": "25f82561435be959e4b14b61873fb454cc1aa51a",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "a19316caf2e6c7aa21dc4ce12e24e6e7019a6f21",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-09T11:30:41Z",
+        "updated_at": "2026-11-09T12:39:56Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 2,
+        "changed_files": 6,
+        "additions": 925,
+        "deletions": 0,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/134",
+        "display_title": "test(tenente): prove River Crossing at a controlled destination"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/9gvxsbwo5voGV5NyHkFv6PQYA6Pg"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 42618127355,
+                "name": "Atomic approval consumption",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 8,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618127355/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618127355/logs",
+                "workflow_id": 411168112
+              },
+              {
+                "id": 42618127366,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 439,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618127366/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618127366/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 42618127401,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 417,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618127401/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618127401/logs",
+                "workflow_id": 326790531
+              },
+              {
+                "id": 42618127345,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 456,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618127345/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618127345/logs",
+                "workflow_id": 317466170
+              }
+            ]
+          },
+          "isError": false
+        }
+      },
+      "files": {
+        "filenames": [
+          ".github/workflows/approval-single-use.yml",
+          ".gitignore",
+          "artifacts/watchtowers/river-local.json",
+          "docs/WATCHTOWER-RIVER-PROOF.md",
+          "tests/fixtures/watchtower-signal-dependency.mjs",
+          "tests/watchtower-river-postgres.test.mjs"
+        ]
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/135",
+        "number": 135,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "Adds ALSAMORA → VIACAMP → CHIRIVETA signed warning verification using existing enrolled keys, Ed25519 primitives, durable CAS and Replay. Original IDs remain immutable; valid alternate relays open no duplicate investigation. CHIRIVETA reads a persisted accepted warning and produces bounded advisory output only: veto, investigate, request a reversible block, or request independent human approval. It never returns ALLOW, creates grants/approvals/leases or calls a provider. No AI model is connected.\n\nExact head202117ae82a48a7f8d536c29d5d700e8fbf11c70 passes all reported CI: production audit, lint, typecheck, full regressions,14 warning/review tests, build, Docker, CodeQL and secret scanning. The published TENENTE f144fd0 base is retained; only exact needed existing message/file-CAS/store primitives are reused from the local implementation, without its old historical artifacts. Inherited vulnerable dependency pins are patched to qualified Next/eslint-config15.5.28, sharp0.35.5 and source-map-js1.2.2; production audit is clean.\n\nRiver composition is separate PR134 on PR132. Public fixture viewers are PR136 on PR133. No hosted ingress, migration, cloud configuration, synthetic hosted write or Production promotion is included. Hosted identities, RPC persistence, RLS, Evidence Vault/Trust Memory projection and model review remain unqualified.",
+        "title": "feat(tenente): authenticate watchtower warnings without granting authority",
+        "base": "feat/tenente-swarm-authority-control",
+        "base_sha": "f144fd079043c72c981a3a29e029cad39e89a3cc",
+        "head": "feat/watchtower-controlled-demos-20261109",
+        "head_sha": "202117ae82a48a7f8d536c29d5d700e8fbf11c70",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "c23a3c92f7857961df768670f7e3bf8837667155",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-09T11:33:13Z",
+        "updated_at": "2026-11-09T12:27:36Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 5,
+        "changed_files": 10,
+        "additions": 594,
+        "deletions": 177,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/135",
+        "display_title": "feat(tenente): authenticate watchtower warnings without granting authority"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/GYwUwDDB2AFX6bu8fgrH38sqsbo6"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 42613338498,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 434,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42613338498/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42613338498/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 42613338615,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 412,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42613338615/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42613338615/logs",
+                "workflow_id": 326790531
+              },
+              {
+                "id": 42613338558,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 451,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42613338558/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42613338558/logs",
+                "workflow_id": 317466170
+              },
+              {
+                "id": 42613338871,
+                "name": "Watchtower signed warning boundary",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 5,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42613338871/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42613338871/logs",
+                "workflow_id": 412007450
+              }
+            ]
+          },
+          "isError": false
+        }
+      },
+      "files": {
+        "filenames": [
+          ".github/workflows/watchtower-signals.yml",
+          "artifacts/watchtowers/torch-local.json",
+          "docs/tenente/CHIRIVETA-WATCHTOWERS.md",
+          "lib/swarm/agent-message.ts",
+          "lib/swarm/file-persistence.ts",
+          "lib/swarm/store.ts",
+          "lib/swarm/watchtower-signals.ts",
+          "package-lock.json",
+          "package.json",
+          "tests/watchtower-signals.test.mjs"
+        ]
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/136",
+        "number": 136,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "Independent bilingual watchtower website at `582acc889afbe59991ea307bc5e4a2b986b11c0e`, based on PR #133 `13a3485bb8a6ec8af720ec579bcf6b357003dec6`. Imports signed evidence from PR #135 `202117ae82a48a7f8d536c29d5d700e8fbf11c70` and PR #134 `25f82561435be959e4b14b61873fb454cc1aa51a`.\n\nAdds EN/ES origin, Torch Code and River Crossing, responsive stone-tower diagram, keyboard fixture timelines and signed evidence inspection. Public demos remain ILLUSTRATIVE SIMULATION, with no approval/provider/execution requests. Historical signalling is qualified and founder photograph omitted pending rights.\n\nAll mandatory exact-head CI passed: audit, lint, typecheck, full tests, build, Docker, CodeQL, gitleaks and public-ui-only. Local and independent CI browser proof: 90 HTTP routes, 184 public checks, 120 link targets and 56 bilingual demo checks at 390px/1440px. No JavaScript errors or demo API writes. Production audit zero; six moderate development-dependency findings remain. Local consent endpoint 403 is recorded as unqualified.\n\nExact-SHA Preview READY: `dpl_J8F2VHbZqVF5XrAwX1Z2ui4vgW4X`. Authenticated read-only GET smoke passed 6/6 EN/ES routes with 200, correct language, application content and simulation labels. URL: https://cyber-sentinels-v2-ljflhg0l1-keith-speres-projects.vercel.app/tenente-swarm\n\nHosted Auth/consent/Turnstile and execution qualification remain BLOCKED; Supabase Preview skipped is not a database proof. No hosted synthetic writes, migrations, protection changes or Production promotion. Existing website release and P0 PRs untouched.",
+        "title": "feat(website): add bilingual Ribagorza watchtower simulations",
+        "base": "website/spanish-public-completion-20261108",
+        "base_sha": "13a3485bb8a6ec8af720ec579bcf6b357003dec6",
+        "head": "website/watchtowers-ribagorza-20261109",
+        "head_sha": "582acc889afbe59991ea307bc5e4a2b986b11c0e",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "b6ad5dc1c47d2828a5e6b337252adc78fc37f7e1",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-09T11:42:09Z",
+        "updated_at": "2026-11-09T12:44:54Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 6,
+        "changed_files": 31,
+        "additions": 2016,
+        "deletions": 40,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/136",
+        "display_title": "feat(website): add bilingual Ribagorza watchtower simulations"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/J8F2VHbZqVF5XrAwX1Z2ui4vgW4X"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 42618177967,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 418,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618177967/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618177967/logs",
+                "workflow_id": 326790531
+              },
+              {
+                "id": 42618177964,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 440,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618177964/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618177964/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 42618177812,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 457,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618177812/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618177812/logs",
+                "workflow_id": 317466170
+              },
+              {
+                "id": 42618177723,
+                "name": "Public website exact-head qualification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 10,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618177723/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/42618177723/logs",
+                "workflow_id": 411223607
+              }
+            ]
+          },
+          "isError": false
+        }
+      },
+      "files": {
+        "filenames": [
+          ".github/workflows/public-spanish-readonly.yml",
+          ".gitignore",
+          "app/es/tenente-swarm/layout.tsx",
+          "app/es/tenente-swarm/page.tsx",
+          "app/es/tenente-swarm/river-crossing/page.tsx",
+          "app/es/tenente-swarm/torch-code/page.tsx",
+          "app/platform/page.tsx",
+          "app/tenente-swarm/layout.tsx",
+          "app/tenente-swarm/page.tsx",
+          "app/tenente-swarm/river-crossing/page.tsx",
+          "app/tenente-swarm/torch-code/page.tsx",
+          "artifacts/spanish-completion/generated-source-manifest.json",
+          "components/watchtowers/watchtower-demo.tsx",
+          "components/watchtowers/watchtower-network.tsx",
+          "components/watchtowers/watchtower-page.tsx",
+          "components/watchtowers/watchtowers.css",
+          "docs/WATCHTOWER-PUBLIC-DEMOS.md",
+          "lib/i18n/public-locales.ts",
+          "lib/navigation/route-visibility.ts",
+          "lib/watchtowers/content.ts",
+          "lib/watchtowers/local-evidence.json",
+          "lib/watchtowers/metadata.ts",
+          "lib/watchtowers/recorded-evidence.ts",
+          "package.json",
+          "tests/public-i18n.test.mjs",
+          "tests/spanish-public-completion.test.mjs",
+          "tests/watchtowers-public.test.mjs",
+          "tools/i18n/generate-spanish-public.mjs",
+          "tools/i18n/public-catalog.mjs",
+          "tools/watchtowers/import-local-evidence.mjs",
+          "tools/watchtowers/verify-browser.mjs"
+        ]
+      }
+    },
+    {
+      "pr": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/137",
+        "number": 137,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": false,
+        "body": "## Summary\n- Exclude ignored `tmp/` and `temp/` scratch trees from the recursive TypeScript program to avoid loading unrelated nested-worktree sources.\n- Keep application, test, and generated Next.js route types in scope.\n- Document root cause, validation, and local build/typecheck measurements.\n\n## Validation\n- `npm run build` — passed; generated all 208 static pages.\n- `npm run typecheck -- --extendedDiagnostics` — passed uncached at `efb3a64036b984c309f4ac45c7a54e819a3c777e` (2,623 files; 70.24s).\n- `git diff --check` — passed.\n\nNo dependency changes, hosted operations, or production changes are included.",
+        "title": "Exclude ignored scratch trees from TypeScript program",
+        "base": "main",
+        "base_sha": "63a0e0f550f65b4beb3c52afabdba0481b510e69",
+        "head": "codex/p0-typecheck-20261111",
+        "head_sha": "efb3a64036b984c309f4ac45c7a54e819a3c777e",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "67f332cf7b3d3fd0bd1f60543755a1d5ca5382fd",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-11T17:57:57Z",
+        "updated_at": "2026-11-11T18:01:51Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 8,
+        "changed_files": 2,
+        "additions": 30,
+        "deletions": 1,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/137",
+        "display_title": "Exclude ignored scratch trees from TypeScript program"
+      },
+      "checks": {
+        "s": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "statuses": [
+              {
+                "context": "Vercel",
+                "state": "success",
+                "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/AC1fjAAHou4JgeYmYScqt1smynrH"
+              }
+            ]
+          },
+          "isError": false
+        },
+        "r": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Action completed."
+            }
+          ],
+          "structuredContent": {
+            "workflow_runs": [
+              {
+                "id": 43073193815,
+                "name": "Redacted secret scan",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 441,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43073193815/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43073193815/logs",
+                "workflow_id": 323916032
+              },
+              {
+                "id": 43073193879,
+                "name": "Production verification",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 458,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43073193879/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43073193879/logs",
+                "workflow_id": 317466170
+              },
+              {
+                "id": 43073193874,
+                "name": "CodeQL",
+                "status": "completed",
+                "conclusion": "success",
+                "run_number": 419,
+                "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43073193874/jobs",
+                "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43073193874/logs",
+                "workflow_id": 326790531
+              }
+            ]
+          },
+          "isError": false
+        }
+      },
+      "files": {
+        "filenames": [
+          "docs/product/TYPESCRIPT-BUILD-QUALIFICATION.md",
+          "tsconfig.json"
+        ]
+      }
+    }
+  ],
+  "pr137Jobs": {
+    "jobs": [
+      {
+        "id": 130706193620,
+        "name": "docker-build",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 43073193879,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Build and run the secret-free Docker qualification",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          }
+        ]
+      },
+      {
+        "id": 130706194011,
+        "name": "verify",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 43073193879,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run npm ci",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run npm audit --omit=dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run npm run lint",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run npm run typecheck",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Run npm run test:cookie-consent",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Run npm run test:observability",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Run npm run test:security-tooling",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Run npm run test:security-zap-config",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Run npm run test:release-health",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Run npm run security:zap:staging",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Run npm test",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Install the browser for deterministic auth regressions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Run npm run test:auth-browser",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Run npm run build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 33
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 34
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 35
+          }
+        ]
+      }
+    ]
+  }
+}

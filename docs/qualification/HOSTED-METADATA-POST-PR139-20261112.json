@@ -1,0 +1,94 @@
+{
+  "inspectedAt": "2026-11-12T11:26:37Z",
+  "localInspectedAt": "2026-11-12 12:26:37 Europe/Madrid",
+  "scope": "Read-only existing Vercel deployment metadata; no endpoint requests, deployment creation, share links or writes",
+  "branch": "codex/governed-soc-runtime-20261112",
+  "projectId": "prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr",
+  "list": {
+    "pagination": {
+      "count": 2,
+      "prev": 1794482092260
+    },
+    "deployments": [
+      {
+        "id": "dpl_J6cRyGKy2t78tnnxKSFrDt3AEyeo",
+        "name": "cyber-sentinels-v2",
+        "url": "cyber-sentinels-v2-o79hrvp9g-keith-speres-projects.vercel.app",
+        "created": 1794482092260,
+        "state": "READY",
+        "target": null,
+        "creator": {
+          "uid": "8s6V9COhAgO8vljOoqTak7gj",
+          "username": "emeaexecutive-9603"
+        },
+        "meta": {
+          "githubCommitRef": "codex/governed-soc-runtime-20261112",
+          "githubCommitSha": "bc1f86d8ea8853e7443ef0fc9400dbb0d3b36cda",
+          "githubCommitMessage": "docs(qualification): retain locked-test evidence and exact fixture scan triage",
+          "githubRepo": "Cyber-Sentinels-V2",
+          "githubOrg": "emeaexecutive"
+        },
+        "inspectorUrl": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/J6cRyGKy2t78tnnxKSFrDt3AEyeo",
+        "isRollbackCandidate": false
+      },
+      {
+        "id": "dpl_7CGNx6MdAeEkDBbbqckALosUbcah",
+        "name": "cyber-sentinels-v2",
+        "url": "cyber-sentinels-v2-9o63etzoq-keith-speres-projects.vercel.app",
+        "created": 1794481394922,
+        "state": "READY",
+        "target": null,
+        "creator": {
+          "uid": "8s6V9COhAgO8vljOoqTak7gj",
+          "username": "emeaexecutive-9603"
+        },
+        "meta": {
+          "githubCommitRef": "codex/governed-soc-runtime-20261112",
+          "githubCommitSha": "41cdd0776be5c496cda8a52f62ef689eb7138ab0",
+          "githubCommitMessage": "docs(soc): record bounded qualification and wire security checks",
+          "githubRepo": "Cyber-Sentinels-V2",
+          "githubOrg": "emeaexecutive"
+        },
+        "inspectorUrl": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/7CGNx6MdAeEkDBbbqckALosUbcah",
+        "isRollbackCandidate": false
+      }
+    ]
+  },
+  "detail": {
+    "id": "dpl_J6cRyGKy2t78tnnxKSFrDt3AEyeo",
+    "name": "cyber-sentinels-v2",
+    "url": "cyber-sentinels-v2-o79hrvp9g-keith-speres-projects.vercel.app",
+    "type": "LAMBDAS",
+    "state": "READY",
+    "createdAt": 1794482092260,
+    "creator": {
+      "uid": "8s6V9COhAgO8vljOoqTak7gj",
+      "username": "emeaexecutive-9603"
+    },
+    "project": {
+      "id": "prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr",
+      "name": "cyber-sentinels-v2",
+      "framework": "nextjs"
+    },
+    "meta": {
+      "githubCommitRef": "codex/governed-soc-runtime-20261112",
+      "githubCommitSha": "bc1f86d8ea8853e7443ef0fc9400dbb0d3b36cda",
+      "githubCommitMessage": "docs(qualification): retain locked-test evidence and exact fixture scan triage",
+      "githubRepo": "Cyber-Sentinels-V2",
+      "githubOrg": "emeaexecutive"
+    },
+    "alias": [
+      "cyber-sentinels-v2-git-codex-gover-089e17-keith-speres-projects.vercel.app"
+    ],
+    "target": null,
+    "regions": [
+      "iad1"
+    ],
+    "buildingAt": 1794482094296,
+    "ready": 1794482432308,
+    "readyState": "READY",
+    "source": "git",
+    "aliasError": null
+  },
+  "functionalQualification": "UNQUALIFIED"
+}

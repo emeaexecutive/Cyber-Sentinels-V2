@@ -53,6 +53,6 @@ export async function POST(request: Request) {
     const receipt = await ops.command(JSON.parse(Buffer.concat(chunks).toString("utf8")));
     await persistSwarmReceiptProjection(receipt);
     await recoverPersistedSwarmProjections(receipt.tenantId);
-    return response({ ok: true, receipt: { digest: receipt.digest, kind: receipt.kind, sequence: receipt.sequence, cancellationStatus: receipt.details.cancellationStatus ?? null } });
+    return response({ ok: true, receipt: { digest: receipt.digest, kind: receipt.kind, sequence: receipt.sequence, cancellationStatus: "cancellationStatus" in receipt.details ? receipt.details.cancellationStatus : null } });
   } catch (error) { return failure(error); }
 }

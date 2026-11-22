@@ -1,0 +1,1468 @@
+{
+  "classification": "VERIFIED LOCAL — SYNTHETIC ONLY",
+  "hosted": false,
+  "model": {
+    "invoked": false,
+    "reason": "MODEL_NOT_CONFIGURED",
+    "costUsd": 0
+  },
+  "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+  "response": {
+    "sequence": 55,
+    "tenantId": "10000000-0000-4000-8000-000000000001",
+    "kind": "SOC_RESPONSE",
+    "actorId": "TENENTE",
+    "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+    "at": 1792411200000,
+    "details": {
+      "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+      "decision": "ALLOW",
+      "outcome": "COMPLETED",
+      "evidenceRefs": [
+        "c1e5e56d1b8c1098945d18d65ca1804bb4b5d725f9a64a050c396d342600ca2d",
+        "ad0b3c4e4840b7f26a2af29609e655a7b7c1fdb65996b0e343c5a14547ae5e5a",
+        "0d212778791c6bc940e914fa2b9412b0f77bd9091a51899a11e415f22da72214"
+      ],
+      "requestId": "d25e7955-8358-4ecb-b093-b45ae894135f",
+      "synthetic": true
+    },
+    "previousHash": "0d212778791c6bc940e914fa2b9412b0f77bd9091a51899a11e415f22da72214",
+    "digest": "45d050277165c11ed10a779749bed7107dbc9599187bbd94c2c80145a180db2f"
+  },
+  "independentDestinationObservation": {
+    "requestId": "d25e7955-8358-4ecb-b093-b45ae894135f",
+    "idempotencyKey": "d25e7955-8358-4ecb-b093-b45ae894135f",
+    "target": "synthetic:customer-export",
+    "synthetic": true,
+    "blockedUntil": 1792411260000
+  },
+  "recovery": {
+    "newStoreInstance": true,
+    "replayVerified": true,
+    "eventCount": 56
+  },
+  "quality": {
+    "alerts": 1,
+    "reviewed": 0,
+    "falsePositives": 0,
+    "falsePositiveRate": null,
+    "recall": null,
+    "recallReason": "Ground-truth dataset required; production recall is not inferred from feedback."
+  },
+  "detectionQuality": {
+    "label": "HAND-LABELLED SYNTHETIC FIXTURE ONLY",
+    "rows": [
+      {
+        "id": "unauthorized-export",
+        "malicious": true,
+        "detected": true
+      },
+      {
+        "id": "compromised-agent-export",
+        "malicious": true,
+        "detected": true
+      },
+      {
+        "id": "authorized-export-warning",
+        "malicious": false,
+        "detected": true
+      },
+      {
+        "id": "ordinary-heartbeat",
+        "malicious": false,
+        "detected": false
+      }
+    ],
+    "counts": {
+      "truePositive": 2,
+      "falsePositive": 1,
+      "trueNegative": 1,
+      "falseNegative": 0
+    },
+    "denominators": {
+      "records": 4,
+      "malicious": 2,
+      "benign": 2,
+      "predictedPositive": 3
+    },
+    "precision": 0.6666666666666666,
+    "recall": 1
+  },
+  "consoleTimeline": [
+    {
+      "sequence": 39,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "TORCH",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "TORCH",
+        "task": "correlate authenticated warnings",
+        "tools": [
+          "read:trust-events"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "a00780a513820880085d75acea81505fe72c6b35224350d6c3b0c80775800abd",
+      "digest": "76e85adda865bb8614c71dc27dabb61a89d51ef44376de8884b2708dbcb63de2"
+    },
+    {
+      "sequence": 40,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "Swarm Investigator",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "Swarm-Investigator",
+        "task": "collect scoped evidence",
+        "tools": [
+          "read:incident-evidence"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "76e85adda865bb8614c71dc27dabb61a89d51ef44376de8884b2708dbcb63de2",
+      "digest": "81e1dcf84ae4ac8c6c6b62c9c7ce8b6c5cbb969b0f93c70a3a59522109a03eee"
+    },
+    {
+      "sequence": 41,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "Sentinel Intelligence",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "Sentinel-Intelligence",
+        "task": "assess observed signals",
+        "tools": [
+          "read:incident-evidence"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "81e1dcf84ae4ac8c6c6b62c9c7ce8b6c5cbb969b0f93c70a3a59522109a03eee",
+      "digest": "aa3d082946473615077ac492033a436db7cb8080af61aac7fffe0e2d645a3bc8"
+    },
+    {
+      "sequence": 42,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "Authority Guardian",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "Authority-Guardian",
+        "task": "check current authority",
+        "tools": [
+          "swarm:admit"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "aa3d082946473615077ac492033a436db7cb8080af61aac7fffe0e2d645a3bc8",
+      "digest": "a14a20ce3096be15f1bf19dc6d9805f87e4cd028766d58f92d20c548a41d0e4d"
+    },
+    {
+      "sequence": 43,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "CHIRIVETA",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "CHIRIVETA",
+        "task": "review reversible containment",
+        "tools": [
+          "watchtower:review"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "a14a20ce3096be15f1bf19dc6d9805f87e4cd028766d58f92d20c548a41d0e4d",
+      "digest": "4be35d8574719d2f3b660a60e5e734789480d20cfa729c6c30d8ba016dd280df"
+    },
+    {
+      "sequence": 44,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "TENENTE",
+        "task": "coordinate bounded response",
+        "tools": [
+          "swarm:dispatch"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "4be35d8574719d2f3b660a60e5e734789480d20cfa729c6c30d8ba016dd280df",
+      "digest": "15cb362e946205d5f91bab2182b9d6c2a7b506999a3dbb3b4cc992ebce71ec7e"
+    },
+    {
+      "sequence": 45,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "Sentinel Copilot",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "Sentinel-Copilot",
+        "task": "select read-only cited evidence",
+        "tools": [
+          "read:incident-evidence"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "15cb362e946205d5f91bab2182b9d6c2a7b506999a3dbb3b4cc992ebce71ec7e",
+      "digest": "4d8c7c8a194047232bc84aa7543977457b837012f6505ae86cd17cbd312c2dd6"
+    },
+    {
+      "sequence": 47,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_ALERT",
+      "actorId": "TORCH",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "details": {
+        "synthetic": true,
+        "source": "authenticated-watchtower",
+        "swarmId": "swarm:1",
+        "entityId": "ALSAMORA",
+        "rule": "signed-synthetic-export-v1",
+        "score": 68,
+        "priority": "REVIEW",
+        "escalation": "analyst",
+        "evidenceRefs": [
+          "bcf34ba9484eaee669bc8ad63570bbb39e6303f8f217941f66f4219ec694e580",
+          "2a696f1c846823a388a983bc690b3bcfd032d96330889636273e7e18994ebd25",
+          "f55aeadca5cbfc4d67c137bfa700ee084090a2693310e927e72606efd290c57c",
+          "9a6c0bf67cf19b17c7a8eb23e735296d76fd451ee1e11156f22addd5955d71c9",
+          "5954d83ad50b812ae03f36ab0f06dd30183c3ad16a9c9243e611d4c253ed6d01"
+        ],
+        "authorityConferred": false
+      },
+      "previousHash": "bcf34ba9484eaee669bc8ad63570bbb39e6303f8f217941f66f4219ec694e580",
+      "digest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d"
+    },
+    {
+      "sequence": 48,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_INVESTIGATION",
+      "actorId": "Swarm Investigator",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "details": {
+        "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+        "evidenceRefs": [
+          "2a696f1c846823a388a983bc690b3bcfd032d96330889636273e7e18994ebd25",
+          "f55aeadca5cbfc4d67c137bfa700ee084090a2693310e927e72606efd290c57c",
+          "9a6c0bf67cf19b17c7a8eb23e735296d76fd451ee1e11156f22addd5955d71c9",
+          "5954d83ad50b812ae03f36ab0f06dd30183c3ad16a9c9243e611d4c253ed6d01",
+          "bcf34ba9484eaee669bc8ad63570bbb39e6303f8f217941f66f4219ec694e580",
+          "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d"
+        ],
+        "maxRecords": 24,
+        "status": "RESERVED",
+        "automaticRetry": false,
+        "interruptionRecovery": "OPERATOR_REVIEW_REQUIRED",
+        "authorityConferred": false
+      },
+      "previousHash": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+      "digest": "ec38a28421ef96469c166302f5d73ad3e5e2edf51774561f876fab3233d5e9be"
+    },
+    {
+      "sequence": 49,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_FAILURE",
+      "actorId": "Sentinel Copilot",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "details": {
+        "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+        "reason": "MODEL_NOT_CONFIGURED",
+        "authorityConferred": false
+      },
+      "previousHash": "ec38a28421ef96469c166302f5d73ad3e5e2edf51774561f876fab3233d5e9be",
+      "digest": "ec2d2c292a182469cbb588bbb46e90849de50ede165bc905f1ba7c1144855449"
+    },
+    {
+      "sequence": 50,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_ASSESSMENT",
+      "actorId": "Sentinel Intelligence",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "details": {
+        "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+        "finding": "AUTHENTICATED_SYNTHETIC_WARNING",
+        "uncertainty": "Synthetic warning does not establish a real compromise.",
+        "evidenceRefs": [
+          "2a696f1c846823a388a983bc690b3bcfd032d96330889636273e7e18994ebd25",
+          "f55aeadca5cbfc4d67c137bfa700ee084090a2693310e927e72606efd290c57c",
+          "9a6c0bf67cf19b17c7a8eb23e735296d76fd451ee1e11156f22addd5955d71c9",
+          "5954d83ad50b812ae03f36ab0f06dd30183c3ad16a9c9243e611d4c253ed6d01",
+          "bcf34ba9484eaee669bc8ad63570bbb39e6303f8f217941f66f4219ec694e580",
+          "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d"
+        ],
+        "modelAuthority": "NONE",
+        "requiresCurrentGateway": true
+      },
+      "previousHash": "ec2d2c292a182469cbb588bbb46e90849de50ede165bc905f1ba7c1144855449",
+      "digest": "b918f6518e39d1bef9bc6bc8f9853d0c45017db8821356a902e9c6b17ce00a28"
+    },
+    {
+      "sequence": 55,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_RESPONSE",
+      "actorId": "TENENTE",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "details": {
+        "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+        "decision": "ALLOW",
+        "outcome": "COMPLETED",
+        "evidenceRefs": [
+          "c1e5e56d1b8c1098945d18d65ca1804bb4b5d725f9a64a050c396d342600ca2d",
+          "ad0b3c4e4840b7f26a2af29609e655a7b7c1fdb65996b0e343c5a14547ae5e5a",
+          "0d212778791c6bc940e914fa2b9412b0f77bd9091a51899a11e415f22da72214"
+        ],
+        "requestId": "d25e7955-8358-4ecb-b093-b45ae894135f",
+        "synthetic": true
+      },
+      "previousHash": "0d212778791c6bc940e914fa2b9412b0f77bd9091a51899a11e415f22da72214",
+      "digest": "45d050277165c11ed10a779749bed7107dbc9599187bbd94c2c80145a180db2f"
+    },
+    {
+      "sequence": 56,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_TRUST_MEMORY",
+      "actorId": "TENENTE",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+        "responseDigest": "45d050277165c11ed10a779749bed7107dbc9599187bbd94c2c80145a180db2f",
+        "outcome": "COMPLETED",
+        "authorityConferred": false
+      },
+      "previousHash": "45d050277165c11ed10a779749bed7107dbc9599187bbd94c2c80145a180db2f",
+      "digest": "300c296b438013aab51fcf6abbeb9c6f04437084c53309cc3b789752686fcc3d"
+    }
+  ],
+  "journal": [
+    {
+      "sequence": 1,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_ADDED",
+      "actorId": "operator",
+      "subjectId": "agent:1",
+      "at": 1792411200000,
+      "details": {
+        "swarmId": "swarm:1",
+        "parentId": null,
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "workflowId": "workflow:1",
+        "authorityConferred": false
+      },
+      "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "digest": "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e"
+    },
+    {
+      "sequence": 2,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "agent:1",
+      "subjectId": "agent:1",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 1
+      },
+      "previousHash": "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+      "digest": "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678"
+    },
+    {
+      "sequence": 3,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_ADDED",
+      "actorId": "operator",
+      "subjectId": "ALSAMORA",
+      "at": 1792411200000,
+      "details": {
+        "swarmId": "swarm:1",
+        "parentId": null,
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "workflowId": "workflow:1",
+        "authorityConferred": false
+      },
+      "previousHash": "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+      "digest": "2a696f1c846823a388a983bc690b3bcfd032d96330889636273e7e18994ebd25"
+    },
+    {
+      "sequence": 4,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "ALSAMORA",
+      "subjectId": "ALSAMORA",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 1
+      },
+      "previousHash": "2a696f1c846823a388a983bc690b3bcfd032d96330889636273e7e18994ebd25",
+      "digest": "f55aeadca5cbfc4d67c137bfa700ee084090a2693310e927e72606efd290c57c"
+    },
+    {
+      "sequence": 5,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_CHANGED",
+      "actorId": "operator",
+      "subjectId": "ALSAMORA",
+      "at": 1792411200000,
+      "details": {
+        "runtimeKeyFingerprint": "fef6f2698e5dc7396ef72f161a3ce73291f90172e54660bc0d95c82ac055f25c",
+        "credentialVersion": 2,
+        "authorityConferred": false
+      },
+      "previousHash": "f55aeadca5cbfc4d67c137bfa700ee084090a2693310e927e72606efd290c57c",
+      "digest": "9a6c0bf67cf19b17c7a8eb23e735296d76fd451ee1e11156f22addd5955d71c9"
+    },
+    {
+      "sequence": 6,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "ALSAMORA",
+      "subjectId": "ALSAMORA",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 2
+      },
+      "previousHash": "9a6c0bf67cf19b17c7a8eb23e735296d76fd451ee1e11156f22addd5955d71c9",
+      "digest": "5954d83ad50b812ae03f36ab0f06dd30183c3ad16a9c9243e611d4c253ed6d01"
+    },
+    {
+      "sequence": 7,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_ADDED",
+      "actorId": "operator",
+      "subjectId": "VIACAMP",
+      "at": 1792411200000,
+      "details": {
+        "swarmId": "swarm:1",
+        "parentId": null,
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "workflowId": "workflow:1",
+        "authorityConferred": false
+      },
+      "previousHash": "5954d83ad50b812ae03f36ab0f06dd30183c3ad16a9c9243e611d4c253ed6d01",
+      "digest": "8025a7c723632fcaf6aaa327dc9e50b101e868bcf3d9514c2c0dafd8198bcd5d"
+    },
+    {
+      "sequence": 8,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "VIACAMP",
+      "subjectId": "VIACAMP",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 1
+      },
+      "previousHash": "8025a7c723632fcaf6aaa327dc9e50b101e868bcf3d9514c2c0dafd8198bcd5d",
+      "digest": "3f2d2eb6d7212c406cd80a1c472807a9cf7549ef662e6e8707cf6a2af7bbfabe"
+    },
+    {
+      "sequence": 9,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_CHANGED",
+      "actorId": "operator",
+      "subjectId": "VIACAMP",
+      "at": 1792411200000,
+      "details": {
+        "runtimeKeyFingerprint": "e874e019de8955fba675c8be88cbcf0242c3ce0ab368a4dbf796a48ce5aa6569",
+        "credentialVersion": 2,
+        "authorityConferred": false
+      },
+      "previousHash": "3f2d2eb6d7212c406cd80a1c472807a9cf7549ef662e6e8707cf6a2af7bbfabe",
+      "digest": "ef6dd5e6d63b3e2c70c7ffe4ef16994a3c107a71c2b165078457eb2b06e6caff"
+    },
+    {
+      "sequence": 10,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "VIACAMP",
+      "subjectId": "VIACAMP",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 2
+      },
+      "previousHash": "ef6dd5e6d63b3e2c70c7ffe4ef16994a3c107a71c2b165078457eb2b06e6caff",
+      "digest": "09fe082be659020c13c6b3014e1725e6714de90f47fa90b49542586e6dc0b51e"
+    },
+    {
+      "sequence": 11,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_ADDED",
+      "actorId": "operator",
+      "subjectId": "TORCH",
+      "at": 1792411200000,
+      "details": {
+        "swarmId": "swarm:1",
+        "parentId": null,
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "workflowId": "workflow:1",
+        "authorityConferred": false
+      },
+      "previousHash": "09fe082be659020c13c6b3014e1725e6714de90f47fa90b49542586e6dc0b51e",
+      "digest": "5c56cec9b0e4a2ecd5887ee3a48446377efc04a5d3f6071541e5ad4ca508fe2b"
+    },
+    {
+      "sequence": 12,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "TORCH",
+      "subjectId": "TORCH",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 1
+      },
+      "previousHash": "5c56cec9b0e4a2ecd5887ee3a48446377efc04a5d3f6071541e5ad4ca508fe2b",
+      "digest": "3d18bad566d282f3a0c2cd6fbba2b5060f5cede01521616c8363b2dfe3a0007d"
+    },
+    {
+      "sequence": 13,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_CHANGED",
+      "actorId": "operator",
+      "subjectId": "TORCH",
+      "at": 1792411200000,
+      "details": {
+        "runtimeKeyFingerprint": "7089baf8d9ffc578663b69e3bc0064c506a50498a7e1b5854986b61ece38d451",
+        "credentialVersion": 2,
+        "authorityConferred": false
+      },
+      "previousHash": "3d18bad566d282f3a0c2cd6fbba2b5060f5cede01521616c8363b2dfe3a0007d",
+      "digest": "0a1e6ee2d28d5ae38928ee086d63d99789f204c8b4fd800f1767f4e4d8b60001"
+    },
+    {
+      "sequence": 14,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "TORCH",
+      "subjectId": "TORCH",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 2
+      },
+      "previousHash": "0a1e6ee2d28d5ae38928ee086d63d99789f204c8b4fd800f1767f4e4d8b60001",
+      "digest": "775b7ad69d637ffaea93330f2d49dcc93c54542c588525f62cce1aacbb6b00b3"
+    },
+    {
+      "sequence": 15,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_ADDED",
+      "actorId": "operator",
+      "subjectId": "Swarm-Investigator",
+      "at": 1792411200000,
+      "details": {
+        "swarmId": "swarm:1",
+        "parentId": null,
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "workflowId": "workflow:1",
+        "authorityConferred": false
+      },
+      "previousHash": "775b7ad69d637ffaea93330f2d49dcc93c54542c588525f62cce1aacbb6b00b3",
+      "digest": "d479f7b01f6524a19120526adb460287abbe65d7f6d5969513edaffb539b349f"
+    },
+    {
+      "sequence": 16,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "Swarm-Investigator",
+      "subjectId": "Swarm-Investigator",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 1
+      },
+      "previousHash": "d479f7b01f6524a19120526adb460287abbe65d7f6d5969513edaffb539b349f",
+      "digest": "3b0fc388681009e5fcffba5ed2720765a38d2391246b37b44e741553154c346f"
+    },
+    {
+      "sequence": 17,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_CHANGED",
+      "actorId": "operator",
+      "subjectId": "Swarm-Investigator",
+      "at": 1792411200000,
+      "details": {
+        "runtimeKeyFingerprint": "d956babe1f1db4791fa1a3864738fc0043e9a8417e34e64bace2cf37f74c97f7",
+        "credentialVersion": 2,
+        "authorityConferred": false
+      },
+      "previousHash": "3b0fc388681009e5fcffba5ed2720765a38d2391246b37b44e741553154c346f",
+      "digest": "ed5eeda0df71a125663d863962ac0c4919133d7cd6f2c1fccf71387a032ee19b"
+    },
+    {
+      "sequence": 18,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "Swarm-Investigator",
+      "subjectId": "Swarm-Investigator",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 2
+      },
+      "previousHash": "ed5eeda0df71a125663d863962ac0c4919133d7cd6f2c1fccf71387a032ee19b",
+      "digest": "9a40b6f61f4f46ab5b4ffa8ca7ab374577ddea5ec72ef836dd845cd9d1cdcbb4"
+    },
+    {
+      "sequence": 19,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_ADDED",
+      "actorId": "operator",
+      "subjectId": "Sentinel-Intelligence",
+      "at": 1792411200000,
+      "details": {
+        "swarmId": "swarm:1",
+        "parentId": null,
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "workflowId": "workflow:1",
+        "authorityConferred": false
+      },
+      "previousHash": "9a40b6f61f4f46ab5b4ffa8ca7ab374577ddea5ec72ef836dd845cd9d1cdcbb4",
+      "digest": "97b2ac1a724a1db30482838c434b5801ddecbb5ffee9cb9635f628885b79c760"
+    },
+    {
+      "sequence": 20,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "Sentinel-Intelligence",
+      "subjectId": "Sentinel-Intelligence",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 1
+      },
+      "previousHash": "97b2ac1a724a1db30482838c434b5801ddecbb5ffee9cb9635f628885b79c760",
+      "digest": "2f42aef22b586f5d613d59a2c8bdf1a1c03182d0e55c430b46136509615ffce9"
+    },
+    {
+      "sequence": 21,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_CHANGED",
+      "actorId": "operator",
+      "subjectId": "Sentinel-Intelligence",
+      "at": 1792411200000,
+      "details": {
+        "runtimeKeyFingerprint": "52c1f01c62f16fba2babdb48a7b23f11c3f785a1276ba12b1a3024dfa175643a",
+        "credentialVersion": 2,
+        "authorityConferred": false
+      },
+      "previousHash": "2f42aef22b586f5d613d59a2c8bdf1a1c03182d0e55c430b46136509615ffce9",
+      "digest": "1b8383f9f51b91f52082240beaacc746455851c97aaace7329571438a09498d9"
+    },
+    {
+      "sequence": 22,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "Sentinel-Intelligence",
+      "subjectId": "Sentinel-Intelligence",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 2
+      },
+      "previousHash": "1b8383f9f51b91f52082240beaacc746455851c97aaace7329571438a09498d9",
+      "digest": "5204fe620e3705c6ad6db9b097e11bdb79c67964306e7b4c90110bbaf848e382"
+    },
+    {
+      "sequence": 23,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_ADDED",
+      "actorId": "operator",
+      "subjectId": "Authority-Guardian",
+      "at": 1792411200000,
+      "details": {
+        "swarmId": "swarm:1",
+        "parentId": null,
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "workflowId": "workflow:1",
+        "authorityConferred": false
+      },
+      "previousHash": "5204fe620e3705c6ad6db9b097e11bdb79c67964306e7b4c90110bbaf848e382",
+      "digest": "a6e9199cf625435df9839cebe4a80596d396528b318a1c49837ed7324fb0d81f"
+    },
+    {
+      "sequence": 24,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "Authority-Guardian",
+      "subjectId": "Authority-Guardian",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 1
+      },
+      "previousHash": "a6e9199cf625435df9839cebe4a80596d396528b318a1c49837ed7324fb0d81f",
+      "digest": "5f2e898aaf41d732752f9b10bb913bbe07212234d4f4cc4dea34ca20bd5cbd87"
+    },
+    {
+      "sequence": 25,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_CHANGED",
+      "actorId": "operator",
+      "subjectId": "Authority-Guardian",
+      "at": 1792411200000,
+      "details": {
+        "runtimeKeyFingerprint": "de7939fdaa46427a9b2074b52f015fa97fbc7a0f84bd2692abdd74f90a19ef6d",
+        "credentialVersion": 2,
+        "authorityConferred": false
+      },
+      "previousHash": "5f2e898aaf41d732752f9b10bb913bbe07212234d4f4cc4dea34ca20bd5cbd87",
+      "digest": "aee51668cf97e3b27692fe8dedccc3b93c42f71f5dffc0560db9012c7fd6bce7"
+    },
+    {
+      "sequence": 26,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "Authority-Guardian",
+      "subjectId": "Authority-Guardian",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 2
+      },
+      "previousHash": "aee51668cf97e3b27692fe8dedccc3b93c42f71f5dffc0560db9012c7fd6bce7",
+      "digest": "460a23199cfacca2bdf0d11d637d3f352da0220e7caf70d0245f2542fe6100f9"
+    },
+    {
+      "sequence": 27,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_ADDED",
+      "actorId": "operator",
+      "subjectId": "CHIRIVETA",
+      "at": 1792411200000,
+      "details": {
+        "swarmId": "swarm:1",
+        "parentId": null,
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "workflowId": "workflow:1",
+        "authorityConferred": false
+      },
+      "previousHash": "460a23199cfacca2bdf0d11d637d3f352da0220e7caf70d0245f2542fe6100f9",
+      "digest": "85306df3934df223b15aa5c2b6233d035cca2e81b38355bf438b9b4f806f1233"
+    },
+    {
+      "sequence": 28,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "CHIRIVETA",
+      "subjectId": "CHIRIVETA",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 1
+      },
+      "previousHash": "85306df3934df223b15aa5c2b6233d035cca2e81b38355bf438b9b4f806f1233",
+      "digest": "12cb9a3c06112a6b7f3ad714ae8072fe0b276ea4cfee46ebe4d4d2d56b135d5d"
+    },
+    {
+      "sequence": 29,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_CHANGED",
+      "actorId": "operator",
+      "subjectId": "CHIRIVETA",
+      "at": 1792411200000,
+      "details": {
+        "runtimeKeyFingerprint": "9c6c24c2d3f40d1dbfa88cd3ccc9e3021c3a289b1335df71b7ce898269c231a6",
+        "credentialVersion": 2,
+        "authorityConferred": false
+      },
+      "previousHash": "12cb9a3c06112a6b7f3ad714ae8072fe0b276ea4cfee46ebe4d4d2d56b135d5d",
+      "digest": "8e5a92f47c308f2aa087fd26a7bbfc3c1d40393661c4a14cef02dbc96ae4ade9"
+    },
+    {
+      "sequence": 30,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "CHIRIVETA",
+      "subjectId": "CHIRIVETA",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 2
+      },
+      "previousHash": "8e5a92f47c308f2aa087fd26a7bbfc3c1d40393661c4a14cef02dbc96ae4ade9",
+      "digest": "3448e9447ca3d0cd279b0ea3001d4f460c6b5a1b83553229795213c0462490df"
+    },
+    {
+      "sequence": 31,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_ADDED",
+      "actorId": "operator",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "swarmId": "swarm:1",
+        "parentId": null,
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "workflowId": "workflow:1",
+        "authorityConferred": false
+      },
+      "previousHash": "3448e9447ca3d0cd279b0ea3001d4f460c6b5a1b83553229795213c0462490df",
+      "digest": "af409a460e3b293374255d7ecab3f65181532a646c6b424d18d1c6138efb540a"
+    },
+    {
+      "sequence": 32,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "TENENTE",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 1
+      },
+      "previousHash": "af409a460e3b293374255d7ecab3f65181532a646c6b424d18d1c6138efb540a",
+      "digest": "307a14731073f09de79a27eed4112330a8c50c52023ce6e2606bd25f7851ebc1"
+    },
+    {
+      "sequence": 33,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_CHANGED",
+      "actorId": "operator",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "runtimeKeyFingerprint": "ad8a08ddc92c5636b8177dc1bbfc5e60a02d2f9c3ec446b3f93d70acdd5f6d79",
+        "credentialVersion": 2,
+        "authorityConferred": false
+      },
+      "previousHash": "307a14731073f09de79a27eed4112330a8c50c52023ce6e2606bd25f7851ebc1",
+      "digest": "7ccde23796a020aff34720903896b46656c69ff734b53107c95a6f59dcd6dc4b"
+    },
+    {
+      "sequence": 34,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "TENENTE",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 2
+      },
+      "previousHash": "7ccde23796a020aff34720903896b46656c69ff734b53107c95a6f59dcd6dc4b",
+      "digest": "db3ce0c8ab644966face57c17ff6672c95a9d36ddf5acc7abd88a16501947858"
+    },
+    {
+      "sequence": 35,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_ADDED",
+      "actorId": "operator",
+      "subjectId": "Sentinel-Copilot",
+      "at": 1792411200000,
+      "details": {
+        "swarmId": "swarm:1",
+        "parentId": null,
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "workflowId": "workflow:1",
+        "authorityConferred": false
+      },
+      "previousHash": "db3ce0c8ab644966face57c17ff6672c95a9d36ddf5acc7abd88a16501947858",
+      "digest": "b20a9630e8026d262a117a0258607673ecdc61ebaf9ebde4365719526adef4fd"
+    },
+    {
+      "sequence": 36,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "Sentinel-Copilot",
+      "subjectId": "Sentinel-Copilot",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 1
+      },
+      "previousHash": "b20a9630e8026d262a117a0258607673ecdc61ebaf9ebde4365719526adef4fd",
+      "digest": "c6dd33e0a4c5f204525adf31d01fd9e38b8163f6d54c7e33cd9a0d8e0cc415d3"
+    },
+    {
+      "sequence": 37,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "MEMBERSHIP_CHANGED",
+      "actorId": "operator",
+      "subjectId": "Sentinel-Copilot",
+      "at": 1792411200000,
+      "details": {
+        "runtimeKeyFingerprint": "84193688265b04b5e952fd3965980e520547f615c961f4e27c3e54f3a4cab81b",
+        "credentialVersion": 2,
+        "authorityConferred": false
+      },
+      "previousHash": "c6dd33e0a4c5f204525adf31d01fd9e38b8163f6d54c7e33cd9a0d8e0cc415d3",
+      "digest": "8c9971b65672697845dfee27f9f4ba29927283c1df007db2829e85b8f98d2bac"
+    },
+    {
+      "sequence": 38,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "HEARTBEAT_VERIFIED",
+      "actorId": "Sentinel-Copilot",
+      "subjectId": "Sentinel-Copilot",
+      "at": 1792411200000,
+      "details": {
+        "sequence": 1,
+        "credentialVersion": 2
+      },
+      "previousHash": "8c9971b65672697845dfee27f9f4ba29927283c1df007db2829e85b8f98d2bac",
+      "digest": "a00780a513820880085d75acea81505fe72c6b35224350d6c3b0c80775800abd"
+    },
+    {
+      "sequence": 39,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "TORCH",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "TORCH",
+        "task": "correlate authenticated warnings",
+        "tools": [
+          "read:trust-events"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "a00780a513820880085d75acea81505fe72c6b35224350d6c3b0c80775800abd",
+      "digest": "76e85adda865bb8614c71dc27dabb61a89d51ef44376de8884b2708dbcb63de2"
+    },
+    {
+      "sequence": 40,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "Swarm Investigator",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "Swarm-Investigator",
+        "task": "collect scoped evidence",
+        "tools": [
+          "read:incident-evidence"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "76e85adda865bb8614c71dc27dabb61a89d51ef44376de8884b2708dbcb63de2",
+      "digest": "81e1dcf84ae4ac8c6c6b62c9c7ce8b6c5cbb969b0f93c70a3a59522109a03eee"
+    },
+    {
+      "sequence": 41,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "Sentinel Intelligence",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "Sentinel-Intelligence",
+        "task": "assess observed signals",
+        "tools": [
+          "read:incident-evidence"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "81e1dcf84ae4ac8c6c6b62c9c7ce8b6c5cbb969b0f93c70a3a59522109a03eee",
+      "digest": "aa3d082946473615077ac492033a436db7cb8080af61aac7fffe0e2d645a3bc8"
+    },
+    {
+      "sequence": 42,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "Authority Guardian",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "Authority-Guardian",
+        "task": "check current authority",
+        "tools": [
+          "swarm:admit"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "aa3d082946473615077ac492033a436db7cb8080af61aac7fffe0e2d645a3bc8",
+      "digest": "a14a20ce3096be15f1bf19dc6d9805f87e4cd028766d58f92d20c548a41d0e4d"
+    },
+    {
+      "sequence": 43,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "CHIRIVETA",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "CHIRIVETA",
+        "task": "review reversible containment",
+        "tools": [
+          "watchtower:review"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "a14a20ce3096be15f1bf19dc6d9805f87e4cd028766d58f92d20c548a41d0e4d",
+      "digest": "4be35d8574719d2f3b660a60e5e734789480d20cfa729c6c30d8ba016dd280df"
+    },
+    {
+      "sequence": 44,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "TENENTE",
+        "task": "coordinate bounded response",
+        "tools": [
+          "swarm:dispatch"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "4be35d8574719d2f3b660a60e5e734789480d20cfa729c6c30d8ba016dd280df",
+      "digest": "15cb362e946205d5f91bab2182b9d6c2a7b506999a3dbb3b4cc992ebce71ec7e"
+    },
+    {
+      "sequence": 45,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_AGENT_REGISTERED",
+      "actorId": "operator",
+      "subjectId": "Sentinel Copilot",
+      "at": 1792411200000,
+      "details": {
+        "ownerId": "security-owner",
+        "swarmId": "swarm:1",
+        "id": "Sentinel-Copilot",
+        "task": "select read-only cited evidence",
+        "tools": [
+          "read:incident-evidence"
+        ],
+        "limits": {
+          "maxEvidenceRecords": 24,
+          "maxModelMs": 15000,
+          "maxDestinationMs": 15000
+        },
+        "authorityConferred": false
+      },
+      "previousHash": "15cb362e946205d5f91bab2182b9d6c2a7b506999a3dbb3b4cc992ebce71ec7e",
+      "digest": "4d8c7c8a194047232bc84aa7543977457b837012f6505ae86cd17cbd312c2dd6"
+    },
+    {
+      "sequence": 46,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "WATCHTOWER_WARNING",
+      "actorId": "CHIRIVETA",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "previousHash": "4d8c7c8a194047232bc84aa7543977457b837012f6505ae86cd17cbd312c2dd6",
+      "details": {
+        "eventId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+        "source": "ALSAMORA",
+        "swarm": "swarm:1",
+        "accepted": true,
+        "investigationOpened": true,
+        "reason": "INVESTIGATION_OPENED",
+        "authorityConferred": false,
+        "envelopeDigest": "e544faaa0420aed2bd6294324dbac8122f9386b6c461342d58dac2dcd991c6e9",
+        "envelope": {
+          "warning": {
+            "eventId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+            "source": "ALSAMORA",
+            "kind": "SYNTHETIC_EXPORT_WARNING",
+            "route": "synthetic:customer-export",
+            "authorityConferred": false
+          },
+          "origin": {
+            "claims": {
+              "domain": "cyber-sentinels:agent-message:v1",
+              "tenantId": "10000000-0000-4000-8000-000000000001",
+              "swarmId": "swarm:1",
+              "senderId": "ALSAMORA",
+              "recipientId": "CHIRIVETA",
+              "audience": "tenente:watchtower:warning:v1",
+              "credentialVersion": 2,
+              "nonce": "dde683cfd6274c5ab18e9a2cae6a92b7",
+              "issuedAt": 1792411200000,
+              "expiresAt": 1792411230000,
+              "payloadDigest": "7d21d687d36363c028429741b44a758d369430fe7c701790a609ac943e66a5d2"
+            },
+            "signature": "J5GN5Ivkw-4ML97dnRcwQZVXH7jXs3igsE-8tRHUYvcYA2BwvLXk9gVEaWZSWRO0h6tvYUoHtvBiCKFo0u-TAw"
+          },
+          "relays": [
+            {
+              "claims": {
+                "domain": "cyber-sentinels:agent-message:v1",
+                "tenantId": "10000000-0000-4000-8000-000000000001",
+                "swarmId": "swarm:1",
+                "senderId": "VIACAMP",
+                "recipientId": "CHIRIVETA",
+                "audience": "tenente:watchtower:warning:v1",
+                "credentialVersion": 2,
+                "nonce": "9bed0b6d05ff4fcda59123f29b94f004",
+                "issuedAt": 1792411200000,
+                "expiresAt": 1792411230000,
+                "payloadDigest": "56d919e22371a620307d7b7f1541b2239356c9d90befd64695d203ac224d6ddb"
+              },
+              "signature": "0Zc0zNNDqrgol3-UPDXV11rGVf4U2bUSNm0jSK4ajIki_KwpU2xO27rTVjREJrcb1-a2zs9eMLbCUIXNdcTwAg"
+            }
+          ]
+        }
+      },
+      "digest": "bcf34ba9484eaee669bc8ad63570bbb39e6303f8f217941f66f4219ec694e580"
+    },
+    {
+      "sequence": 47,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_ALERT",
+      "actorId": "TORCH",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "details": {
+        "synthetic": true,
+        "source": "authenticated-watchtower",
+        "swarmId": "swarm:1",
+        "entityId": "ALSAMORA",
+        "rule": "signed-synthetic-export-v1",
+        "score": 68,
+        "priority": "REVIEW",
+        "escalation": "analyst",
+        "evidenceRefs": [
+          "bcf34ba9484eaee669bc8ad63570bbb39e6303f8f217941f66f4219ec694e580",
+          "2a696f1c846823a388a983bc690b3bcfd032d96330889636273e7e18994ebd25",
+          "f55aeadca5cbfc4d67c137bfa700ee084090a2693310e927e72606efd290c57c",
+          "9a6c0bf67cf19b17c7a8eb23e735296d76fd451ee1e11156f22addd5955d71c9",
+          "5954d83ad50b812ae03f36ab0f06dd30183c3ad16a9c9243e611d4c253ed6d01"
+        ],
+        "authorityConferred": false
+      },
+      "previousHash": "bcf34ba9484eaee669bc8ad63570bbb39e6303f8f217941f66f4219ec694e580",
+      "digest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d"
+    },
+    {
+      "sequence": 48,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_INVESTIGATION",
+      "actorId": "Swarm Investigator",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "details": {
+        "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+        "evidenceRefs": [
+          "2a696f1c846823a388a983bc690b3bcfd032d96330889636273e7e18994ebd25",
+          "f55aeadca5cbfc4d67c137bfa700ee084090a2693310e927e72606efd290c57c",
+          "9a6c0bf67cf19b17c7a8eb23e735296d76fd451ee1e11156f22addd5955d71c9",
+          "5954d83ad50b812ae03f36ab0f06dd30183c3ad16a9c9243e611d4c253ed6d01",
+          "bcf34ba9484eaee669bc8ad63570bbb39e6303f8f217941f66f4219ec694e580",
+          "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d"
+        ],
+        "maxRecords": 24,
+        "status": "RESERVED",
+        "automaticRetry": false,
+        "interruptionRecovery": "OPERATOR_REVIEW_REQUIRED",
+        "authorityConferred": false
+      },
+      "previousHash": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+      "digest": "ec38a28421ef96469c166302f5d73ad3e5e2edf51774561f876fab3233d5e9be"
+    },
+    {
+      "sequence": 49,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_FAILURE",
+      "actorId": "Sentinel Copilot",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "details": {
+        "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+        "reason": "MODEL_NOT_CONFIGURED",
+        "authorityConferred": false
+      },
+      "previousHash": "ec38a28421ef96469c166302f5d73ad3e5e2edf51774561f876fab3233d5e9be",
+      "digest": "ec2d2c292a182469cbb588bbb46e90849de50ede165bc905f1ba7c1144855449"
+    },
+    {
+      "sequence": 50,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_ASSESSMENT",
+      "actorId": "Sentinel Intelligence",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "details": {
+        "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+        "finding": "AUTHENTICATED_SYNTHETIC_WARNING",
+        "uncertainty": "Synthetic warning does not establish a real compromise.",
+        "evidenceRefs": [
+          "2a696f1c846823a388a983bc690b3bcfd032d96330889636273e7e18994ebd25",
+          "f55aeadca5cbfc4d67c137bfa700ee084090a2693310e927e72606efd290c57c",
+          "9a6c0bf67cf19b17c7a8eb23e735296d76fd451ee1e11156f22addd5955d71c9",
+          "5954d83ad50b812ae03f36ab0f06dd30183c3ad16a9c9243e611d4c253ed6d01",
+          "bcf34ba9484eaee669bc8ad63570bbb39e6303f8f217941f66f4219ec694e580",
+          "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d"
+        ],
+        "modelAuthority": "NONE",
+        "requiresCurrentGateway": true
+      },
+      "previousHash": "ec2d2c292a182469cbb588bbb46e90849de50ede165bc905f1ba7c1144855449",
+      "digest": "b918f6518e39d1bef9bc6bc8f9853d0c45017db8821356a902e9c6b17ce00a28"
+    },
+    {
+      "sequence": 51,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "CHIRIVETA_REVIEW",
+      "actorId": "CHIRIVETA",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "previousHash": "b918f6518e39d1bef9bc6bc8f9853d0c45017db8821356a902e9c6b17ce00a28",
+      "details": {
+        "warningEvidenceDigest": "bcf34ba9484eaee669bc8ad63570bbb39e6303f8f217941f66f4219ec694e580",
+        "proposal": {
+          "kind": "TEMPORARY_BLOCK",
+          "target": "synthetic:customer-export",
+          "durationSeconds": 60,
+          "corroboratingEvidenceRefs": [
+            "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+            "b918f6518e39d1bef9bc6bc8f9853d0c45017db8821356a902e9c6b17ce00a28"
+          ]
+        },
+        "recommendation": "REQUEST_TEMPORARY_BLOCK",
+        "reason": "BOUNDED_REVERSIBLE_REQUEST_ONLY",
+        "authorityConferred": false,
+        "requiresGateway": true,
+        "requiresIndependentHumanApproval": false,
+        "aiModelUsed": false
+      },
+      "digest": "c1e5e56d1b8c1098945d18d65ca1804bb4b5d725f9a64a050c396d342600ca2d"
+    },
+    {
+      "sequence": 52,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "LEASE_RESERVED",
+      "actorId": "operator",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "requestDigest": "70ec0f79b224f74b1e27cc7d7840be63de31cd8589f3c45def4e377d61193317",
+        "swarmId": "swarm:1",
+        "classification": {
+          "correlationId": "workflow:1",
+          "resource": "synthetic:customer-export",
+          "operation": "BLOCK_SYNTHETIC_ACTION",
+          "units": 1,
+          "limit": 100,
+          "mandatoryRestriction": false,
+          "sensitive": false,
+          "transfer": "NONE",
+          "transferPermitted": false,
+          "policyVersion": "v1",
+          "evidenceRefs": [
+            "policy:v1"
+          ]
+        },
+        "authorityId": "10000000-0000-4000-8000-000000000003",
+        "delegationId": "10000000-0000-4000-8000-000000000004",
+        "transactionId": "10000000-0000-4000-8000-000000000002",
+        "authoritySnapshot": {
+          "tenantId": "10000000-0000-4000-8000-000000000001",
+          "subjectId": "TENENTE",
+          "workflowId": "workflow:1",
+          "action": "BLOCK_SYNTHETIC_ACTION",
+          "resource": "synthetic:customer-export",
+          "purpose": "refund",
+          "grants": [
+            {
+              "id": "10000000-0000-4000-8000-000000000003",
+              "tenantId": "10000000-0000-4000-8000-000000000001",
+              "grantorId": "enterprise",
+              "grantorType": "organization",
+              "granteeId": "TENENTE",
+              "granteeType": "ai_agent",
+              "scope": [
+                "BLOCK_SYNTHETIC_ACTION"
+              ],
+              "maxDelegationDepth": 2,
+              "issuedAt": "2026-10-19T11:59:00.000Z",
+              "expiresAt": "2026-10-19T13:00:00.000Z"
+            }
+          ]
+        },
+        "responsiblePrincipalId": null,
+        "orchestratorId": null,
+        "decision": "ALLOW",
+        "journalOrderIsExternalExecutionOrder": false
+      },
+      "previousHash": "c1e5e56d1b8c1098945d18d65ca1804bb4b5d725f9a64a050c396d342600ca2d",
+      "digest": "8f634f7695b0cc13b85b52ce872a334ddc39e2f2ec74fdc34f0f370e069a9c0a"
+    },
+    {
+      "sequence": 53,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "DISPATCH_STARTED",
+      "actorId": "operator",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "leaseId": "70ec0f79b224f74b1e27cc7d7840be63de31cd8589f3c45def4e377d61193317",
+        "transactionId": "10000000-0000-4000-8000-000000000002",
+        "externalCancellationGuaranteed": false
+      },
+      "previousHash": "8f634f7695b0cc13b85b52ce872a334ddc39e2f2ec74fdc34f0f370e069a9c0a",
+      "digest": "ad0b3c4e4840b7f26a2af29609e655a7b7c1fdb65996b0e343c5a14547ae5e5a"
+    },
+    {
+      "sequence": 54,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "DESTINATION_RECONCILED",
+      "actorId": "operator",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "leaseId": "70ec0f79b224f74b1e27cc7d7840be63de31cd8589f3c45def4e377d61193317",
+        "outcome": "COMPLETED",
+        "evidenceRef": "destination:verified",
+        "spentMinor": null,
+        "budgetReleased": false
+      },
+      "previousHash": "ad0b3c4e4840b7f26a2af29609e655a7b7c1fdb65996b0e343c5a14547ae5e5a",
+      "digest": "0d212778791c6bc940e914fa2b9412b0f77bd9091a51899a11e415f22da72214"
+    },
+    {
+      "sequence": 55,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_RESPONSE",
+      "actorId": "TENENTE",
+      "subjectId": "dde683cfd6274c5ab18e9a2cae6a92b7",
+      "at": 1792411200000,
+      "details": {
+        "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+        "decision": "ALLOW",
+        "outcome": "COMPLETED",
+        "evidenceRefs": [
+          "c1e5e56d1b8c1098945d18d65ca1804bb4b5d725f9a64a050c396d342600ca2d",
+          "ad0b3c4e4840b7f26a2af29609e655a7b7c1fdb65996b0e343c5a14547ae5e5a",
+          "0d212778791c6bc940e914fa2b9412b0f77bd9091a51899a11e415f22da72214"
+        ],
+        "requestId": "d25e7955-8358-4ecb-b093-b45ae894135f",
+        "synthetic": true
+      },
+      "previousHash": "0d212778791c6bc940e914fa2b9412b0f77bd9091a51899a11e415f22da72214",
+      "digest": "45d050277165c11ed10a779749bed7107dbc9599187bbd94c2c80145a180db2f"
+    },
+    {
+      "sequence": 56,
+      "tenantId": "10000000-0000-4000-8000-000000000001",
+      "kind": "SOC_TRUST_MEMORY",
+      "actorId": "TENENTE",
+      "subjectId": "TENENTE",
+      "at": 1792411200000,
+      "details": {
+        "alertDigest": "cd658bdd628c52edf84f3e058edc3ff800756153dcbc822f4dda95b278aaa76d",
+        "responseDigest": "45d050277165c11ed10a779749bed7107dbc9599187bbd94c2c80145a180db2f",
+        "outcome": "COMPLETED",
+        "authorityConferred": false
+      },
+      "previousHash": "45d050277165c11ed10a779749bed7107dbc9599187bbd94c2c80145a180db2f",
+      "digest": "300c296b438013aab51fcf6abbeb9c6f04437084c53309cc3b789752686fcc3d"
+    }
+  ],
+  "limits": {
+    "temporaryBlockSeconds": 60,
+    "scope": "synthetic:customer-export",
+    "externalExpiryEnforcement": "Fixture timestamp only; real provider TTL conformance remains unqualified"
+  }
+}
