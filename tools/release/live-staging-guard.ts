@@ -56,7 +56,11 @@ function normalizeHostname(value: string | undefined) {
 function isProductionHostname(hostname: string) {
   if (!hostname) return false;
   if (hostname === "staging.cybersentinels.com") return false;
-  return /cybersentinels\.com$/i.test(hostname) || hostname.includes("cybersentinels.com") || hostname.includes("kecgtsfibkypjuaxqbjx");
+  return (
+    hostname === "cybersentinels.com" ||
+    hostname.endsWith(".cybersentinels.com") ||
+    hostname.split(".").includes("kecgtsfibkypjuaxqbjx")
+  );
 }
 
 export function assertLiveStagingGuard(input: LiveStagingGuardInput): LiveStagingGuardResult {

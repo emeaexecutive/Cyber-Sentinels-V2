@@ -31,6 +31,17 @@ test("live guard rejects production reference", () => {
   );
 });
 
+test("live guard rejects production hostnames by domain boundary", () => {
+  assert.throws(
+    () => assertLiveStagingGuard({ ...validInput, approvedHostname: "api.cybersentinels.com" }),
+    (error) => error instanceof LiveStagingGuardError && error.code === "LIVE_TARGET_PRODUCTION_REFUSED",
+  );
+  assert.throws(
+    () => assertLiveStagingGuard({ ...validInput, approvedHostname: "cybersentinels.com.attacker.invalid" }),
+    (error) => error instanceof LiveStagingGuardError && error.code === "LIVE_TARGET_UNKNOWN",
+  );
+});
+
 test("live guard requires synthetic mode", () => {
   assert.throws(
     () => assertLiveStagingGuard({ ...validInput, syntheticFixtures: false }),

@@ -67,7 +67,7 @@ test("mobile and desktop public navigation render the same shared link set", asy
 
 test("footer exposes the final seven detailed discovery groups accessibly", async () => {
   const source = await read("app/layout.tsx");
-  for (const title of ["Platform", "Trust", "Solutions", "Enterprise", "Developers & Resources", "Company", "Legal & Support"]) assert.match(source, new RegExp(`title: "${title.replace("&", "&")}"`));
+  for (const title of ["Platform", "Trust", "Solutions", "Enterprise", "Developers & Resources", "Company", "Legal & Support"]) assert.ok(source.includes(`title: "${title}"`), title);
   for (const label of [
     "Trust Orchestrator", "Runtime Trust", "Authorization & Enforcement", "Enterprise Trust Fabric™",
     "Living Trust Profile", "Trust DNA™", "Trust Memory", "Replay", "Evidence & Audit", "Governance", "AI Sovereignty", "Validation Transparency",

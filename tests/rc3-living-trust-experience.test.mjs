@@ -24,7 +24,7 @@ test("primary and mobile navigation expose the six release-candidate destination
 
 test("footer is the secondary discovery index and preserves company and support access", async () => {
   const source = await read("app/layout.tsx");
-  for (const section of ["Platform", "Trust", "Solutions", "Enterprise", "Developers & Resources", "Company", "Legal & Support"]) assert.match(source, new RegExp(`title: "${section.replace("&", "&")}"`));
+  for (const section of ["Platform", "Trust", "Solutions", "Enterprise", "Developers & Resources", "Company", "Legal & Support"]) assert.ok(source.includes(`title: "${section}"`), section);
   for (const label of ["About", "Help", "Living Trust Profile", "Trust DNA™", "Trust Memory", "Evidence & Audit", "Pilot Programme", "API Documentation", "Accessibility", "Privacy", "Terms", "Cookies", "Security", "Status"]) assert.match(source, new RegExp(label));
   assert.match(source, /\/trust#living-trust-profile/);
   assert.match(source, /\/enterprise#support/);
