@@ -30,6 +30,27 @@ transport adapter. It allows only the fixed HTTPS endpoint, disables redirects,
 limits response size and fails closed if a direct Supabase service-role or
 management token is still present in the acceptance process.
 
+`app/api/restricted-preview/v1/execute/route.ts` provides the corresponding
+HTTP transport. It is disabled unless `RESTRICTED_PREVIEW_ENABLED=true`, is
+Preview-only when `VERCEL_ENV` is set, requires explicit synthetic scope
+allowlists and capability/adapter credentials, and forwards only to an exact
+HTTPS adapter URL. It has no in-memory or service-role fallback; missing
+configuration returns a failure response.
+
+The route requires these Preview-only variables:
+
+- `RESTRICTED_PREVIEW_SIGNING_KEY`
+- `RESTRICTED_PREVIEW_ADAPTER_TOKEN`
+- `RESTRICTED_PREVIEW_ADAPTER_URL`
+- `RESTRICTED_PREVIEW_TENANT_IDS`
+- `RESTRICTED_PREVIEW_SUBJECT_IDS`
+- `RESTRICTED_PREVIEW_RUN_IDS`
+- `RESTRICTED_PREVIEW_DESTINATIONS`
+
+These variables are configuration requirements, not hosted changes performed by
+this commit. They must be provisioned with synthetic scope and independently
+approved before hosted acceptance.
+
 ## Tests
 
 `tests/restricted-preview-gateway.test.mjs` covers:
@@ -41,6 +62,8 @@ management token is still present in the acceptance process.
 - payload-field allowlisting and Production/destructive denial;
 - exact subject, run and operation capability binding;
 - acceptance fallback-credential refusal.
+- disabled and non-Preview HTTP transport;
+- invalid HTTP content type and request framing.
 
 ## Not implemented or authorized
 
