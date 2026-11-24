@@ -109,6 +109,25 @@ export function issueRestrictedPreviewCapability(
   return { claims: structuredClone(claims), signature: signature(signingKey, claims) };
 }
 
+export function serializeRestrictedPreviewCapability(
+  capability: RestrictedPreviewCapability,
+) {
+  return Buffer.from(JSON.stringify(capability), "utf8").toString("base64url");
+}
+
+export function parseRestrictedPreviewCapability(value: string) {
+  try {
+    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as RestrictedPreviewCapability;
+    if (!parsed || typeof parsed !== "object") throw new Error("invalid capability");
+    return parsed;
+  } catch {
+    throw new RestrictedPreviewGatewayError(
+      "GATEWAY_CAPABILITY_INVALID",
+      "The gateway capability is invalid.",
+    );
+  }
+}
+
 function validCapability(
   signingKey: string,
   capability: RestrictedPreviewCapability,
