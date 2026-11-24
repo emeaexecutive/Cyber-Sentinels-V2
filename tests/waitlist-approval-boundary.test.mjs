@@ -33,9 +33,16 @@ test('invalid submission cannot obtain a server writer',async()=>{
  const f=setup();const response=await f.post(new Request('https://example.test/api/waitlist',{method:'POST',body:JSON.stringify({email:'invalid'})}));
  assert.equal(response.status,400);assert.equal(f.clients(),0);
 });
-test('overlong adversarial email is rejected before regex validation',async()=>{
- const f=setup();const email=`a@${'.'.repeat(252)}@`;
- assert.equal(email.length,255);
+test('email at the 254-character limit remains eligible for validation',async()=>{
+ const f=setup();const email=`a@${'b'.repeat(63)}.${'c'.repeat(63)}.${'d'.repeat(63)}.${'e'.repeat(56)}.com`;
+ assert.equal(email.length,254);
  const response=await f.post(new Request('https://example.test/api/waitlist',{method:'POST',body:JSON.stringify({email})}));
- assert.equal(response.status,400);assert.equal(f.regexTested(),false);assert.equal(f.clients(),0);
+ assert.equal(response.status,200);assert.equal(f.regexTested(),true);assert.equal(f.clients(),1);
+});
+test('oversized and adversarial emails are rejected before regex validation',async()=>{
+ for(const email of [`a@${'b'.repeat(251)}.com`,`a@${'.'.repeat(252)}@`]){
+  assert.ok(email.length>254);
+  const f=setup();const response=await f.post(new Request('https://example.test/api/waitlist',{method:'POST',body:JSON.stringify({email})}));
+  assert.equal(response.status,400);assert.equal(f.regexTested(),false);assert.equal(f.clients(),0);
+ }
 });
