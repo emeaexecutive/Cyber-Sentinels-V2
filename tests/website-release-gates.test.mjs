@@ -9,7 +9,7 @@ function load(path){
  const source=readFileSync(new URL('../'+path,import.meta.url),'utf8');
  const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;
  const testModule={exports:{}};
- new Function('require','module','exports',js)(id=>id==='next/link'?{__esModule:true,default:({children,...props})=>require('react').createElement('a',props,children)}:id==='@/lib/search/metadata'?{publicSocialMetadata:()=>({})}:require(id),testModule,testModule.exports);
+ new Function('require','module','exports',js)(id=>id==='next/link'?{__esModule:true,default:({children,...props})=>require('react').createElement('a',props,children)}:id==='@/lib/search/metadata'?{publicSocialMetadata:()=>({})}:id==='@/lib/i18n/public-locales'?{publicPageAlternates:()=>({})}:id==='@/src/components/consent/PrivacyPageContent'?{PrivacyPageContent:()=>require('react').createElement('div',null,'privacy notice is under review',require('react').createElement('a',{href:'/privacy/preferences'},'preferences'))}:require(id),testModule,testModule.exports);
  return testModule.exports;
 }
 test('draft policy body, subtitle and unapproved contact routing are never published',()=>{
