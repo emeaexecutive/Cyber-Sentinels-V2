@@ -49,9 +49,13 @@ export async function POST(req: Request) {
     }
 
     const email = String(body.email || "").toLowerCase().trim();
+    if (email.length > 254) {
+      return NextResponse.json({ error: "Valid email required" }, { status: 400 });
+    }
+
     const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    if (!validEmail || email.length > 254) {
+    if (!validEmail) {
       return NextResponse.json({ error: "Valid email required" }, { status: 400 });
     }
 
