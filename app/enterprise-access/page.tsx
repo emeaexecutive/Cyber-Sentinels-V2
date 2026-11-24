@@ -34,6 +34,11 @@ export default async function EnterpriseAccessPage({ searchParams }: {
   const demoRequest = query.intent === "demo";
   const trustTeam = query.intent === "trust-team";
   const pilot = query.intent === "pilot";
+  const enterpriseFormEnabled = process.env.PUBLIC_ENTERPRISE_FORM_ENABLED === "true"
+    && Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL?.trim())
+    && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim())
+    && Boolean(process.env.TURNSTILE_SECRET_KEY?.trim())
+    && Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim());
   const pageTitle = designPartner
     ? isSpanish ? "Conviértete en socio de diseño" : "Become a Design Partner"
     : introCall
@@ -113,7 +118,23 @@ export default async function EnterpriseAccessPage({ searchParams }: {
         <section className="min-w-0 rounded-lg border border-zinc-800 bg-black p-6">
           {query.success ? <p className="mb-5 rounded-md border border-emerald-900 bg-emerald-950/20 p-4 text-sm text-emerald-100">{isSpanish ? "Hemos recibido tu solicitud. Nos pondremos en contacto contigo para hablar del encaje y los siguientes pasos del piloto." : "Your request has been received. We will follow up about pilot fit and next steps."}</p> : null}
           {query.error ? <p className="mb-5 rounded-md border border-amber-900 bg-amber-950/20 p-4 text-sm text-amber-100">{isSpanish ? "Comprueba los campos obligatorios e inténtalo de nuevo." : "Please check the required fields and try again."}</p> : null}
-          <EnterpriseAccessForm buttonLabel={buttonLabel} designPartner={designPartner} locale={locale} />
+          {enterpriseFormEnabled ? (
+            <EnterpriseAccessForm buttonLabel={buttonLabel} designPartner={designPartner} locale={locale} />
+          ) : (
+            <div className="grid gap-4 text-sm leading-6 text-zinc-300">
+              <p>{isSpanish
+                ? "El formulario seguro no está habilitado en esta edición pública. Para una demostración, un piloto o una conversación de diseño, escribe directamente a la dirección."
+                : "The secure form is not enabled in this public edition. For a demo, pilot or design-partner conversation, contact the founder directly."}</p>
+              <a
+                className="brand-primary-action w-full p-3 text-center"
+                href={isSpanish
+                  ? "mailto:emeaexecutive@icloud.com?subject=Consulta%20sobre%20Cyber%20Sentinels"
+                  : "mailto:emeaexecutive@icloud.com?subject=Cyber%20Sentinels%20Pilot%20Enquiry"}
+              >
+                {isSpanish ? "Escribir a la dirección" : "Email the founder"}
+              </a>
+            </div>
+          )}
         </section>
       </div>
     </main>

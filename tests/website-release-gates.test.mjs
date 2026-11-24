@@ -35,3 +35,9 @@ test('public enquiry surfaces use only the founder-approved mailbox',()=>{
   const source=readFileSync(new URL('../'+path,import.meta.url),'utf8');const addresses=source.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g)??[];assert.deepEqual([...new Set(addresses)],['emeaexecutive@icloud.com']);
  }
 });
+test('public enterprise enquiries fail closed to the founder mailbox unless explicitly enabled',()=>{
+ const source=readFileSync(new URL('../app/enterprise-access/page.tsx',import.meta.url),'utf8');
+ assert.match(source,/PUBLIC_ENTERPRISE_FORM_ENABLED === "true"/);
+ assert.match(source,/secure form is not enabled|formulario seguro no está habilitado/);
+ assert.match(source,/mailto:emeaexecutive@icloud\.com/);
+});
