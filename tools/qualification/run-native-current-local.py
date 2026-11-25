@@ -16,6 +16,7 @@ env['NODE_DISABLE_COMPILE_CACHE'] = '1'
 flags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
 started = time.monotonic()
 server = None
+hba_original = None
 receipt = {'hosted': False, 'port': 55643, 'dataDirectory': str(data), 'exitCode': None}
 try:
     assert binary.joinpath('initdb.exe').is_file(), 'Known portable PostgreSQL distribution required'
@@ -26,6 +27,10 @@ try:
     else:
         status = subprocess.run([str(binary / 'pg_ctl.exe'), '-D', str(data), 'status'], env=env, capture_output=True, timeout=10, creationflags=flags)
         assert status.returncode != 0, 'Do not reuse a running cluster'
+    # Exercise the restricted login under the same password-auth boundary as CI.
+    hba = data / 'pg_hba.conf'
+    hba_original = hba.read_bytes()
+    hba.write_bytes(b'host all execution20_gateway_login 127.0.0.1/32 scram-sha-256\n' + hba_original)
     with (out / 'postgres.log').open('w') as server_log:
         server = subprocess.Popen([str(binary / 'postgres.exe'), '-D', str(data), '-h', '127.0.0.1', '-p', '55643'], env=env, stdout=server_log, stderr=server_log, creationflags=flags)
         for _ in range(100):
@@ -41,6 +46,8 @@ finally:
         stopped = subprocess.run([str(binary / 'pg_ctl.exe'), '-D', str(data), '-m', 'fast', '-w', 'stop'], env=env, capture_output=True, timeout=30, creationflags=flags)
         receipt['serverStopped'] = stopped.returncode == 0
         server.wait(timeout=10)
+    if hba_original is not None:
+        hba.write_bytes(hba_original)
     receipt['seconds'] = round(time.monotonic() - started, 1)
     (out / 'native-current-postgres-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
 print(json.dumps(receipt))

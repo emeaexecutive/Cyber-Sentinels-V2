@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test,{before,after} from 'node:test';
-import {randomUUID} from 'node:crypto';
+import {randomUUID,randomBytes} from 'node:crypto';
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {createServer} from 'node:http';
 import {resolve} from 'node:path';
@@ -84,8 +84,13 @@ test('revocation holds tenant mutation lock; destination waits and observes the 
 test('restricted gateway driver detects an unexpected callable function and direct dispatcher grant',async()=>{
  assert.equal(Number((await admin.query("select count(*) from pg_roles where rolname in ('execution20_gateway_login','execution20_gateway_owner')")).rows[0].count),0);
  await db.query(readFileSync('security/qualification/restricted-gateway.sql','utf8'));gatewayRolesCreated=true;
+ // Per-run test credential: CI uses SCRAM, while the fixture SQL deliberately
+ // provisions no reusable login password.
+ const gatewayPassword=randomBytes(32).toString('hex');
+ await db.query(`alter role execution20_gateway_login password '${gatewayPassword}'`);
  await db.query("insert into qualification20.runs values('execution20_gateway_login','synthetic:tenant','synthetic:subject','synthetic:run','synthetic:destination')");
- const restricted=new pg.Client({...config,database,user:'execution20_gateway_login'});await restricted.connect();
+ const restrictedConfig={...config,database,user:'execution20_gateway_login',password:gatewayPassword};
+ const restricted=new pg.Client(restrictedConfig);await restricted.connect();
  try{
   assert.equal((await restricted.query(RESTRICTED_POSTGRES_PRIVILEGE_CHECK)).rows[0].restricted,true);
   await db.query("create function qualification20.unexpected_callable() returns int language sql security definer as 'select 1'");
@@ -96,7 +101,7 @@ test('restricted gateway driver detects an unexpected callable function and dire
   await db.query('revoke execute on function qualification20.execute_fixed(text,text,text,text,jsonb,text) from execution20_gateway_login');
   assert.equal((await restricted.query(RESTRICTED_POSTGRES_PRIVILEGE_CHECK)).rows[0].restricted,true);
  }finally{await restricted.end();}
- const driver=new RestrictedPostgresConnectionAdapter('postgresql://execution20_gateway_login:synthetic@db.agpyhygpfmppjkxwcpac.supabase.co/postgres',()=>new pg.Client({...config,database,user:'execution20_gateway_login'}));
+ const driver=new RestrictedPostgresConnectionAdapter('postgresql://execution20_gateway_login:synthetic@db.agpyhygpfmppjkxwcpac.supabase.co/postgres',()=>new pg.Client(restrictedConfig));
  assert.equal((await driver.execute({requestId:'synthetic:driver:request',operation:'qualification.schema.read',tenantId:'synthetic:tenant',subjectId:'synthetic:subject',runId:'synthetic:run',destination:'synthetic:destination',payload:{},issuedAt:new Date().toISOString()})).synthetic,true);
  evidence.push({case:'actual restricted driver and privilege drift',pass:true});
 });
