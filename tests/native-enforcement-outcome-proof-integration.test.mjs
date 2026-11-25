@@ -24,8 +24,8 @@ test("Controlled Repository A is a separate, bounded destination with two action
   assert.match(migration, /action in \('READ','WRITE_TEST_RECORD'\)/);
   assert.match(migration, /target in \('repository:a','controlled-repository-a'\)/);
   assert.match(migration, /unique\(enterprise_id,destination_id,idempotency_key\)/);
-  assert.match(server, /controlled_destination_records/);
-  assert.match(server, /stored\.error && stored\.error\.code !== "23505"/);
+  assert.match(server, /execute_controlled_native_destination_v3/);
+  assert.match(server, /stored\.data\?\.allowed !== true/);
 });
 
 test("enforcement reservation is tenant-bound, serialized and revalidates stale trust state", () => {

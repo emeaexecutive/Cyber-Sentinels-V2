@@ -1,3 +1,4 @@
+import { currentNativeDelegationChain } from "./native-delegation-current";
 import "server-only";
 import { createHttpToolAdapter } from "./http-tool-adapter";
 import { createStoredSwarmControls } from "../swarm/native-server-controls";
@@ -139,7 +140,7 @@ function controlledDestinationAdapter(context: DelegatedAuthorityContext) {
     async execute(request: EnforcementRequest): Promise<EnforcementAdapterResult> {
       if (!["repository:a", "controlled-repository-a"].includes(request.action.target) || !["READ", "WRITE_TEST_RECORD"].includes(request.action.type)) return { status: "REJECTED", adapterReference: null, acknowledgedAt: new Date().toISOString(), executionClaim: null, runtimeObservation: null, destinationObservation: null, reasonCodes: ["CONTROLLED_DESTINATION_SCOPE_REJECTED"] };
       const db = createServiceRoleClient();
-      const occurredAt = new Date().toISOString();
+      let occurredAt = new Date().toISOString();
       const recordId = randomUUID();
       const record = {
         record_id: recordId, enterprise_id: context.enterpriseId, destination_id: "controlled-repository-a", transaction_id: request.transactionId,
@@ -147,14 +148,14 @@ function controlledDestinationAdapter(context: DelegatedAuthorityContext) {
         test_record: request.action.type === "WRITE_TEST_RECORD" ? { type: "CONTROLLED_TEST_RECORD", transactionId: request.transactionId } : null,
         result: "OBSERVED", occurred_at: occurredAt,
       };
-      const stored = await db.from("controlled_destination_records").insert({ ...record, record_digest: hashCanonical(record) });
-      if (stored.error && stored.error.code !== "23505") return { status: "FAILED", adapterReference: null, acknowledgedAt: occurredAt, executionClaim: null, runtimeObservation: null, destinationObservation: null, reasonCodes: ["CONTROLLED_DESTINATION_WRITE_FAILED"] };
-      let destinationReference = `controlled-record:${recordId}`;
-      if (stored.error?.code === "23505") {
-        const existing = await db.from("controlled_destination_records").select("record_id").eq("enterprise_id", context.enterpriseId).eq("destination_id", "controlled-repository-a").eq("idempotency_key", request.idempotencyKey).maybeSingle();
-        if (existing.error || !existing.data) fail("Controlled destination idempotency retrieval", existing.error);
-        destinationReference = `controlled-record:${String(existing.data.record_id)}`;
-      }
+      const stored = await db.rpc("execute_controlled_native_destination_v3", {
+        p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_request_id: request.requestId,
+        p_record: { ...record, record_digest: hashCanonical(record) },
+      });
+      if (stored.error) return { status: "FAILED", adapterReference: null, acknowledgedAt: occurredAt, executionClaim: null, runtimeObservation: null, destinationObservation: null, reasonCodes: ["CONTROLLED_DESTINATION_WRITE_FAILED"] };
+      if (stored.data?.allowed !== true) return { status: "REJECTED", adapterReference: null, acknowledgedAt: occurredAt, executionClaim: null, runtimeObservation: null, destinationObservation: null, reasonCodes: [String(stored.data?.reason ?? "DESTINATION_CURRENT_AUTHORITY_REQUIRED")] };
+      occurredAt = new Date(String(stored.data.occurredAt)).toISOString();
+      const destinationReference = `controlled-record:${String(stored.data.recordId)}`;
       const acknowledgement: EnforcementAcknowledgement = { acknowledgementId: randomUUID(), enterpriseId: context.enterpriseId, transactionId: request.transactionId, requestId: request.requestId, operationalEntityId: request.operationalEntityId, actionDigest: request.actionDigest, target: request.action.target, idempotencyKey: request.idempotencyKey, status: "ACCEPTED", adapterReference: destinationReference, acknowledgedAt: occurredAt, sourcePartyId: "cyber-sentinels" };
       const executionClaim: ExecutionClaim = { claimId: randomUUID(), enterpriseId: context.enterpriseId, transactionId: request.transactionId, operationalEntityId: request.operationalEntityId, actionDigest: request.actionDigest, target: request.action.target, idempotencyKey: request.idempotencyKey, result: "SUCCEEDED", claimedAt: occurredAt, sourcePartyId: "cyber-sentinels" };
       const runtimeObservation: RuntimeObservation = { observationId: randomUUID(), enterpriseId: context.enterpriseId, transactionId: request.transactionId, operationalEntityId: request.operationalEntityId, actionDigest: request.actionDigest, target: request.action.target, idempotencyKey: request.idempotencyKey, result: "OBSERVED", observedAt: occurredAt, sourcePartyId: "cyber-sentinels" };
@@ -392,13 +393,41 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
     async loadCurrentState(request) {
       const [authority, currentDelegation, verification, owner] = await Promise.all([
         db.from("trust_contracts").select("revocation_state,expires_at").eq("enterprise_id", context.enterpriseId).eq("contract_id", request.authorityId).maybeSingle(),
-        db.from("operational_entity_authority_delegations").select("status,revoked_at,expires_at").eq("enterprise_id", context.enterpriseId).eq("delegation_id", request.delegationId).maybeSingle(),
-        db.from("operational_entity_native_verifications").select("status,expires_at,runtime_binding").eq("enterprise_id", context.enterpriseId).eq("operational_entity_id", entityId).order("verified_at", { ascending: false }).limit(1).maybeSingle(),
-        db.from("operational_entity_owner_bindings").select("state").eq("enterprise_id", context.enterpriseId).eq("operational_entity_id", entityId).order("effective_from", { ascending: false }).limit(1).maybeSingle(),
+        db.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", context.enterpriseId).eq("delegation_id", request.delegationId).maybeSingle(),
+        db.from("operational_entity_native_verifications").select("verification_id,credential_id,status,expires_at,runtime_binding").eq("enterprise_id", context.enterpriseId).eq("operational_entity_id", entityId).order("verified_at", { ascending: false }).limit(1).maybeSingle(),
+        db.from("operational_entity_owner_bindings").select("state,effective_from,effective_to").eq("enterprise_id", context.enterpriseId).eq("operational_entity_id", entityId).order("effective_from", { ascending: false }).limit(1).maybeSingle(),
       ]);
       for (const result of [authority, currentDelegation, verification, owner]) if (result.error) fail("Current enforcement state resolution", result.error);
+      const [credential, evidence, entity] = await Promise.all([
+        verification.data?.credential_id
+          ? db.from("operational_entity_native_credentials").select("state,revoked_at,valid_from,expires_at").eq("enterprise_id", context.enterpriseId).eq("operational_entity_id", entityId).eq("credential_id", verification.data.credential_id).maybeSingle()
+          : { data: null, error: null },
+        verification.data?.verification_id
+          ? db.from("native_entity_identity_evidence").select("revoked_at,expires_at").eq("enterprise_id", context.enterpriseId).eq("operational_entity_id", entityId).eq("verification_id", verification.data.verification_id).maybeSingle()
+          : { data: null, error: null },
+        db.from("operational_entities").select("lifecycle_state").eq("enterprise_id", context.enterpriseId).eq("entity_id", entityId).maybeSingle(),
+      ]);
+      for (const result of [credential, evidence, entity]) if (result.error) fail("Current enforcement identity resolution", result.error);
+      const chain: Row[] = currentDelegation.data ? [currentDelegation.data] : [];
+      const seen = new Set([request.delegationId]);
+      let parentId = currentDelegation.data?.parent_delegation_id;
+      while (typeof parentId === "string" && chain.length <= 16 && !seen.has(parentId)) {
+        seen.add(parentId);
+        const ancestor = await db.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", context.enterpriseId).eq("delegation_id", parentId).maybeSingle();
+        if (ancestor.error) fail("Current enforcement lineage resolution", ancestor.error);
+        if (!ancestor.data) break;
+        chain.push(ancestor.data);
+        parentId = ancestor.data.parent_delegation_id;
+      }
       const instant = Date.now();
-      return { enterpriseId: context.enterpriseId, operationalEntityId: entityId, authorityId: request.authorityId, delegationId: request.delegationId, authorityActive: authority.data?.revocation_state === "active" && Date.parse(String(authority.data?.expires_at)) > instant, delegationActive: currentDelegation.data?.status === "ACTIVE" && !currentDelegation.data?.revoked_at && Date.parse(String(currentDelegation.data?.expires_at)) > instant, identityVerified: verification.data?.status === "VERIFIED" && Date.parse(String(verification.data?.expires_at)) > instant, ownerConfirmed: owner.data?.state === "CONFIRMED", runtimeContinuity: verification.data?.runtime_binding === "RUNTIME_MATCH" ? "MATCH" : verification.data?.runtime_binding ? "CHANGED" : "UNKNOWN" };
+      const chainActive = currentNativeDelegationChain(chain, request.authorityId, entityId, instant);
+      const currentIdentity = verification.data?.status === "VERIFIED" && Date.parse(String(verification.data?.expires_at)) > instant
+        && credential.data?.state === "ACTIVE" && credential.data.revoked_at === null
+        && Date.parse(String(credential.data.valid_from)) <= instant
+        && (credential.data.expires_at === null || Date.parse(String(credential.data.expires_at)) > instant)
+        && !!evidence.data && evidence.data.revoked_at === null && Date.parse(String(evidence.data.expires_at)) > instant
+        && entity.data?.lifecycle_state === "active";
+      return { enterpriseId: context.enterpriseId, operationalEntityId: entityId, authorityId: request.authorityId, delegationId: request.delegationId, authorityActive: authority.data?.revocation_state === "active" && Date.parse(String(authority.data?.expires_at)) > instant, delegationActive: chainActive, identityVerified: currentIdentity, ownerConfirmed: owner.data?.state === "CONFIRMED" && Date.parse(String(owner.data.effective_from)) <= instant && (owner.data.effective_to === null || Date.parse(String(owner.data.effective_to)) > instant), runtimeContinuity: !currentIdentity ? "UNKNOWN" : verification.data?.runtime_binding === "RUNTIME_MATCH" ? "MATCH" : verification.data?.runtime_binding ? "CHANGED" : "UNKNOWN" };
     },
     async reserveRequest(request) {
       const reserved = await db.rpc("reserve_native_enforcement_request_v1", { p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_request: { requestId: request.requestId, evaluationId, transactionId, operationalEntityId: entityId, authorityId: request.authorityId, delegationId: request.delegationId, actionType: request.action.type, actionTarget: request.action.target, environment: request.action.environment, payloadDigest: request.action.payloadDigest, consequence: request.action.consequence, actionDigest: request.actionDigest, decisionDigest: request.decisionDigest, idempotencyKey: request.idempotencyKey, requestedAt: request.requestedAt } });
@@ -414,7 +443,7 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
       return { created: true as const };
     },
     async claimDispatch(request) {
-      const result = await db.rpc("claim_native_enforcement_dispatch_v2", {
+      const result = await db.rpc("claim_native_enforcement_dispatch_v3", {
         p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_request_id: request.requestId,
       });
       if (result.error) fail("Durable dispatch consumption", result.error);

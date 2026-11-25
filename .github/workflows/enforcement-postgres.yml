@@ -42,6 +42,10 @@ jobs:
           APPROVAL_TEST_HOST: 127.0.0.1
           APPROVAL_TEST_PORT: '5432'
           APPROVAL_TEST_PASSWORD: local-synthetic-ci-only
+      - run: node --import=tsx --test tests/native-current-dispatch-postgres.test.mjs
+        env:
+          NATIVE_CURRENT_PG_PORT: '5432'
+          NATIVE_CURRENT_PG_PASSWORD: local-synthetic-ci-only
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: '202117ae82a48a7f8d536c29d5d700e8fbf11c70'

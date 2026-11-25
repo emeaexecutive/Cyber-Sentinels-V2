@@ -73,7 +73,7 @@ test("backup wrapper permits a scoped reader role but rejects a different pooler
     // Fixed synthetic arguments only. The nonexistent executable stops accepted
     // targets before credentials, files, or any database connection are used.
     const command = `$ErrorActionPreference='Stop'; try { & ./tools/release/backup-production.ps1 -DatabaseHost '${host}' -DatabaseUser '${user}' -PostgresBin 'C:\\nonexistent-release-probe' -ApplicationReleaseSha '${sha}' -DeploymentInventoryPath 'C:\\nonexistent-release-inventory.json'; exit 99 } catch { if ($_.Exception.Message -like 'Use the Production direct hostname*') { exit 31 }; if ($_.Exception.Message -like '*pg_dump.exe*') { exit 32 }; exit 98 }`;
-    const result = spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], { encoding: "utf8", windowsHide: true });
+    const result = spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", command], { encoding: "utf8", windowsHide: true });
     assert.equal(result.status, expected, `${host}: ${user}`);
   }
 });

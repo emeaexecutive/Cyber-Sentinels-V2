@@ -1,0 +1,15 @@
+{
+  "projectId": "prj_nLXKcloPF9ZUBsiGAkyVWOJe1OOk",
+  "sourceSha": null,
+  "deploymentSha": null,
+  "deploymentId": null,
+  "origin": null,
+  "verifiedAcceptanceHosts": [],
+  "executionApproval": null,
+  "backendIsolationVerified": false,
+  "gatewayOrIsolatedBackendReceipt": null,
+  "syntheticFixturesApproved": false,
+  "mutationsApproved": false,
+  "allowedMutationCaseIds": [],
+  "receiptPath": "artifacts/security-repair/hosted-acceptance-receipt.json"
+}

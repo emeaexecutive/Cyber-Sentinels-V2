@@ -184,7 +184,8 @@
     "test:execution03": "node --import tsx --test tests/twelve-scenario-execution.test.mjs tests/twelve-scenario-approval-sql.test.mjs tests/workload-identity.test.mjs tests/workload-decision-boundary.test.mjs",
     "test:treasury": "node --import tsx --test tests/treasury-sandbox.test.mjs tests/treasury-monitoring-freshness.test.mjs",
     "demo:treasury": "node --import tsx tools/treasury/demo.mjs",
-    "test:treasury-browser": "node --import tsx tools/treasury/browser-check.mjs"
+    "test:treasury-browser": "node --import tsx tools/treasury/browser-check.mjs",
+    "test:release-security-repairs": "node --import=tsx --test tests/workload-owner-revalidation.test.mjs tests/native-current-identity-revalidation.test.mjs tests/native-parent-current.test.mjs tests/gateway-transport-recovery.test.mjs tests/restricted-preview-route.test.mjs tests/restricted-preview-gateway.test.mjs tests/restricted-postgres-adapter.test.mjs tests/restricted-postgres-connection.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.4",
@@ -196,7 +197,8 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "stripe": "22.4.0",
-    "jose": "6.2.12"
+    "jose": "6.2.12",
+    "pg": "8.22.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
@@ -208,7 +210,6 @@
     "eslint": "^9.17.0",
     "eslint-config-next": "15.5.29",
     "js-yaml": "4.3.2",
-    "pg": "^8.22.0",
     "postcss": "8.5.25",
     "supabase": "2.119.0",
     "tailwindcss": "^3.4.19",

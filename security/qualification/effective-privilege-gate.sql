@@ -2,7 +2,10 @@
 -- Any unexpected row blocks approval; do not repair shared PUBLIC grants blindly.
 select n.nspname,p.proname,'unexpected callable function' as blocker
 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
-where n.nspname not in ('pg_catalog','information_schema','qualification20')
+where n.nspname not in ('pg_catalog','information_schema')
+and not (n.nspname='qualification20' and p.proname in ('schema_read','agent_register','authority_read','decision_create','review_read','replay_read')
+  and p.proargtypes::text='25 25 25 3802 25' and p.prorettype='jsonb'::regtype and p.prosecdef
+  and p.proowner=(select oid from pg_roles where rolname='execution20_gateway_owner'))
 and has_schema_privilege('execution20_gateway_login',n.oid,'USAGE')
 and has_function_privilege('execution20_gateway_login',p.oid,'EXECUTE');
 select n.nspname,c.relname,'unexpected readable relation' as blocker

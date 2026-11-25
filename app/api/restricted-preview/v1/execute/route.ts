@@ -1,3 +1,5 @@
+import { RestrictedPostgresConnectionAdapter } from "@/lib/qualification/restricted-postgres-connection";
+import { readBoundedText } from "@/lib/qualification/bounded-body";
 import { NextResponse } from "next/server";
 import {
   parseRestrictedPreviewCapability,
@@ -61,7 +63,7 @@ class HttpQualificationAdapter {
         },
         body: JSON.stringify(command),
       });
-      const text = await response.text();
+      const text = await readBoundedText(response.body, maxResponseBytes);
       if (Buffer.byteLength(text, "utf8") > maxResponseBytes) {
         throw new RestrictedPreviewGatewayError(
           "GATEWAY_RESPONSE_TOO_LARGE",
@@ -91,7 +93,7 @@ function configuredGateway() {
       404,
     );
   }
-  if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "preview") {
+  if (process.env.VERCEL_ENV !== "preview") {
     throw new RestrictedPreviewGatewayError(
       "GATEWAY_PREVIEW_ONLY",
       "Restricted Preview is available only in the Preview environment.",
@@ -100,7 +102,11 @@ function configuredGateway() {
   }
   const signingKey = process.env.RESTRICTED_PREVIEW_SIGNING_KEY;
   const adapterToken = process.env.RESTRICTED_PREVIEW_ADAPTER_TOKEN;
-  if (!signingKey || !adapterToken) {
+  const databaseUrl = process.env.RESTRICTED_PREVIEW_DATABASE_URL;
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ACCESS_TOKEN) {
+    throw new RestrictedPreviewGatewayError("GATEWAY_PRIVILEGED_CREDENTIALS_FORBIDDEN", "Privileged fallback credentials must be absent.", 503);
+  }
+  if (!signingKey || (!databaseUrl && !adapterToken)) {
     throw new RestrictedPreviewGatewayError(
       "GATEWAY_NOT_CONFIGURED",
       "Restricted Preview is not configured.",
@@ -116,7 +122,7 @@ function configuredGateway() {
       allowedSubjectIds: list("RESTRICTED_PREVIEW_SUBJECT_IDS"),
       allowedRunIds: list("RESTRICTED_PREVIEW_RUN_IDS"),
       allowedDestinations,
-      adapter: new HttpQualificationAdapter(adapterUrl(), adapterToken),
+      adapter: databaseUrl ? new RestrictedPostgresConnectionAdapter(databaseUrl) : new HttpQualificationAdapter(adapterUrl(), adapterToken!),
       audit: async (record) => {
         console.info("Restricted Preview gateway decision.", {
           ...record,
@@ -141,7 +147,10 @@ export async function POST(request: Request) {
     }
     const token = authorization.slice(7);
     if (!token || token.length > 8_192) return json({ error: "AUTHORIZATION_INVALID" }, 401);
-    const bodyText = await request.text();
+    const configured = configuredGateway();
+    const requestId = request.headers.get("idempotency-key") ?? "";
+    if (!/^[A-Za-z0-9_.:-]{8,180}$/.test(requestId)) return json({ error: "IDEMPOTENCY_KEY_REQUIRED" }, 400);
+    const bodyText = await readBoundedText(request.body, maxRequestBytes);
     if (Buffer.byteLength(bodyText, "utf8") > maxRequestBytes) {
       return json({ error: "REQUEST_TOO_LARGE" }, 413);
     }
@@ -149,10 +158,9 @@ export async function POST(request: Request) {
     if (typeof body.operation !== "string" || !body.payload || typeof body.payload !== "object" || Array.isArray(body.payload)) {
       return json({ error: "REQUEST_INVALID" }, 400);
     }
-    const configured = configuredGateway();
     const capability = parseRestrictedPreviewCapability(token);
     const result = await configured.gateway.execute({
-      requestId: `http:${crypto.randomUUID()}`,
+      requestId,
       operation: body.operation as RestrictedPreviewOperation,
       tenantId: capability.claims.tenantId,
       runId,
@@ -164,6 +172,7 @@ export async function POST(request: Request) {
     return json(result, 200);
   } catch (error) {
     if (error instanceof RestrictedPreviewGatewayError) return json({ error: error.code }, error.status);
+    if (error instanceof RangeError) return json({ error: "BODY_TOO_LARGE" }, 413);
     if (error instanceof SyntaxError) return json({ error: "REQUEST_INVALID" }, 400);
     console.error("Restricted Preview gateway request failed safely.", {
       path: endpointPath,

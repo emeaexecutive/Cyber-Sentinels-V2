@@ -1,3 +1,5 @@
+import { readBoundedText } from "./bounded-body.ts";
+import { hashCanonical } from "../../src/lib/trust-core/hash.ts";
 const allowedOperations = new Set([
   "qualification.schema.read",
   "qualification.agent.register",
@@ -39,7 +41,9 @@ export class RestrictedPreviewClient {
     this.options = options;
   }
 
-  async execute(operation: string, body: Record<string, unknown>) {
+  async execute(operation: string, body: Record<string, unknown>, requestId?: string) {
+    const key = requestId ?? `qualification:${hashCanonical({ operation, runId: this.options.runId, body })}`;
+    if (!/^[A-Za-z0-9_.:-]{8,180}$/.test(key)) throw new Error("IDEMPOTENCY_KEY_INVALID");
     if (!allowedOperations.has(operation)) throw new Error("GATEWAY_OPERATION_NOT_ALLOWED");
     if (
       !process.env.ACCEPTANCE_GATEWAY_URL
@@ -63,11 +67,12 @@ export class RestrictedPreviewClient {
           authorization: `Bearer ${this.options.capabilityToken}`,
           "content-type": "application/json",
           "x-acceptance-run-id": this.options.runId,
+          "idempotency-key": key,
         },
         body: JSON.stringify({ operation, payload: body }),
       });
       if (!response.ok) throw new Error("GATEWAY_OPERATION_REJECTED");
-      const text = await response.text();
+      const text = await readBoundedText(response.body, 64 * 1024);
       if (Buffer.byteLength(text, "utf8") > 64 * 1024) {
         throw new Error("GATEWAY_RESPONSE_TOO_LARGE");
       }

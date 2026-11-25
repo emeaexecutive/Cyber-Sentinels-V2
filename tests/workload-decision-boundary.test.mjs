@@ -100,7 +100,7 @@ test('re-registering a revoked subject selects only the active tenant binding', 
   const base = { tenant_id: claims.tenantId, operational_entity_id: claims.workloadId, issuer: claims.issuer, subject: claims.subject, scopes: claims.scopes, created_by: owner, client_id: 'client:1', expires_at: new Date(Date.now() + 60000).toISOString() };
   const rows = [ { ...base, binding_id: 'old', status: 'revoked', revoked_at: '2026-01-01' }, { ...base, binding_id: 'new', status: 'active', revoked_at: null } ];
   const db = { from(table) {
-    let selected = table === 'public_api_workload_bindings' ? rows : table === 'trust_workspaces' ? [{ id: claims.tenantId, created_by: owner }] : [];
+    let selected = table === 'public_api_workload_bindings' ? rows : table === 'trust_workspaces' ? [{ id: claims.tenantId, created_by: owner }] : table === 'account_access_approvals' ? [{ user_id: owner, status: 'APPROVED' }] : [];
     const query = { select: () => query, eq: (k, v) => { selected = selected.filter(r => r[k] === v); return query; }, is: (k, v) => { selected = selected.filter(r => r[k] === v); return query; }, maybeSingle: async () => ({ data: selected[0] ?? null, error: selected.length > 1 ? { code: 'CARDINALITY' } : null }) };
     return query;
   } };

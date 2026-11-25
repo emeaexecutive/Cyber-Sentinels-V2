@@ -116,6 +116,13 @@ export async function authenticateRegisteredWorkload(
   if (!uuidPattern.test(ownerId) || !["owner", "admin"].includes(role)) {
     throw new PublicApiError("WORKLOAD_OWNER_INACTIVE", "The workload owner no longer has tenant administration access.", 403);
   }
+  const approval = await db.from("account_access_approvals").select("status").eq("user_id", ownerId).maybeSingle();
+  if (approval.error) {
+    throw new PublicApiError("WORKLOAD_AUTH_UNAVAILABLE", "Workload owner access status could not be resolved safely.", 503);
+  }
+  if (approval.data?.status !== "APPROVED") {
+    throw new PublicApiError("ACCESS_APPROVAL_REQUIRED", "The workload owner is not approved for Cyber Sentinels access.", 403);
+  }
   const principal: PublicApiPrincipal = {
     tenantId: claims.tenantId,
     clientId: String(binding.client_id),
