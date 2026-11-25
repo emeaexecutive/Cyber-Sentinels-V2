@@ -3,6 +3,7 @@ import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import crypto from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import {sameSealedText} from './hosted-runner-boundaries.mjs';
 const args=process.argv.slice(2);
 if(!args.includes('--execute')){console.log('PREPARED_NOT_RUN: guarded Agent Gamma SDK registration, Ed25519 proof, authority, ALLOW/REVIEW/DENY, receipt/replay, revocation and attack checks. Requires an approved exact deployment, isolated backend/gateway and synthetic test API key.');process.exit(0);}
 const index=args.indexOf('--context');if(index<0)throw Error('Context required');
@@ -22,7 +23,7 @@ globalThis.fetch=async(input,init={})=>{
 const sourceRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const actualSha=execFileSync('git',['-c',`safe.directory=${sourceRoot}`,'rev-parse','HEAD'],{cwd:sourceRoot,encoding:'utf8'}).trim();
 if(actualSha!==c.sourceSha)throw Error('SDK source SHA mismatch');
-for(const file of ['examples/agent-gamma/gamma.mjs','packages/cyber-sentinels-sdk/src/index.ts']){const sealed=execFileSync('git',['-c',`safe.directory=${sourceRoot}`,'show',`${c.sourceSha}:${file}`],{cwd:sourceRoot});if(!sealed.equals(fs.readFileSync(path.join(sourceRoot,file))))throw Error('SDK source differs from qualified commit');}
+for(const file of ['examples/agent-gamma/gamma.mjs','packages/cyber-sentinels-sdk/src/index.ts']){const sealed=execFileSync('git',['-c',`safe.directory=${sourceRoot}`,'show',`${c.sourceSha}:${file}`],{cwd:sourceRoot});if(!sameSealedText(sealed,fs.readFileSync(path.join(sourceRoot,file))))throw Error('SDK source differs from qualified commit');}
 let source=fs.readFileSync(path.join(sourceRoot,'examples/agent-gamma/gamma.mjs'),'utf8');
 const sourceDigest=crypto.createHash('sha256').update(source).digest('hex');
 source=source.replace('"@cyber-sentinels/sdk"',JSON.stringify(pathToFileURL(path.join(sourceRoot,'packages/cyber-sentinels-sdk/src/index.ts')).href));
