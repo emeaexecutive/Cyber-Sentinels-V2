@@ -34,11 +34,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
   const demoRequest = query.intent === "demo";
   const trustTeam = query.intent === "trust-team";
   const pilot = query.intent === "pilot";
-  const enterpriseFormEnabled = process.env.PUBLIC_ENTERPRISE_FORM_ENABLED === "true"
-    && Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL?.trim())
-    && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim())
-    && Boolean(process.env.TURNSTILE_SECRET_KEY?.trim())
-    && Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim());
+  const enterpriseFormEnabled = false;
   const pageTitle = designPartner
     ? isSpanish ? "Conviértete en socio de diseño" : "Become a Design Partner"
     : introCall

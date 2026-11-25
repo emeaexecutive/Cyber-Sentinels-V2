@@ -19,11 +19,5 @@
   },
   "cleanUrls": true,
   "trailingSlash": false,
-  "crons": [
-    {
-      "path": "/api/trust/jobs/process",
-      "schedule": "0 2 * * *"
-    }
-  ],
   "installCommand": "npm ci"
 }

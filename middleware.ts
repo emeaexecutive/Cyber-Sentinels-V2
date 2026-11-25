@@ -13,6 +13,7 @@ import { approvalBoundary, isTenantAdminSurface } from "@/lib/auth/approval-boun
 import { isPublishedSpanishPath, publicEnglishFallbackHref, resolveSpanishRequestPath } from "@/lib/i18n/public-locales";
 
 const adminVerifiedCookieName = "cyber_admin_verified";
+const WEBSITE_RELEASE_ONLY = true;
 
 type CookieToSet = {
   name: string;
@@ -276,6 +277,20 @@ function isEmailVerified(user: unknown) {
   return Boolean(candidate.email_confirmed_at || candidate.confirmed_at);
 }
 
+function isWebsiteReleaseAllowedPath(pathname: string) {
+  if (pathname.startsWith("/api/")) {
+    return pathname === "/api/consent" || pathname.startsWith("/api/consent/");
+  }
+
+  const sourcePath = pathname === "/es"
+    ? "/"
+    : pathname.startsWith("/es/")
+      ? pathname.slice(3)
+      : pathname;
+  return isIndexablePublicRoute(sourcePath) ||
+    ["/privacy/preferences", "/privacy/consent-history", "/es/unavailable", "/sitemap.xml", "/robots.txt"].includes(pathname);
+}
+
 function clearAdminCookie(response: NextResponse) {
   response.cookies.set(adminVerifiedCookieName, "", {
     path: "/",
@@ -386,6 +401,9 @@ async function applicationMiddleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   const spanishRoute = resolveSpanishRequestPath(pathname);
   if (spanishRoute.kind === "translated") {
+    if (WEBSITE_RELEASE_ONLY && !isWebsiteReleaseAllowedPath(pathname)) {
+      return protectedSurfaceUnavailable(req);
+    }
     const requestHeaders = trustedLocaleHeaders(req, "es", spanishRoute.sourcePath);
     // Real locale routes avoid an internal rewrite re-entering middleware and
     // clearing the trusted locale before the page and root layout render.
@@ -406,6 +424,9 @@ async function applicationMiddleware(req: NextRequest) {
       publicEnglishFallbackHref(req.nextUrl.searchParams.get("path")),
     );
     return NextResponse.next({ request: { headers: requestHeaders } });
+  }
+  if (WEBSITE_RELEASE_ONLY && !isWebsiteReleaseAllowedPath(pathname)) {
+    return protectedSurfaceUnavailable(req);
   }
   const boundary = approvalBoundary(pathname, req.method);
   if (pathname.startsWith("/api/") && boundary !== "CUSTOMER") {

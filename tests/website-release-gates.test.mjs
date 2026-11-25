@@ -37,7 +37,14 @@ test('public enquiry surfaces use only the founder-approved mailbox',()=>{
 });
 test('public enterprise enquiries fail closed to the founder mailbox unless explicitly enabled',()=>{
  const source=readFileSync(new URL('../app/enterprise-access/page.tsx',import.meta.url),'utf8');
- assert.match(source,/PUBLIC_ENTERPRISE_FORM_ENABLED === "true"/);
+ assert.match(source,/const enterpriseFormEnabled = false/);
  assert.match(source,/secure form is not enabled|formulario seguro no está habilitado/);
  assert.match(source,/mailto:emeaexecutive@icloud\.com/);
+});
+test('website release disables platform execution and background jobs',()=>{
+ const middleware=readFileSync(new URL('../middleware.ts',import.meta.url),'utf8');
+ const vercel=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
+ assert.match(middleware,/const WEBSITE_RELEASE_ONLY = true/);
+ assert.match(middleware,/pathname === "\/api\/consent"/);
+ assert.equal(vercel.crons,undefined);
 });
