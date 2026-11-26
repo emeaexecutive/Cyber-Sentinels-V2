@@ -76,7 +76,10 @@ export function harness({ locale = "en", authPrecheckError, publicSupabaseConfig
     "@/src/components/consent/ConsentPreferencesLink": { ConsentPreferencesLink: () => null },
     "next/headers": { cookies: async () => cookieStore, headers: async () => new Headers({ "x-public-locale": locale }) },
     "next/link": { __esModule: true, default: ({ children, ...props }) => React.createElement("a", props, children) },
-    "next/navigation": { useRouter: () => ({ push() {}, refresh() {} }) },
+    "next/navigation": {
+      useRouter: () => ({ push() {}, refresh() {} }),
+      notFound: () => { throw new Error("NEXT_HTTP_ERROR_FALLBACK;404"); },
+    },
     "@/lib/supabase/server": { createClient: async (headers) => client(headers), createNavigationClient: async () => client(), isInvalidRefreshTokenError: () => false },
     "@/lib/operational-monitoring": { captureOperationalIssue() {} },
     "@/lib/bot-protection": { checkRequestRateLimit: () => false, getClientIp: () => "127.0.0.1",
