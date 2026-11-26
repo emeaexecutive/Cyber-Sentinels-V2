@@ -6,7 +6,7 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("login presents a simple customer journey while retaining security controls", async () => {
   const [login, states, turnstile] = await Promise.all([
-    read("app/login/page.tsx"),
+    read("components/login-experience.tsx"),
     read("lib/auth/login-experience.ts"),
     read("components/turnstile-field.tsx"),
   ]);

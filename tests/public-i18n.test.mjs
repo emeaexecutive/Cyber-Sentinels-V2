@@ -9,6 +9,7 @@ const {
   publicLocales,
   getPublishedPublicEquivalents,
   getSpanishSourcePath,
+  isIndexablePublishedSpanishPath,
   isPublishedSpanishPath,
   localizedPublicHref,
   publicEnglishFallbackHref,
@@ -51,18 +52,21 @@ test("locale foundation preserves English canonicals and advertises only publish
 test("locale lookup does not manufacture equivalents for private, missing, redirected or malformed paths", () => {
   for (const path of [
     "/es", "/es/platform", "/es/resources/agent-security", "/en/platform", "/fr/platform",
-    "/login", "/auth/callback", "/account/reset-password", "/dashboard", "/api/v1/agents",
+    "/auth/callback", "/account/reset-password", "/dashboard", "/api/v1/agents",
     "/about-us", "/not-a-page", "/platform?lang=es", "/platform#execution-trust",
     "/platform/", "/PLATFORM", "//example.com/platform", "https://example.com/platform",
   ]) {
     assert.deepEqual(getPublishedPublicEquivalents(path), {}, path);
     assert.throws(() => publicPageAlternates(path), /not published/, path);
   }
+  assert.deepEqual(getPublishedPublicEquivalents("/login"), { en: "/login", es: "/es/login" });
+  assert.throws(() => publicPageAlternates("/login"), /not published/);
 });
 
 test("Spanish URLs resolve only reviewed routes and unavailable pages keep a safe English fallback", () => {
   assert.deepEqual(resolveSpanishRequestPath("/es"), { kind: "translated", sourcePath: "/" });
   assert.deepEqual(resolveSpanishRequestPath("/es/platform"), { kind: "translated", sourcePath: "/platform" });
+  assert.deepEqual(resolveSpanishRequestPath("/es/login"), { kind: "translated", sourcePath: "/login" });
   assert.deepEqual(resolveSpanishRequestPath("/es/demo"), { kind: "unavailable", sourcePath: "/demo" });
   assert.deepEqual(
     resolveSpanishRequestPath("/es/resources/agent-security/agent-authorization"),
@@ -75,10 +79,15 @@ test("Spanish URLs resolve only reviewed routes and unavailable pages keep a saf
   assert.deepEqual(resolveSpanishRequestPath("/es/unavailable"), { kind: "unavailable-page" });
   assert.deepEqual(resolveSpanishRequestPath("/es/not-a-page"), { kind: "unknown" });
   assert.equal(getSpanishSourcePath("/es/pricing"), "/pricing");
+  assert.equal(getSpanishSourcePath("/es/login"), "/login");
+  assert.equal(isIndexablePublishedSpanishPath("/es/platform"), true);
+  assert.equal(isIndexablePublishedSpanishPath("/es/login"), false);
   assert.equal(isPublishedSpanishPath("/es/pricing"), true);
   assert.equal(isPublishedSpanishPath("/es/solutions"), true);
   assert.equal(localizedPublicHref("/platform?source=nav#execution", "es"), "/es/platform?source=nav#execution");
   assert.equal(localizedPublicHref("/es/platform?source=nav#execution", "en"), "/platform?source=nav#execution");
+  assert.equal(localizedPublicHref("/login?next=%2Fdashboard", "es"), "/es/login?next=%2Fdashboard");
+  assert.equal(localizedPublicHref("/es/login?next=%2Fdashboard", "en"), "/login?next=%2Fdashboard");
   assert.equal(
     localizedPublicHref("/solutions?source=nav", "es"),
     "/es/solutions?source=nav",
@@ -87,6 +96,7 @@ test("Spanish URLs resolve only reviewed routes and unavailable pages keep a saf
   assert.equal(localizedPublicHref("https://example.com", "es"), "https://example.com");
   assert.equal(publicEnglishFallbackHref("/knowledge-base?query=security"), "/knowledge-base?query=security");
   assert.equal(publicEnglishFallbackHref("/privacy/preferences"), "/privacy/preferences");
+  assert.equal(publicEnglishFallbackHref("/login"), "/login");
   assert.equal(
     publicEnglishFallbackHref("/resources/agent-security/agent-authorization"),
     "/resources/agent-security/agent-authorization",
@@ -130,6 +140,79 @@ test("middleware selects real Spanish routes without bypassing existing public-r
   await h.load("middleware.ts").middleware(spoofedLocale);
   assert.equal(spoofedLocale.headers.get("x-public-locale"), null);
   assert.equal(spoofedLocale.headers.get("x-public-source-path"), null);
+});
+
+test("public login survives a stale session precheck while protected routes remain authorized", async () => {
+  const brokenSession = harness({ authPrecheckError: new Error("invalid session") });
+  const cookie = { cookie: "sb-fixture-auth-token=malformed" };
+
+  const login = await brokenSession.guard("/login", cookie);
+  assert.equal(login.status, 200);
+
+  const protectedPage = await brokenSession.guard("/dashboard", cookie);
+  assert.equal(protectedPage.status, 307);
+  assert.equal(new URL(protectedPage.headers.get("location")).pathname, "/login");
+});
+
+test("missing Supabase configuration does not block public login but remains fail-closed elsewhere", async () => {
+  const noEnvironment = harness({ publicSupabaseConfigured: false });
+  const cookie = { cookie: "sb-fixture-auth-token=malformed" };
+
+  assert.equal((await noEnvironment.guard("/login", cookie)).status, 200);
+  assert.equal((await noEnvironment.guard("/dashboard", cookie)).status, 503);
+
+  const { PASSWORD_RECOVERY_COOKIE } = noEnvironment.load("lib/auth/password-recovery.ts");
+  const recoveryCookie = { cookie: `sb-fixture-auth-token=malformed; ${PASSWORD_RECOVERY_COOKIE}=1` };
+  assert.equal((await noEnvironment.guard("/dashboard", recoveryCookie)).status, 503);
+});
+
+test("the public language choice persists at the unprefixed homepage", async () => {
+  const { ACCOUNT_LOCALE_COOKIE } = h.load("lib/i18n/account.ts");
+  const spanishHome = await h.guard("/", { cookie: `${ACCOUNT_LOCALE_COOKIE}=es` });
+  assert.equal(spanishHome.status, 307);
+  assert.equal(new URL(spanishHome.headers.get("location")).pathname, "/es");
+
+  const englishHome = await h.guard("/", { cookie: `${ACCOUNT_LOCALE_COOKIE}=en` });
+  assert.equal(englishHome.status, 200);
+
+  const spanishLogin = await h.guard("/es/login");
+  assert.equal(spanishLogin.headers.get("x-middleware-request-x-public-locale"), "es");
+  assert.equal(spanishLogin.headers.get("X-Robots-Tag"), "noindex, nofollow, noarchive");
+});
+
+test("login and password recovery UI render in English and Spanish", async () => {
+  const React = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const LoginExperience = h.load("components/login-experience.tsx").default;
+  const english = renderToStaticMarkup(React.createElement(LoginExperience, { locale: "en" }));
+  const spanish = renderToStaticMarkup(React.createElement(LoginExperience, { locale: "es" }));
+
+  assert.match(english, /lang="en"/);
+  assert.match(english, /Sign in/);
+  assert.match(spanish, /lang="es"/);
+  assert.match(spanish, /Iniciar sesión/);
+  assert.match(spanish, /Correo electrónico/);
+  assert.match(spanish, /Contraseña/);
+  assert.doesNotMatch(spanish, /name@company\.com|We couldn't connect/);
+});
+
+test("middleware leaves public static files outside authentication processing", () => {
+  const { config } = h.load("middleware.ts");
+  const matcher = new RegExp(config.matcher[0]);
+
+  for (const pathname of [
+    "/kya-ai-agent-trust-flow.png",
+    "/cyber-sentinels-hero.png",
+    "/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf",
+    "/security.txt",
+    "/robots.txt",
+    "/sitemap.xml",
+  ]) {
+    assert.equal(matcher.test(pathname), false, pathname);
+  }
+  for (const pathname of ["/login", "/dashboard", "/api/health"]) {
+    assert.equal(matcher.test(pathname), true, pathname);
+  }
 });
 
 test("an unsupported locale cannot silently fall back to English metadata", () => {

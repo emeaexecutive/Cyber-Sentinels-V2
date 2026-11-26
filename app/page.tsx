@@ -53,8 +53,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = await getPublicRequestLocale();
   const title = locale === "es" ? "Inteligencia de confianza operativa y KYA | Cyber Sentinels" : "Operational Trust Intelligence™ & KYA | Cyber Sentinels";
   const description = locale === "es"
-    ? "Explora los controles de identidad y autoridad, las pruebas y Replay de Cyber Sentinels, y la capacidad Know Your Agent (KYA), en desarrollo."
-    : "Explore Cyber Sentinels’ identity and authority controls, evidence and Replay, and the developing Know Your Agent (KYA) capability.";
+    ? "Explora los controles de identidad y autoridad, las pruebas y Replay de Cyber Sentinels, y el marco KYA para la autoridad de agentes de IA."
+    : "Explore Cyber Sentinels’ identity and authority controls, evidence and Replay, and its KYA framework for AI-agent authority.";
   const path = locale === "es" ? "/es" : "/";
   return {
     ...publicSocialMetadata(title, description, path, locale),
@@ -117,7 +117,7 @@ export default async function Home() {
 
       <section className="border-y border-zinc-800 bg-black">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-cyan-300">{isSpanish ? "V1 · Flujo principal" : "V1 · Core flow"}</p>
+          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-cyan-300">{isSpanish ? "Flujo principal" : "Core flow"}</p>
           <h2 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">{isSpanish ? "Comprueba la autoridad. Conserva la decisión." : "Check authority. Preserve the decision."}</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">{isSpanish ? "Antes de actuar: verifica la identidad, confirma la autoridad y evalúa la política. ALLOW / REVIEW / DENY registra la decisión." : "Before the action: verify identity, confirm authority and evaluate policy. ALLOW / REVIEW / DENY records the decision."}</p>
           <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-5">

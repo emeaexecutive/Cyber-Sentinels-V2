@@ -10,7 +10,8 @@ import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
 import { isPasswordRecoverySession, isRecoveryWorkflowPath, PASSWORD_RECOVERY_COOKIE, PASSWORD_RECOVERY_PATH } from "@/lib/auth/password-recovery";
 import { isJudgeMeWebhookCallback } from "@/lib/providers/judgeme-route";
 import { approvalBoundary, isTenantAdminSurface } from "@/lib/auth/approval-boundary";
-import { isPublishedSpanishPath, publicEnglishFallbackHref, resolveSpanishRequestPath } from "@/lib/i18n/public-locales";
+import { isIndexablePublishedSpanishPath, publicEnglishFallbackHref, resolveSpanishRequestPath } from "@/lib/i18n/public-locales";
+import { ACCOUNT_LOCALE_COOKIE } from "@/lib/i18n/account";
 
 const adminVerifiedCookieName = "cyber_admin_verified";
 
@@ -322,7 +323,7 @@ export async function middleware(req: NextRequest) {
     // Indexing policy only: never bypass or replace the existing auth checks.
     const isSearchAsset = pathname === "/robots.txt" || pathname === "/sitemap.xml" || pathname.startsWith("/_next/")
       || pathname === "/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf";
-    if (!isSearchAsset && !isIndexablePublicRoute(pathname) && !isPublishedSpanishPath(pathname)) {
+    if (!isSearchAsset && !isIndexablePublicRoute(pathname) && !isIndexablePublishedSpanishPath(pathname)) {
       response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
     }
     for (const { name, value, options } of refreshedCookies) {
@@ -346,32 +347,57 @@ export async function middleware(req: NextRequest) {
     const bearer = workloadDecision ? undefined : req.headers.get("authorization")?.match(/^Bearer (ey[^ ]+\.[^ ]+\.[^ ]+)$/i)?.[1];
     const hasSessionCookie = req.cookies.getAll().some(({ name }) => name.startsWith("sb-") && name.includes("auth-token") && !name.includes("code-verifier"));
     if (bearer || hasSessionCookie) {
-      if (!hasPublicSupabaseEnv()) return protectedSurfaceUnavailable(req);
-      const env = getPublicSupabaseEnv("recovery quarantine");
-      const auth = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
-        cookies: {
-          getAll: () => req.cookies.getAll(),
-          setAll: (items: CookieToSet[], headers: Record<string, string>) => {
-            items.forEach((item) => req.cookies.set(item.name, item.value));
-            refreshedCookies.push(...items);
-            Object.entries(headers).forEach(([name, value]) => refreshedHeaders.set(name, value));
-          },
-        },
-      });
-      try {
-        const cookieResult = hasSessionCookie ? await auth.auth.getClaims() : null;
-        const bearerResult = bearer ? await auth.auth.getClaims(bearer) : null;
-        if (cookieResult?.error || bearerResult?.error) return finish(protectedSurfaceUnavailable(req));
-        recovery = isPasswordRecoverySession(cookieResult?.data?.claims) ||
-          isPasswordRecoverySession(bearerResult?.data?.claims) ||
-          (recovery && !cookieResult?.data?.claims);
-        if (cookieResult?.data?.claims) {
-          if (!recovery && req.cookies.has(PASSWORD_RECOVERY_COOKIE)) {
-            // A fresh ordinary login supersedes an abandoned recovery marker.
-            refreshedCookies.push({ name: PASSWORD_RECOVERY_COOKIE, value: "", options: { path: "/", maxAge: 0 } });
+      const mayIgnoreBrowserSessionFailure =
+        hasSessionCookie && !bearer && !req.cookies.has(PASSWORD_RECOVERY_COOKIE);
+
+      if (!hasPublicSupabaseEnv()) {
+        if (!mayIgnoreBrowserSessionFailure) return protectedSurfaceUnavailable(req);
+        console.warn("Supabase session precheck unavailable; route-specific authorization remains enforced.");
+      } else {
+        try {
+          const env = getPublicSupabaseEnv("recovery quarantine");
+          const auth = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+            cookies: {
+              getAll: () => req.cookies.getAll(),
+              setAll: (items: CookieToSet[], headers: Record<string, string>) => {
+                items.forEach((item) => req.cookies.set(item.name, item.value));
+                refreshedCookies.push(...items);
+                Object.entries(headers).forEach(([name, value]) => refreshedHeaders.set(name, value));
+              },
+            },
+          });
+          try {
+            const cookieResult = hasSessionCookie ? await auth.auth.getClaims() : null;
+            const bearerResult = bearer ? await auth.auth.getClaims(bearer) : null;
+            if (cookieResult?.error || bearerResult?.error) {
+              if (!mayIgnoreBrowserSessionFailure) return finish(protectedSurfaceUnavailable(req));
+              console.warn("Supabase session precheck failed; route-specific authorization remains enforced.", {
+                code: cookieResult?.error?.code ?? bearerResult?.error?.code,
+              });
+            } else {
+              recovery = isPasswordRecoverySession(cookieResult?.data?.claims) ||
+                isPasswordRecoverySession(bearerResult?.data?.claims) ||
+                (recovery && !cookieResult?.data?.claims);
+              if (cookieResult?.data?.claims) {
+                if (!recovery && req.cookies.has(PASSWORD_RECOVERY_COOKIE)) {
+                  // A fresh ordinary login supersedes an abandoned recovery marker.
+                  refreshedCookies.push({ name: PASSWORD_RECOVERY_COOKIE, value: "", options: { path: "/", maxAge: 0 } });
+                }
+              }
+            }
+          } catch (error) {
+            if (!mayIgnoreBrowserSessionFailure) return finish(protectedSurfaceUnavailable(req));
+            console.warn("Supabase session precheck failed; route-specific authorization remains enforced.", {
+              error: error instanceof Error ? error.message : "Unknown session validation error.",
+            });
           }
+        } catch (error) {
+          if (!mayIgnoreBrowserSessionFailure) return finish(protectedSurfaceUnavailable(req));
+          console.warn("Supabase session configuration unavailable; route-specific authorization remains enforced.", {
+            error: error instanceof Error ? error.message : "Unknown Supabase configuration error.",
+          });
         }
-      } catch { return finish(protectedSurfaceUnavailable(req)); }
+      }
     }
     if (recovery) {
       return finish(pathname.startsWith("/api/")
@@ -384,6 +410,11 @@ export async function middleware(req: NextRequest) {
 
 async function applicationMiddleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
+  if (pathname === "/" && req.cookies.get(ACCOUNT_LOCALE_COOKIE)?.value === "es") {
+    const destination = req.nextUrl.clone();
+    destination.pathname = "/es";
+    return NextResponse.redirect(destination);
+  }
   const spanishRoute = resolveSpanishRequestPath(pathname);
   if (spanishRoute.kind === "translated") {
     const requestHeaders = trustedLocaleHeaders(req, "es", spanishRoute.sourcePath);
@@ -596,6 +627,6 @@ async function applicationMiddleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|favicon.png).*)",
+    "/((?!_next/static|_next/image|favicon.ico|favicon.png|.*\\.(?:avif|gif|ico|jpe?g|png|svg|webp|pdf|txt|xml|woff2?|ttf|otf|eot|webmanifest)$).*)",
   ],
 };

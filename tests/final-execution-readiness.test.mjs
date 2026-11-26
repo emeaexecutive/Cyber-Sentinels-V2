@@ -5,7 +5,7 @@ import test from "node:test";
 const read = (path) => readFileSync(path, "utf8");
 
 test("public auth keeps every required account-access path visible", () => {
-  const login = read("app/login/page.tsx");
+  const login = read("components/login-experience.tsx");
   const verification = read("app/verify-email/page.tsx");
   const middleware = read("middleware.ts");
 

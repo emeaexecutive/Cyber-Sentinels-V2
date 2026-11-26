@@ -97,7 +97,7 @@ test("account and privacy settings surfaces are explicitly non-indexable", () =>
 });
 
 test("auth actions verify Turnstile server-side when configured", () => {
-  const login = read("app/login/page.tsx");
+  const login = read("components/login-experience.tsx");
   const route = read("app/api/auth/turnstile/route.ts");
   const passwordResetRoute = read("app/api/auth/password-reset/request/route.ts");
 
@@ -176,7 +176,7 @@ test("admin and sensitive governance operations retain server protection", () =>
 
 test("service-role secrets remain server-only", () => {
   const clientFiles = [
-    "app/login/page.tsx",
+    "components/login-experience.tsx",
     "components/global-navigation.tsx",
     "components/waitlist-form.tsx",
   ].map(read).join("\n");

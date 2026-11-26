@@ -205,7 +205,7 @@ test("the application propagates auth-cookie cache headers across every server b
 
 test("login, callback, protected-route, enterprise, and admin contracts remain wired", async () => {
   const [login, callback, callbackHandler, middleware, browserClient] = await Promise.all([
-    read("app/login/page.tsx"),
+    read("components/login-experience.tsx"),
     read("app/auth/callback/route.ts"),
     read("lib/auth/callback-handler.ts"),
     read("middleware.ts"),

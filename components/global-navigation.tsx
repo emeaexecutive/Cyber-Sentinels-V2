@@ -7,6 +7,7 @@ import { canonicalNavigation, publicHeaderLinks } from "@/lib/navigation/canonic
 import { clearSignedOutSessionState, revalidateRestoredSession } from "@/lib/auth/sign-out";
 import { navigationLanguages, PublicLanguageSelector, type NavigationLanguage } from "@/components/public-language-selector";
 import { localizedPublicHref, type PublicLocale } from "@/lib/i18n/public-locales";
+import { ACCOUNT_LOCALE_COOKIE } from "@/lib/i18n/account";
 
 export type NavigationAccessLevel =
   | "public"
@@ -84,6 +85,7 @@ export function GlobalNavigation({
 
   const selectLanguage = useCallback((next: NavigationLanguage) => {
     setLanguage(next);
+    document.cookie = `${ACCOUNT_LOCALE_COOKIE}=${next}; Path=/; Max-Age=31536000; SameSite=Lax${window.location.protocol === "https:" ? "; Secure" : ""}`;
     const currentSourcePath = pathname === "/es/unavailable"
       ? sourcePath ?? "/"
       : `${pathname}${window.location.search}${window.location.hash}`;

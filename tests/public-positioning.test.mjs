@@ -99,8 +99,9 @@ test("About and Platform use approved TENENTE wording and state qualification li
   assert.match(platform, /ALLOW · REVIEW · DENY/);
   assert.match(platform, /Replay/);
   assert.match(platform, /Trust Memory™/);
-  assert.match(platform, /local test coverage, which does not establish hosted or Production readiness/);
-  assert.match(platform, /Swarm cancellation and emergency containment remain under qualification and are not Production-qualified/);
+  assert.match(platform, /Local test coverage does not establish hosted or Production readiness/);
+  assert.match(platform, /Hosted swarm enforcement and emergency-stop operations are subject to release validation/);
+  assert.match(platform, /La aplicación alojada de controles de enjambre y las operaciones de parada de emergencia están sujetas a la validación de lanzamiento/);
   assert.match(platform, /Capabilities are qualified individually/);
   const generated=await harness().load("app/platform/page.tsx").generateMetadata();
   assert.equal(generated.alternates.canonical,"/platform");

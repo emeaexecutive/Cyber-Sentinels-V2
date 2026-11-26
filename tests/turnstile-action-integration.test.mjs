@@ -55,7 +55,7 @@ test('Siteverify gates every protected Auth operation before its side effects',a
 });
 
 test('public Auth UI has no direct credential or email-action bypass',()=>{
- for(const file of ['app/login/page.tsx','app/verify-email/page.tsx']){
+ for(const file of ['components/login-experience.tsx','app/verify-email/page.tsx']){
   const source=readFileSync(file,'utf8');assert.match(source,/\/api\/auth\/submit/);
   assert.doesNotMatch(source,/\.auth\.(signInWithPassword|signUp|resend|signInWithOtp|resetPasswordForEmail)\(/);
  }
@@ -66,7 +66,7 @@ test('login UI actions match protected Auth operations and mode changes reset th
  assert.equal(getLoginTurnstileAction('sign-in'),authChallengeActions.password);
  assert.equal(getLoginTurnstileAction('create-account'),authChallengeActions.signup);
  assert.equal(getLoginTurnstileAction('forgot-password'),'password_reset');
- const page=readFileSync('app/login/page.tsx','utf8');
+ const page=readFileSync('components/login-experience.tsx','utf8');
  assert.equal((page.match(/action=\{turnstileAction\}/g)??[]).length,2);
  assert.match(page,/setTurnstileToken\(""\)/);
  assert.match(page,/setTurnstileResetKey\(\(current\) => current \+ 1\)/);

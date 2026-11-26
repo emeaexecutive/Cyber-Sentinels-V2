@@ -80,17 +80,36 @@ export default async function PlatformPage() {
         />
 
         <section id="swarm-security" aria-labelledby="swarm-security-title" className="mt-8 mb-10 rounded-xl border border-cyan-900 p-6">
-          <p className="text-sm font-semibold text-cyan-200">Trust / Swarm Security</p>
-          <h2 id="swarm-security-title" className="mt-3 text-2xl font-semibold">TENENTE Swarm Authority Control</h2>
-          <p className="mt-4 max-w-3xl text-zinc-300">A swarm may distribute work. It may not manufacture authority. Controlled execution checks delegated scope, shared budgets, current decisions and revocation before dispatch.</p>
+          <p className="text-sm font-semibold text-cyan-200">{isSpanish ? "Confianza / seguridad de enjambres" : "Trust / Swarm Security"}</p>
+          <h2 id="swarm-security-title" className="mt-3 text-2xl font-semibold">
+            <span translate="no">TENENTE™</span>{isSpanish ? " — Control de autoridad del enjambre" : " — Swarm Authority Control"}
+          </h2>
+          <p className="mt-4 max-w-3xl text-zinc-300">{isSpanish
+            ? "Un enjambre puede distribuir el trabajo, pero no crear autoridad. La ejecución controlada comprueba el alcance delegado, los presupuestos compartidos, las decisiones vigentes y la revocación antes del envío."
+            : "A swarm may distribute work. It may not manufacture authority. Controlled execution checks delegated scope, shared budgets, current decisions and revocation before dispatch."}</p>
           <ul className="mt-4 space-y-2 text-sm text-zinc-300">
-            <li><strong>AVAILABLE:</strong> architecture documentation and public API reference.</li>
-            <li><strong>BETA:</strong> locally tested swarm budgets, receipts and controlled HTTP/MCP enforcement.</li>
-            <li><strong>UNDER DEVELOPMENT:</strong> SI/ASI Swarm Prevention Kit and cooperating-runtime cancellation integrations.</li>
-            <li><strong>NOT YET PRODUCTION-QUALIFIED:</strong> hosted swarm enforcement and emergency-stop operations.</li>
+            {isSpanish ? (
+              <>
+                <li>La documentación de arquitectura y la referencia pública de la API están disponibles.</li>
+                <li>Los presupuestos de enjambre, los recibos y los controles HTTP/MCP tienen cobertura de pruebas locales.</li>
+                <li>El kit de prevención de enjambres SI/ASI y las integraciones de cancelación para runtimes cooperantes son capacidades previstas.</li>
+                <li>La aplicación alojada de controles de enjambre y las operaciones de parada de emergencia están sujetas a la validación de lanzamiento.</li>
+              </>
+            ) : (
+              <>
+                <li>Architecture documentation and a public API reference are available.</li>
+                <li>Swarm budgets, receipts and controlled HTTP/MCP enforcement have local test coverage.</li>
+                <li>The SI/ASI Swarm Prevention Kit and cooperating-runtime cancellation integrations are planned capabilities.</li>
+                <li>Hosted swarm enforcement and emergency-stop operations are subject to release validation.</li>
+              </>
+            )}
           </ul>
-          <p className="mt-4 text-sm text-zinc-400">Unintegrated external agents can be blocked at controlled boundaries; remote shutdown is not guaranteed. Local simulated spending tests do not demonstrate real financial execution.</p>
-          <Link href="/about-us#our-story" className="mt-4 inline-block text-cyan-200 underline">Our Story: built in Aragón</Link>
+          <p className="mt-4 text-sm text-zinc-400">{isSpanish
+            ? "Los agentes externos no integrados pueden bloquearse en límites de control conectados; la detención remota no está garantizada. Las pruebas locales de gasto simulado no demuestran ejecución financiera real."
+            : "Unintegrated external agents can be blocked at connected control boundaries; remote shutdown is not guaranteed. Local simulated spending tests do not demonstrate real financial execution."}</p>
+          <Link href={localizedPublicHref("/about#our-story", locale)} lang={locale} className="mt-4 inline-block text-cyan-200 underline">
+            {isSpanish ? "Nuestra historia: construido en Aragón" : "Our Story: Built in Aragón"}
+          </Link>
         </section>
 
         <section id="agent-authority" className="mt-8 scroll-mt-28 operational-panel p-6">
@@ -104,8 +123,8 @@ export default async function PlatformPage() {
             ? "En un límite de control conectado y cualificado, ALLOW puede permitir la acción controlada, REVIEW la retiene para la revisión necesaria y DENY la bloquea. Una decisión por sí sola no demuestra que un sistema posterior ejecutara o impidiera una acción."
             : "At a connected, qualified control boundary, ALLOW may permit the controlled action, REVIEW holds it for the required review, and DENY blocks it. A decision alone is not proof that a downstream system carried out or prevented an action."}</p>
           <p className="mt-4 max-w-4xl leading-8 text-zinc-300">{isSpanish
-            ? "Las pruebas de decisión permiten un análisis posterior. Replay ayuda a revisar decisiones registradas y Trust Memory™ conecta pruebas pertinentes a lo largo del tiempo. La disponibilidad y cualificación varían según la función. Las pruebas locales de algunas rutas de API y Swarm no demuestran preparación para alojamiento o Production. La cancelación de TENENTE Swarm y la contención de emergencia siguen en cualificación y no están cualificadas para Production."
-            : "Decision evidence supports later examination. Replay helps review recorded decisions, while Trust Memory™ connects relevant evidence over time. Availability and qualification vary by feature; some API and Swarm paths have local test coverage, which does not establish hosted or Production readiness. TENENTE Swarm cancellation and emergency containment remain under qualification and are not Production-qualified."}</p>
+            ? "Replay ayuda a revisar decisiones registradas. Trust Memory™ conecta evidencia pertinente a lo largo del tiempo. Los controles de ejecución disponibles dependen de la integración y del entorno de despliegue cualificados."
+            : "Replay helps reviewers examine recorded decisions. Trust Memory™ connects relevant evidence over time. Available execution controls depend on the qualified integration and deployment environment."}</p>
           <p className="mt-4 leading-8 text-zinc-400">
             {isSpanish ? "Lee la explicación de " : "Read the "}
             <Link href={localizedPublicHref("/resources/agent-security/agent-authorization", locale)} className="text-cyan-200 underline">{isSpanish ? "autorización de agentes" : "agent authorization explanation"}</Link>
@@ -133,8 +152,8 @@ export default async function PlatformPage() {
           <p className="operational-eyebrow">{isSpanish ? "Modelo de plataforma" : "Platform model"}</p>
           <h2 className="mt-3 text-2xl font-semibold">{isSpanish ? "Cada capacidad se cualifica por separado." : "Capabilities are qualified individually."}</h2>
           <p className="mt-3 max-w-4xl leading-7 text-zinc-400">{isSpanish
-            ? "Estas áreas describen el modelo de la plataforma; no afirman que todas las rutas, proveedores o integraciones de ejecución estén disponibles en cada entorno alojado."
-            : "The following areas describe the platform model, not a claim that every route, provider or runtime integration is available in every hosted environment."}</p>
+            ? "Estas áreas describen el modelo de la plataforma; no afirman que todas las rutas, proveedores o integraciones de ejecución estén disponibles en cada entorno alojado. Las pruebas locales no demuestran la disponibilidad en entornos alojados ni la preparación para Producción."
+            : "The following areas describe the platform model, not a claim that every route, provider or runtime integration is available in every hosted environment. Local test coverage does not establish hosted or Production readiness."}</p>
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             {copy.capabilities.map(([id, title, description], index) => (
               <article id={id} key={id} className="scroll-mt-28 operational-card p-5">

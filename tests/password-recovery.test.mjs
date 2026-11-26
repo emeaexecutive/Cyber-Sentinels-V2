@@ -90,7 +90,7 @@ test("Preview reset requests are limited to the runtime Preview origin", () => {
 
 test("recovery implementation uses product-owned request, PKCE callback, and updateUser", async () => {
   const [login, requestRoute, callback, completeRoute, page, accountI18n, config, template, recoveryPolicy] = await Promise.all([
-    read("app/login/page.tsx"),
+    read("components/login-experience.tsx"),
     read("app/api/auth/password-reset/request/route.ts"),
     read("lib/auth/callback-handler.ts"),
     read("app/api/auth/password-reset/complete/route.ts"),

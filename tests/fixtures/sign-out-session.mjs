@@ -15,7 +15,7 @@ const origin = "http://localhost:3000";
 
 // Execute the actual routes, middleware and components; replace only framework
 // request context and the external Auth/Turnstile service boundaries.
-export function harness({ locale = "en" } = {}) {
+export function harness({ locale = "en", authPrecheckError, publicSupabaseConfigured = true } = {}) {
   const jar = new Map();
   const calls = [];
   let accessStatus = "APPROVED";
@@ -76,13 +76,19 @@ export function harness({ locale = "en" } = {}) {
     "@/src/components/consent/ConsentPreferencesLink": { ConsentPreferencesLink: () => null },
     "next/headers": { cookies: async () => cookieStore, headers: async () => new Headers({ "x-public-locale": locale }) },
     "next/link": { __esModule: true, default: ({ children, ...props }) => React.createElement("a", props, children) },
+    "next/navigation": { useRouter: () => ({ push() {}, refresh() {} }) },
     "@/lib/supabase/server": { createClient: async (headers) => client(headers), createNavigationClient: async () => client(), isInvalidRefreshTokenError: () => false },
     "@/lib/operational-monitoring": { captureOperationalIssue() {} },
     "@/lib/bot-protection": { checkRequestRateLimit: () => false, getClientIp: () => "127.0.0.1",
       getExpectedTurnstileHostname: (v) => v, getTurnstileTokenFromJson: (v) => v.turnstileToken,
       verifyTurnstileToken: async (value) => ({ ok: value === "fixture-turnstile", reason: "invalid_token" }) },
-    "@/lib/env": { hasPublicSupabaseEnv: () => true, getPublicSupabaseEnv: () => ({ supabaseUrl: "https://fixture.supabase.co", supabaseAnonKey: "fixture-anon" }), getAdminEmailsEnv: () => "" },
-    "@supabase/ssr": { createServerClient: (url, key, options) => createServerClient(url, key, { ...options, global: { fetch } }) },
+    "@/lib/env": { hasPublicSupabaseEnv: () => publicSupabaseConfigured, getPublicSupabaseEnv: () => ({ supabaseUrl: "https://fixture.supabase.co", supabaseAnonKey: "fixture-anon" }), getAdminEmailsEnv: () => "" },
+    "@supabase/ssr": { createServerClient: (url, key, options) => authPrecheckError
+      ? { auth: {
+        getClaims: async () => ({ data: { claims: null }, error: authPrecheckError }),
+        getUser: async () => ({ data: { user: null }, error: authPrecheckError }),
+      } }
+      : createServerClient(url, key, { ...options, global: { fetch } }) },
   };
   const cache = new Map();
   function load(filename) {

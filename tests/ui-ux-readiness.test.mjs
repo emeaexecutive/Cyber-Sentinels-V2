@@ -7,7 +7,7 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("public authentication surfaces use safe messages and accessible status updates", async () => {
   const [login, loginExperience, verifyEmail] = await Promise.all([
-    read("app/login/page.tsx"),
+    read("components/login-experience.tsx"),
     read("lib/auth/login-experience.ts"),
     read("app/verify-email/page.tsx"),
   ]);

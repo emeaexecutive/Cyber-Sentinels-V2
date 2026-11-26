@@ -59,12 +59,14 @@ const publishedSpanishPages: Readonly<Partial<Record<CanonicalPublicPath, `/es${
   "/about": "/es/about",
   "/about/mission": "/es/about/mission",
 };
+const localizedAccountPages = {
+  "/login": "/es/login",
+} as const;
 const canonicalPaths: ReadonlySet<string> = new Set(canonicalPublicRoutes);
 const publishedEnglishResourcePaths = new Set(
   securityResources.map(({ slug }) => `${RESOURCE_ROOT}/${slug}`),
 );
 const englishOnlyFallbackPaths = new Set([
-  "/login",
   "/demo",
   "/verify/candidate",
   "/verify/session",
@@ -79,10 +81,15 @@ const spanishSources = new Map<string, string>();
 for (const [source, translated] of Object.entries(publishedSpanishPages)) {
   if (translated) spanishSources.set(translated, source);
 }
+for (const [source, translated] of Object.entries(localizedAccountPages)) {
+  spanishSources.set(translated, source);
+}
 
 export function getPublishedPublicEquivalents(sourcePath: string): Partial<Record<PublicLocale, string>> {
-  if (!canonicalPaths.has(sourcePath)) return {};
-  const spanishPath = publishedSpanishPages[sourcePath as CanonicalPublicPath];
+  if (!canonicalPaths.has(sourcePath) && !(sourcePath in localizedAccountPages)) return {};
+  const spanishPath = canonicalPaths.has(sourcePath)
+    ? publishedSpanishPages[sourcePath as CanonicalPublicPath]
+    : localizedAccountPages[sourcePath as keyof typeof localizedAccountPages];
   return {
     en: sourcePath,
     ...(spanishPath ? { es: spanishPath } : {}),
@@ -98,6 +105,11 @@ export function isPublishedSpanishPath(pathname: string) {
   return pathname === "/es" || pathname === "/es/" || spanishSources.has(pathname);
 }
 
+export function isIndexablePublishedSpanishPath(pathname: string) {
+  const sourcePath = getSpanishSourcePath(pathname);
+  return sourcePath !== null && canonicalPaths.has(sourcePath);
+}
+
 export function publicEnglishFallbackHref(candidate: string | null | undefined) {
   if (!candidate || !candidate.startsWith("/") || candidate.startsWith("//")) return "/";
   const parsed = new URL(candidate, "https://public.invalid");
@@ -105,6 +117,7 @@ export function publicEnglishFallbackHref(candidate: string | null | undefined) 
     parsed.origin !== "https://public.invalid" ||
     (!canonicalPaths.has(parsed.pathname) &&
       !englishOnlyFallbackPaths.has(parsed.pathname) &&
+      !(parsed.pathname in localizedAccountPages) &&
       !publishedEnglishResourcePaths.has(parsed.pathname))
   ) return "/";
   return `${parsed.pathname}${parsed.search}${parsed.hash}`;
@@ -150,6 +163,7 @@ export function publicPageAlternates(
   sourcePath: string,
   locale: PublicLocale = PUBLIC_SOURCE_LOCALE,
 ): NonNullable<Metadata["alternates"]> {
+  if (!canonicalPaths.has(sourcePath)) throw new Error("Public page translation is not published.");
   const equivalents = getPublishedPublicEquivalents(sourcePath);
   const canonical = Object.hasOwn(equivalents, locale) ? equivalents[locale] : undefined;
   if (!canonical) throw new Error("Public page translation is not published.");
