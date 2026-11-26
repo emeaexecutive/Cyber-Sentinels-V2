@@ -5,6 +5,7 @@ import {
   architectureResponse,
   assertArchitectureMutation,
 } from "@/src/lib/trust-architecture/http";
+import { readScopeContinuityJson } from "@/src/lib/scope-continuity/http";
 import { listEmploymentDecisionEvents, recordEmploymentDecision } from "@/src/lib/employment/decision-service";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
       return architectureResponse({ ok: false, code: "PAYLOAD_TOO_LARGE", error: "Request is too large." }, 413, correlationId);
     }
     const context = await architectureContext(request, ["owner", "admin", "reviewer"]);
-    const body = await request.json() as Record<string, unknown>;
+    const body = await readScopeContinuityJson(request, 32_000);
     const result = await recordEmploymentDecision({
       enterpriseId: context.enterpriseId,
       actorId: context.user.id,

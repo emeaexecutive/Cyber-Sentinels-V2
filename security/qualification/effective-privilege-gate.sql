@@ -12,7 +12,13 @@ select n.nspname,c.relname,'unexpected readable relation' as blocker
 from pg_class c join pg_namespace n on n.oid=c.relnamespace
 where n.nspname not in ('pg_catalog','information_schema') and c.relkind in ('r','v','m','p')
 and has_schema_privilege('execution20_gateway_login',n.oid,'USAGE')
-and has_table_privilege('execution20_gateway_login',c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER');
+and (
+ has_table_privilege('execution20_gateway_login',c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+ or has_any_column_privilege('execution20_gateway_login',c.oid,'SELECT')
+ or has_any_column_privilege('execution20_gateway_login',c.oid,'INSERT')
+ or has_any_column_privilege('execution20_gateway_login',c.oid,'UPDATE')
+ or has_any_column_privilege('execution20_gateway_login',c.oid,'REFERENCES')
+);
 select rolname,'unexpected elevated role' as blocker from pg_roles
 where rolname in ('execution20_gateway_login','execution20_gateway_owner')
 and (rolsuper or rolbypassrls or rolcreatedb or rolcreaterole or rolreplication);

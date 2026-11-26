@@ -1,7 +1,7 @@
 import { verifySwarmReplay, type SwarmEvent } from "./containment.ts";
-export async function recoverSwarmProjections(tenantId: string, events: SwarmEvent[], cursor: { read(): Promise<number>; advance(expected: number, next: number): Promise<number> }, project: (event: SwarmEvent) => Promise<void>, batch = 100) {
+export async function recoverSwarmProjections(tenantId: string, events: SwarmEvent[], cursor: { read(): Promise<number>; advance(expected: number, next: number): Promise<number> }, project: (event: SwarmEvent) => Promise<void>, batch = 100, initialCursor?: number) {
   if (!verifySwarmReplay(events, tenantId) || !Number.isSafeInteger(batch) || batch < 1 || batch > 1000) throw new Error("SWARM_PROJECTION_SOURCE_INVALID");
-  const start = await cursor.read();
+  const start = initialCursor ?? await cursor.read();
   if (!Number.isSafeInteger(start) || start < 0 || start > events.length) throw new Error("SWARM_PROJECTION_CURSOR_INVALID");
   const pending = events.slice(start, start + batch);
   for (const event of pending) await project(event);

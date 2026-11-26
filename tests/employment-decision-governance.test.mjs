@@ -86,6 +86,8 @@ test("employment API binds cases to assigned reviewers and existing canonical tr
   const route = await readFile(new URL("../app/api/employment/decisions/route.ts", import.meta.url), "utf8");
   const migration = await readFile(new URL("../supabase/migrations/20261010110000_employment_access_governance_hardening.sql", import.meta.url), "utf8");
   assert.match(route, /architectureContext\(request, \["owner", "admin", "reviewer"\]\)/);
+  assert.match(route, /readScopeContinuityJson\(request,\s*32_000\)/);
+  assert.doesNotMatch(route, /request\.json\(\)/);
   assert.match(service, /\[\.\.\.events\]\.reverse\(\)\.find\(\(event\) => event\.event_type === "governance\.employment_decision\.reviewer_assigned"\)/);
   assert.match(service, /append_trust_event_v1/);
   assert.match(service, /canonical_trust_transactions/);

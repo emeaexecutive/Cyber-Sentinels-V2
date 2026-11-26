@@ -15,12 +15,13 @@ export async function recoverPersistedSwarmProjections(tenantId: string) {
   const db = createServiceRoleClient();
   const { swarmRpcPersistence } = await import("./rpc-persistence");
   const { recoverSwarmProjections } = await import("./projection-recovery");
-  const state = await swarmRpcPersistence((name, args) => db.rpc(name, args)).load(tenantId);
-  if (!state) return { projected: 0, through: 0, remaining: 0 };
   async function cursor(expected: number | null = null, next: number | null = null) {
     const result = await db.rpc("swarm_projection_cursor_v1", { p_tenant_id: tenantId, p_expected: expected, p_next: next });
     if (result.error || !Number.isSafeInteger(result.data)) throw new Error("SWARM_PROJECTION_CURSOR_UNAVAILABLE");
     return result.data as number;
   }
-  return recoverSwarmProjections(tenantId, state.state.events, { read: () => cursor(), advance: cursor }, persistSwarmReceiptProjection);
+  const initialCursor = await cursor();
+  const state = await swarmRpcPersistence((name, args) => db.rpc(name, args)).load(tenantId);
+  if (!state) return { projected: 0, through: 0, remaining: 0 };
+  return recoverSwarmProjections(tenantId, state.state.events, { read: () => cursor(), advance: cursor }, persistSwarmReceiptProjection, 100, initialCursor);
 }
