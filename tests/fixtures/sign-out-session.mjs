@@ -78,6 +78,7 @@ export function harness({ locale = "en", authPrecheckError, publicSupabaseConfig
     "next/link": { __esModule: true, default: ({ children, ...props }) => React.createElement("a", props, children) },
     "next/navigation": {
       useRouter: () => ({ push() {}, refresh() {} }),
+      usePathname: () => "/",
       notFound: () => { throw new Error("NEXT_HTTP_ERROR_FALLBACK;404"); },
     },
     "@/lib/supabase/server": { createClient: async (headers) => client(headers), createNavigationClient: async () => client(), isInvalidRefreshTokenError: () => false },
