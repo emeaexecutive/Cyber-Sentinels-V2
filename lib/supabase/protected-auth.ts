@@ -2,6 +2,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getServiceRoleEnv } from "@/lib/env.server";
+import { writeAuthCookieChunks } from "./auth-cookie-chunks";
 
 // Auth only, after application Siteverify. Supabase exempts the server admin
 // credential from its own CAPTCHA check, avoiding consuming a token twice.
@@ -12,7 +13,7 @@ export async function createProtectedAuthClient() {
   return createServerClient(supabaseUrl, serviceRoleKey, {
     cookies: {
       getAll: () => [],
-      setAll: values => values.forEach(({ name, value, options }) => jar.set(name, value, options)),
+      setAll: values => writeAuthCookieChunks(jar, values),
     },
   });
 }

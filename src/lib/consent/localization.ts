@@ -69,8 +69,8 @@ export function consentLocale(pathname: string, search = ""): ConsentLocale {
   return new URLSearchParams(search.replace(/^\?/, "")).get("lang")?.toLowerCase() === "es" ? "es" : "en";
 }
 
-export function useConsentLocale(pathname?: string): ConsentLocale {
-  const [locale, setLocale] = useState<ConsentLocale>("en");
+export function useConsentLocale(pathname?: string, initialLocale: ConsentLocale = "en"): ConsentLocale {
+  const [locale, setLocale] = useState<ConsentLocale>(initialLocale);
 
   useEffect(() => {
     setLocale(consentLocale(pathname ?? window.location.pathname, window.location.search));

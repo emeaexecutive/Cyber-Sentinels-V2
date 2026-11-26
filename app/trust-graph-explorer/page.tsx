@@ -51,7 +51,7 @@ const metricTables = [
 ];
 
 async function liveCount(table: string, label: string): Promise<MetricResult> {
-  const supabase = await createClient();
+  const supabase = createServiceRoleClient();
   const { count, error } = await supabase
     .from(table)
     .select("id", { count: "exact", head: true });

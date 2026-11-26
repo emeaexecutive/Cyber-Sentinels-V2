@@ -13,7 +13,7 @@ test('Siteverify gates every protected Auth operation before its side effects',a
  try{
  for(const operation of operations){
   const good={success:true,hostname:'staging.cybersentinels.com',action:authChallengeActions[operation],challenge_ts:new Date().toISOString()};
-  for(const scenario of ['valid','missing','malformed','oversize','invalid','expired','duplicate','wrong-hostname','wrong-action','stale-success','future-success','missing-timestamp','misconfigured','unavailable','network-error','malformed-json','null-json','false-success']){
+  for(const scenario of ['valid','missing','malformed','oversize','oversized-body','invalid','expired','duplicate','wrong-hostname','wrong-action','stale-success','future-success','missing-timestamp','misconfigured','unavailable','network-error','malformed-json','null-json','false-success']){
    await t.test(`${operation}: ${scenario}`,async()=>{
     let sideEffects=0,verifications=0;process.env.TURNSTILE_SECRET_KEY=scenario==='misconfigured'?'':'private-test-secret';
     globalThis.fetch=async(url,init)=>{verifications++;assert.equal(url,'https://challenges.cloudflare.com/turnstile/v0/siteverify');assert.equal(init.method,'POST');assert.equal(sideEffects,0);assert.equal(init.body.get('secret'),'private-test-secret');
@@ -32,10 +32,11 @@ test('Siteverify gates every protected Auth operation before its side effects',a
     };
     const handler=createProtectedAuthHandler(async()=>{sideEffects++;return {error:null,data:{session:null}};});
     const token=scenario==='missing'?undefined:scenario==='malformed'?{forged:true}:scenario==='oversize'?'x'.repeat(2049):'private-test-token';
-    const r=await handler(new Request(origin+'/api/auth/submit',{method:'POST',headers:{origin,'content-type':'application/json','x-vercel-forwarded-for':`192.0.${Math.floor(++requestId/250)}.${requestId%250+1}`},body:JSON.stringify({operation,email:'fixture@example.test',password:'Strong-fixture-123!',turnstileToken:token})}));
+    const requestBody=JSON.stringify({operation,email:'fixture@example.test',password:'Strong-fixture-123!',turnstileToken:token})+(scenario==='oversized-body'?' '.repeat(16*1024):'');
+    const r=await handler(new Request(origin+'/api/auth/submit',{method:'POST',headers:{origin,'content-type':'application/json','x-vercel-forwarded-for':`192.0.${Math.floor(++requestId/250)}.${requestId%250+1}`},body:requestBody}));
     assert.equal(sideEffects,scenario==='valid'?1:0,`${scenario} must not perform Auth/DB/email operations`);
-    assert.equal(r.status===200,scenario==='valid');
-    assert.equal(verifications,['missing','malformed','oversize','misconfigured'].includes(scenario)?0:1);
+    if(scenario==='oversized-body')assert.equal(r.status,413);else assert.equal(r.status===200,scenario==='valid');
+    assert.equal(verifications,['missing','malformed','oversize','oversized-body','misconfigured'].includes(scenario)?0:1);
     const body=await r.text();assert.ok(!body.includes('private-test-secret'));assert.ok(!body.includes('private-test-token'));
    });
   }

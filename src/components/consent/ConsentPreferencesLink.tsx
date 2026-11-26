@@ -1,9 +1,11 @@
 "use client";
 
 import { consentText, useConsentLocale } from "@/src/lib/consent/localization";
+import { usePathname } from "next/navigation";
 
-export function ConsentPreferencesLink(_props: { locale?: "en" | "es" } = {}) {
-  const locale = useConsentLocale();
+export function ConsentPreferencesLink({ locale: initialLocale = "en" }: { locale?: "en" | "es" } = {}) {
+  const pathname = usePathname();
+  const locale = useConsentLocale(pathname ?? undefined, initialLocale);
   return (
     <button
       type="button"
