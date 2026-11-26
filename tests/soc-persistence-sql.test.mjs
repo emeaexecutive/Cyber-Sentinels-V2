@@ -6,10 +6,11 @@ import {createSwarmStore} from '../lib/swarm/store.ts';
 import {emptySwarmState,verifySwarmReplay} from '../lib/swarm/containment.ts';
 import {hashCanonical} from '../src/lib/trust-core/hash.ts';
 import {projectSwarmReceipt} from '../lib/swarm/evidence-projection.ts';
+import {createSocFixture} from './fixtures/soc-control.mjs';
 
 const tenant='10000000-0000-4000-8000-000000000001',other='10000000-0000-4000-8000-000000000002';
 const kinds=['SOC_AGENT_REGISTERED','SOC_ALERT','SOC_INVESTIGATION','SOC_MODEL_RUN','SOC_ASSESSMENT','SOC_RESPONSE','SOC_FEEDBACK','SOC_TRUST_MEMORY','SOC_FAILURE','WATCHTOWER_WARNING','CHIRIVETA_REVIEW'];
-function append(state,kind){const body={tenantId:tenant,sequence:state.events.length+1,kind,actorId:'SOC:test-owner',subjectId:'agent:soc-test',at:1700000000000+state.events.length,details:{synthetic:true,authorityConferred:false},previousHash:state.events.at(-1)?.digest??'0'.repeat(64)};const event={...body,digest:hashCanonical(body)};state.events.push(event);return event;}
+function append(state,kind){const body={tenantId:tenant,sequence:state.events.length+1,kind,actorId:'SOC:test-owner',subjectId:'agent:soc-test',at:1700000000000+state.events.length,details:{synthetic:true,authorityConferred:false,canonicalEntityId:'agent:soc-test'},previousHash:state.events.at(-1)?.digest??'0'.repeat(64)};const event={...body,digest:hashCanonical(body)};state.events.push(event);return event;}
 
 test('SOC migration rehearses rollback, forward recovery and actual canonical Replay/Memory inserts',async t=>{
  const {db,persistence}=await swarmSql(t);
@@ -48,4 +49,22 @@ test('SOC CAS gives one winner for competing versions, isolates tenants and pres
  const recovered=await persistence.load(tenant);assert.equal(recovered.state.events.length,6);assert.ok(verifySwarmReplay(recovered.state.events,tenant));
  await db.exec('reset role');await assert.rejects(db.query('delete from swarm_private.events where tenant_id=$1',[tenant]),/APPEND_ONLY/);
  t.diagnostic(process.env.TENENTE_LOCAL_PG_PORT?'Independent PostgreSQL connections arbitrate actual lock contention':'PGlite serializes SQL; competing CAS versions verified, not multi-connection lock-race proof');
+});
+
+test('accepted Watchtower and SOC receipts project warning IDs through their canonical entity',async t=>{
+ const {db}=await swarmSql(t);
+ await db.exec('reset role');
+ const migration=await readFile(new URL('../supabase/migrations/20261112104809_soc_replay_event_types.sql',import.meta.url),'utf8');
+ await db.exec(migration);
+ await db.query('insert into public.trust_workspaces(id) values($1)',[tenant]);
+ await db.query('insert into public.operational_entities values($1,$2)',[tenant,'ALSAMORA']);
+ const f=await createSocFixture(t),alert=await f.alert(),state=await f.h.read();
+ const events=state.events.filter(event=>['WATCHTOWER_WARNING','SOC_ALERT'].includes(event.kind));
+ assert.equal(events.length,2);
+ assert.ok(events.every(event=>event.subjectId===alert.subjectId&&event.subjectId!=='ALSAMORA'));
+ for(const event of events)await projectSwarmReceipt(event,async(table,row)=>{const keys=Object.keys(row);await db.query(`insert into public.${table} (${keys.join(',')}) values (${keys.map((_,i)=>'$'+(i+1)).join(',')})`,Object.values(row));});
+ const rows=(await db.query('select operational_entity_id,event_type,evidence_references from public.operational_entity_native_replay_events order by event_type')).rows;
+ assert.deepEqual(rows.map(row=>row.operational_entity_id),['ALSAMORA','ALSAMORA']);
+ assert.deepEqual(rows.map(row=>row.event_type),['SWARM_SOC_ALERT','SWARM_WATCHTOWER_WARNING']);
+ assert.ok(rows.every(row=>row.evidence_references.includes(`warning:${alert.subjectId}`)));
 });

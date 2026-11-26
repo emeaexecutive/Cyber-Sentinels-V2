@@ -55,7 +55,8 @@ export class WatchtowerSignals {
       }
       const body = { sequence: state.events.length + 1, tenantId: tenant, kind: "CHIRIVETA_REVIEW", actorId: "CHIRIVETA", subjectId: warningEvent?.subjectId ?? "unsupported-warning",
         at: now, previousHash: state.events.at(-1)?.digest ?? "0".repeat(64), details: {
-          warningEvidenceDigest, proposal: structuredClone(proposal), recommendation, reason, authorityConferred: false,
+          warningEvidenceDigest, canonicalEntityId: warningEvent?.details.canonicalEntityId ?? envelope?.origin.claims.senderId ?? null,
+          proposal: structuredClone(proposal), recommendation, reason, authorityConferred: false,
           requiresGateway: true, requiresIndependentHumanApproval: proposal.kind === "DESTRUCTIVE", aiModelUsed: false,
         } };
       const evidence = { ...body, digest: hashCanonical(body) }; state.events.push(evidence);
@@ -108,7 +109,8 @@ export class WatchtowerSignals {
       }
       const body = { sequence: state.events.length + 1, tenantId: tenant, kind: "WATCHTOWER_WARNING", actorId: "CHIRIVETA", subjectId: eventId,
         at: now, previousHash: state.events.at(-1)?.digest ?? "0".repeat(64), details: {
-          eventId, source: warning?.source ?? null, swarm: origin?.claims?.swarmId ?? null, accepted, investigationOpened, reason,
+          eventId, source: warning?.source ?? null, swarm: origin?.claims?.swarmId ?? null,
+          canonicalEntityId: accepted ? origin.claims.senderId : null, accepted, investigationOpened, reason,
           authorityConferred: false, envelopeDigest: hashCanonical(envelope), envelope: structuredClone(envelope),
         } };
       const evidence = { ...body, digest: hashCanonical(body) };

@@ -97,7 +97,7 @@
     "test:enterprise-trust-graph": "node --experimental-strip-types --test tests/enterprise-trust-graph.test.mjs tests/enterprise-trust-graph-repository.test.mjs tests/enterprise-trust-graph-api.test.mjs tests/rls/enterprise-trust-graph.test.mjs tests/load/enterprise-trust-graph-load.test.mjs",
     "test:trust-dna": "node --experimental-strip-types --test tests/trust-dna-engine.test.mjs tests/trust-dna-integration.test.mjs tests/trust-dna-api.test.mjs tests/rls/trust-dna-engine.test.mjs tests/load/trust-dna-load.test.mjs",
     "test:replay": "node --experimental-strip-types --test tests/replay-engine.test.mjs tests/replay-integration.test.mjs tests/replay-api-ui.test.mjs tests/rls/replay-engine.test.mjs tests/load/replay-load.test.mjs",
-    "test:scope-continuity": "node --experimental-strip-types --test tests/scope-continuity.test.mjs tests/scope-continuity-api-ui.test.mjs tests/rls/scope-continuity.test.mjs",
+    "test:scope-continuity": "node --import=tsx --experimental-test-module-mocks --test tests/scope-continuity.test.mjs tests/scope-continuity-api-ui.test.mjs tests/rls/scope-continuity.test.mjs",
     "test:epic-26-lease-hash": "node --experimental-strip-types --test tests/epic-26-lease-hash-sql.test.mjs",
     "test:serious-incidents": "node --experimental-strip-types --test tests/serious-incident.test.mjs tests/serious-incident-api-ui.test.mjs tests/rls/serious-incident.test.mjs",
     "test:rc1": "node --experimental-strip-types --test tests/rc1-evidence-gate.test.mjs",

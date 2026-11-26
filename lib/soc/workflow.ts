@@ -25,6 +25,12 @@ export type SocDependencies = {
   destination: { execute(request: EnforcementRequest): Promise<void>; observe(request: EnforcementRequest): Promise<unknown> };
 };
 
+function canonicalEntityId(details: Record<string, unknown>) {
+  const value = details.canonicalEntityId ?? details.entityId;
+  if (typeof value !== "string" || !value.trim() || value.length > 240) throw Error("SOC_CANONICAL_ENTITY_UNAVAILABLE");
+  return value;
+}
+
 /** SOC is a consumer of the existing authority gateway, never an authority issuer.
  * All records share the existing CAS journal, Replay, tenant boundary and recovery.
  */
@@ -66,13 +72,14 @@ export class GovernedSoc {
     await this.actor(tenant, proof);
     const received = await this.signals.receive(tenant, envelope);
     if (!received.accepted) return { accepted: false, evidence: received.evidence };
+    const entityId = canonicalEntityId(received.evidence.details);
     const alert = await this.deps.store.transact(tenant, state => {
       const prior = state.events.find(e => e.kind === "SOC_ALERT" && e.subjectId === envelope.warning.eventId);
       if (prior) return prior;
       const related = state.events.filter(e => e.actorId === "ALSAMORA" || e.subjectId === "ALSAMORA").slice(-20);
       return appendSwarmEvent(state, this.deps.now(), "SOC_ALERT", "TORCH", envelope.warning.eventId, {
         synthetic: true, source: "authenticated-watchtower", swarmId: envelope.origin.claims.swarmId,
-        entityId: "ALSAMORA", rule: "signed-synthetic-export-v1", score: Math.min(100, 60 + related.length * 2),
+        entityId, canonicalEntityId: entityId, rule: "signed-synthetic-export-v1", score: Math.min(100, 60 + related.length * 2),
         priority: "REVIEW", escalation: "analyst", evidenceRefs: [received.evidence.digest, ...related.map(e => e.digest)],
         authorityConferred: false,
       });
@@ -90,12 +97,13 @@ export class GovernedSoc {
       if (prior) return { existing: state.events.find(e => e.kind === "SOC_ASSESSMENT" && e.details.alertDigest === alertDigest) ?? prior, evidence: null };
       const refs = new Set([alert.digest, ...(alert.details.evidenceRefs as string[])]);
       const evidence = state.events.filter(e => refs.has(e.digest)).slice(-SOC_LIMITS.maxEvidenceRecords);
-      appendSwarmEvent(state, this.deps.now(), "SOC_INVESTIGATION", "Swarm Investigator", alert.subjectId, { alertDigest, evidenceRefs: evidence.map(e => e.digest), maxRecords: SOC_LIMITS.maxEvidenceRecords, status: "RESERVED", automaticRetry: false, interruptionRecovery: "OPERATOR_REVIEW_REQUIRED", authorityConferred: false });
+      appendSwarmEvent(state, this.deps.now(), "SOC_INVESTIGATION", "Swarm Investigator", alert.subjectId, { alertDigest, canonicalEntityId: canonicalEntityId(alert.details), evidenceRefs: evidence.map(e => e.digest), maxRecords: SOC_LIMITS.maxEvidenceRecords, status: "RESERVED", automaticRetry: false, interruptionRecovery: "OPERATOR_REVIEW_REQUIRED", authorityConferred: false });
       return { existing: null, evidence };
     });
     if (reserved.existing) return reserved.existing;
     const evidence = reserved.evidence!;
     const alert = evidence.find(e => e.digest === alertDigest)!;
+    const entityId = canonicalEntityId(alert.details);
     if (this.deps.investigate) {
       try {
         if (!this.deps.modelBudget) throw Error("SOC_MODEL_BUDGET_NOT_CONFIGURED");
@@ -103,15 +111,15 @@ export class GovernedSoc {
         let timer: ReturnType<typeof setTimeout> | undefined;
         const report = await this.deps.modelBudget.run(tenant, alertDigest, signal => Promise.race([this.deps.investigate!(tenant, structuredClone(evidence), signal), new Promise<never>((_, reject) => { timer = setTimeout(() => reject(Error("SOC_MODEL_TIMEOUT")), SOC_LIMITS.maxModelMs); })]).finally(() => { if (timer) clearTimeout(timer); }));
         if (report.authority !== "NONE") throw Error("SOC_MODEL_AUTHORITY_REJECTED");
-        await this.record(tenant, "SOC_MODEL_RUN", "Sentinel Copilot", alert.subjectId, { alertDigest, report, authorityConferred: false });
+        await this.record(tenant, "SOC_MODEL_RUN", "Sentinel Copilot", alert.subjectId, { alertDigest, canonicalEntityId: entityId, report, authorityConferred: false });
       } catch {
-        await this.record(tenant, "SOC_FAILURE", "Sentinel Copilot", alert.subjectId, { alertDigest, reason: "MODEL_UNAVAILABLE_OR_INVALID", authorityConferred: false });
+        await this.record(tenant, "SOC_FAILURE", "Sentinel Copilot", alert.subjectId, { alertDigest, canonicalEntityId: entityId, reason: "MODEL_UNAVAILABLE_OR_INVALID", authorityConferred: false });
       }
     } else {
-      await this.record(tenant, "SOC_FAILURE", "Sentinel Copilot", alert.subjectId, { alertDigest, reason: "MODEL_NOT_CONFIGURED", authorityConferred: false });
+      await this.record(tenant, "SOC_FAILURE", "Sentinel Copilot", alert.subjectId, { alertDigest, canonicalEntityId: entityId, reason: "MODEL_NOT_CONFIGURED", authorityConferred: false });
     }
     return this.record(tenant, "SOC_ASSESSMENT", "Sentinel Intelligence", alert.subjectId, {
-      alertDigest, finding: "AUTHENTICATED_SYNTHETIC_WARNING", uncertainty: "Synthetic warning does not establish a real compromise.",
+      alertDigest, canonicalEntityId: entityId, finding: "AUTHENTICATED_SYNTHETIC_WARNING", uncertainty: "Synthetic warning does not establish a real compromise.",
       evidenceRefs: evidence.map(e => e.digest), modelAuthority: "NONE", requiresCurrentGateway: true,
     });
   }
@@ -129,8 +137,9 @@ export class GovernedSoc {
       return found;
     });
     if (!alert || request.enterpriseId !== tenant) throw Error("SOC_ALERT_NOT_FOUND");
+    const entityId = canonicalEntityId(alert.details);
     const finish = async (decision: "ALLOW" | "REVIEW" | "DENY", outcome: string, refs: string[]) => {
-      const receipt = await this.record(tenant, "SOC_RESPONSE", "TENENTE", alert.subjectId, { alertDigest, decision, outcome, evidenceRefs: refs, requestId: request.requestId, synthetic: true });
+      const receipt = await this.record(tenant, "SOC_RESPONSE", "TENENTE", alert.subjectId, { alertDigest, canonicalEntityId: entityId, decision, outcome, evidenceRefs: refs, requestId: request.requestId, synthetic: true });
       await this.record(tenant, "SOC_TRUST_MEMORY", "TENENTE", request.operationalEntityId, { alertDigest, responseDigest: receipt.digest, outcome, authorityConferred: false });
       return receipt;
     };
@@ -160,7 +169,7 @@ export class GovernedSoc {
       await this.deps.store.transact(tenant, state => {
         const lease = state.leases[admitted.leaseId!];
         if (lease?.state === "DISPATCHED") lease.state = "UNKNOWN";
-        return appendSwarmEvent(state, this.deps.now(), "SOC_FAILURE", "TENENTE", alert.subjectId, { leaseId: admitted.leaseId, outcome: "UNKNOWN", automaticRetry: false });
+        return appendSwarmEvent(state, this.deps.now(), "SOC_FAILURE", "TENENTE", alert.subjectId, { alertDigest, canonicalEntityId: entityId, leaseId: admitted.leaseId, outcome: "UNKNOWN", automaticRetry: false });
       });
       return finish("ALLOW", "UNKNOWN", [dispatch.receipt.digest]);
     }
@@ -170,7 +179,7 @@ export class GovernedSoc {
     return this.deps.store.transact(tenant, state => {
       const alert = state.events.find(e => e.kind === "SOC_ALERT" && e.digest === alertDigest);
       if (!alert || typeof falsePositive !== "boolean") throw Error("SOC_FEEDBACK_INVALID");
-      return appendSwarmEvent(state, this.deps.now(), "SOC_FEEDBACK", actor.id, alert.subjectId, { alertDigest, falsePositive });
+      return appendSwarmEvent(state, this.deps.now(), "SOC_FEEDBACK", actor.id, alert.subjectId, { alertDigest, canonicalEntityId: canonicalEntityId(alert.details), falsePositive });
     });
   }
   async snapshot(tenant: string, proof: string) {

@@ -4,10 +4,11 @@ import type { SwarmEvent } from "./containment";
 import { projectSwarmReceipt } from "./evidence-projection";
 export async function persistSwarmReceiptProjection(receipt: SwarmEvent) {
   const db = createServiceRoleClient();
-  await projectSwarmReceipt(receipt, async (table, row) => {
+  const outcome = await projectSwarmReceipt(receipt, async (table, row) => {
     const result = await db.from(table).insert(row);
     if (result.error && result.error.code !== "23505") throw new Error("SWARM_PROJECTION_UNAVAILABLE");
   });
+  if ("skipped" in outcome) console.warn("Swarm receipt projection skipped.", { kind: receipt.kind, sequence: receipt.sequence, reason: outcome.skipped });
 }
 
 /** Invoked automatically by controlled execution and authenticated operations. */

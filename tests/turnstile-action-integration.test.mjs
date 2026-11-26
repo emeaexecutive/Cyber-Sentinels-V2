@@ -2,6 +2,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';import assert from 'node:assert/strict';
 import {getApprovedAuthOrigin} from '../lib/auth/password-recovery.ts';
 import {createProtectedAuthHandler,authChallengeActions} from '../lib/auth/protected-auth.ts';
+import {getLoginTurnstileAction} from '../lib/auth/login-experience.ts';
 const origin='https://staging.cybersentinels.com';
 const operations=Object.keys(authChallengeActions);
 let requestId=0;
@@ -59,6 +60,16 @@ test('public Auth UI has no direct credential or email-action bypass',()=>{
   assert.doesNotMatch(source,/\.auth\.(signInWithPassword|signUp|resend|signInWithOtp|resetPasswordForEmail)\(/);
  }
  assert.match(readFileSync('lib/supabase/protected-auth.ts','utf8'),/import "server-only"/);
+});
+
+test('login UI actions match protected Auth operations and mode changes reset the challenge',()=>{
+ assert.equal(getLoginTurnstileAction('sign-in'),authChallengeActions.password);
+ assert.equal(getLoginTurnstileAction('create-account'),authChallengeActions.signup);
+ assert.equal(getLoginTurnstileAction('forgot-password'),'password_reset');
+ const page=readFileSync('app/login/page.tsx','utf8');
+ assert.equal((page.match(/action=\{turnstileAction\}/g)??[]).length,2);
+ assert.match(page,/setTurnstileToken\(""\)/);
+ assert.match(page,/setTurnstileResetKey\(\(current\) => current \+ 1\)/);
 });
 
 test('Preview uses its isolated canonical origin without changing Production origin policy',()=>{

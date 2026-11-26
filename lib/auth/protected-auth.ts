@@ -1,8 +1,9 @@
 import { getApprovedAuthOrigin, isApprovedSameOriginRequest, validateNewPassword } from "./password-recovery";
 import { checkRequestRateLimit, getClientIp, getExpectedTurnstileHostname, getTurnstileTokenFromJson, verifyTurnstileToken } from "../bot-protection";
+import { authChallengeActions, type ProtectedAuthOperation } from "./login-experience";
 
-export type ProtectedAuthOperation = "password" | "signup" | "resend" | "magic-link";
-export const authChallengeActions = { password: "login", signup: "signup", resend: "signup", "magic-link": "login" } as const;
+export { authChallengeActions } from "./login-experience";
+export type { ProtectedAuthOperation } from "./login-experience";
 type Input = { operation: ProtectedAuthOperation; email: string; password: string; redirectTo: string };
 type Result = { error: { code?: string; message: string } | null; data?: { session?: unknown } };
 

@@ -10,6 +10,21 @@ export const loginExperienceStates = [
 
 export type LoginExperienceState = (typeof loginExperienceStates)[number];
 
+export type ProtectedAuthOperation = "password" | "signup" | "resend" | "magic-link";
+export type LoginAuthMode = "sign-in" | "create-account" | "forgot-password";
+
+export const authChallengeActions = {
+  password: "login",
+  signup: "signup",
+  resend: "signup",
+  "magic-link": "login",
+} as const satisfies Record<ProtectedAuthOperation, "login" | "signup">;
+
+export function getLoginTurnstileAction(mode: LoginAuthMode) {
+  if (mode === "forgot-password") return "password_reset";
+  return mode === "create-account" ? authChallengeActions.signup : authChallengeActions.password;
+}
+
 export type SafeAuthFailure = {
   state: Extract<
     LoginExperienceState,

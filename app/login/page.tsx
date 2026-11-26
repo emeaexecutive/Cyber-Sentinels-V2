@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 import { TurnstileField } from "@/components/turnstile-field";
 import {
   classifyAuthFailure,
+  getLoginTurnstileAction,
   maskEmailAddress,
   rateLimitedMessage,
+  type LoginAuthMode,
   type LoginExperienceState,
 } from "@/lib/auth/login-experience";
 import {
@@ -33,8 +35,6 @@ function shouldRequireTurnstile() {
 }
 const authAttemptWindowMs = 60_000;
 const authAttemptLimit = 8;
-
-type AuthMode = "sign-in" | "create-account" | "forgot-password";
 
 async function withAuthTimeout<T>(task: Promise<T>): Promise<T> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -84,7 +84,7 @@ async function recordAuthEvent(
 export default function LoginPage() {
   const router = useRouter();
   const navigationVersion = useRef(0);
-  const [authMode, setAuthMode] = useState<AuthMode>("sign-in");
+  const [authMode, setAuthMode] = useState<LoginAuthMode>("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -102,6 +102,7 @@ export default function LoginPage() {
   >(null);
   const [showDevAuth, setShowDevAuth] = useState(false);
   const trimmedEmail = email.trim();
+  const turnstileAction = getLoginTurnstileAction(authMode);
   const passwordsMismatch =
     authMode === "create-account" && Boolean(confirmPassword) && password !== confirmPassword;
   const canCreateAccount =
@@ -115,7 +116,7 @@ export default function LoginPage() {
 
   useEffect(() => () => { navigationVersion.current += 1; }, []);
 
-  function switchAuthMode(mode: AuthMode) {
+  function switchAuthMode(mode: LoginAuthMode) {
     navigationVersion.current += 1;
     setLoadingAction(null);
     setAuthMode(mode);
@@ -124,6 +125,8 @@ export default function LoginPage() {
     setSignupSucceeded(false);
     setPassword("");
     setConfirmPassword("");
+    setTurnstileToken("");
+    setTurnstileResetKey((current) => current + 1);
   }
 
   function showAuthFailure(error: unknown, fallback: string) {
@@ -183,8 +186,10 @@ export default function LoginPage() {
       setMessage("We could not complete email verification. Please request a new link or sign in with your password.");
     }
 
-    if (searchParams.get("mode") === "forgot-password") {
+    if (searchParams.get("mode") === "forgot-password" || searchParams.get("error") === "recovery_link_invalid") {
       setAuthMode("forgot-password");
+      setTurnstileToken("");
+      setTurnstileResetKey((current) => current + 1);
     }
 
     if (searchParams.get("password_updated") === "1") {
@@ -192,7 +197,6 @@ export default function LoginPage() {
     }
 
     if (searchParams.get("error") === "recovery_link_invalid") {
-      setAuthMode("forgot-password");
       setMessage("Reset link expired or invalid. Request a new password reset email.");
     }
 
@@ -618,7 +622,7 @@ export default function LoginPage() {
               <div className="mt-5">
                 <TurnstileField
                   siteKey={turnstileSiteKey}
-                  action={authMode === "forgot-password" ? "password_reset" : "auth"}
+                  action={turnstileAction}
                   onTokenChange={handleTurnstileToken}
                   onErrorChange={(error) => {
                     if (error) showSecurityFailure(error);
@@ -730,7 +734,7 @@ export default function LoginPage() {
                 <TurnstileField
                   siteKey={turnstileSiteKey}
                   onTokenChange={handleTurnstileToken}
-                  action={authMode === "forgot-password" ? "password_reset" : "auth"}
+                  action={turnstileAction}
                   onErrorChange={(error) => {
                     if (error) showSecurityFailure(error);
                   }}
