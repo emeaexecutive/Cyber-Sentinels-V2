@@ -1,5 +1,9 @@
+import { fileURLToPath } from "node:url";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Nested qualification worktrees must trace their own locked dependencies.
+  outputFileTracingRoot: fileURLToPath(new URL(".", import.meta.url)),
   reactStrictMode: true,
   poweredByHeader: false,
   // Vercel retains its existing output path. Docker alone opts into Next.js
@@ -7,6 +11,7 @@ const nextConfig = {
   output: process.env.CYBER_SENTINELS_DOCKER_BUILD === "1" ? "standalone" : undefined,
   async redirects() {
     return [
+      { source: "/contact", destination: "/enterprise-access?intent=intro_call", permanent: false },
       {
         source: "/:path*",
         has: [{ type: "host", value: "cybersentinels.com" }],

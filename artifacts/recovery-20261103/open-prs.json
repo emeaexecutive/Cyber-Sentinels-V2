@@ -1,0 +1,72 @@
+[
+  {
+    "number": 128,
+    "title": "Prevent high-consequence approval reuse and revalidate before tool dispatch",
+    "head": "ab88dbfc848ee09f1ef08d28fd3f1d871981165f",
+    "base": "swarm/qualification-hardening",
+    "draft": true
+  },
+  {
+    "number": 127,
+    "title": "chore(deps): bump github/codeql-action/init from 3.38.0 to 3.39.1",
+    "head": "4e01459bdc9b8b3cf1a21748c2219629dfe3c831",
+    "base": "main",
+    "draft": false
+  },
+  {
+    "number": 126,
+    "title": "chore(deps-dev): bump @types/node from 22.20.4 to 22.20.5 in the development-tooling group",
+    "head": "2639911a58b38861eb7f7e4f7fbeba1661d2056e",
+    "base": "main",
+    "draft": false
+  },
+  {
+    "number": 125,
+    "title": "chore(deps-dev): bump supabase from 2.119.0 to 2.122.0 in the supabase-tooling group",
+    "head": "8d4e6ec9347f344276d90f8bd329e30f6bfdca91",
+    "base": "main",
+    "draft": false
+  },
+  {
+    "number": 123,
+    "title": "test(swarm): delegation property tests, enterprise-context interface and maturity matrix",
+    "head": "43af4fcf96481039fcb920ce7871b3bf39842e2b",
+    "base": "feat/tenente-swarm-authority-control",
+    "draft": true
+  },
+  {
+    "number": 118,
+    "title": "TENENTE swarm: authority enforcement and authenticated runtime cancellation",
+    "head": "f144fd079043c72c981a3a29e029cad39e89a3cc",
+    "base": "feat/authority-of-record-tenente",
+    "draft": true
+  },
+  {
+    "number": 116,
+    "title": "Harden recovery and governance; rehearse Production migrations",
+    "head": "1138150889ec1237a848073f352881d93b72484b",
+    "base": "main",
+    "draft": true
+  },
+  {
+    "number": 100,
+    "title": "chore(deps): bump stripe from 22.4.0 to 22.6.2",
+    "head": "3ddf30f61a981ae5c8c12e88e55a4dd9d9db3267",
+    "base": "main",
+    "draft": false
+  },
+  {
+    "number": 96,
+    "title": "chore(deps-dev): bump the css-toolchain group across 1 directory with 2 updates",
+    "head": "6270e1da9bb65a2f32083744198bf2843b4785dd",
+    "base": "main",
+    "draft": false
+  },
+  {
+    "number": 95,
+    "title": "chore(deps): bump the react-ecosystem group across 1 directory with 4 updates",
+    "head": "6b808f3d47e13f7daaaf1df425d4bb1e7d7aabdf",
+    "base": "main",
+    "draft": false
+  }
+]

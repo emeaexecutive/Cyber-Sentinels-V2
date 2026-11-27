@@ -65,7 +65,7 @@ test("provider runtime status uses the canonical five operational states", () =>
 
 test("homepage, auth affordances and admin protection remain locked", () => {
   const homepage = read("app/page.tsx");
-  const login = read("app/login/page.tsx");
+  const login = read("components/login-experience.tsx");
   const verifyEmail = read("app/verify-email/page.tsx");
   const layout = read("app/layout.tsx");
   const testLab = read("app/admin/test-lab/page.tsx");

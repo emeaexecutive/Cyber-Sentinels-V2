@@ -1,0 +1,39 @@
+{
+  "focusedTests": {
+    "pass": 85,
+    "fail": 0,
+    "skip": 0,
+    "initial33NotCountedAgain": true
+  },
+  "typecheck": "PASS",
+  "changedLint": "PASS",
+  "browserInteractions": {
+    "pass": 16,
+    "widths": [
+      1440,
+      1024,
+      768,
+      390
+    ]
+  },
+  "routeSmoke": {
+    "pass": 5,
+    "authUnavailableRoutes": 2,
+    "mailtoInspected": true,
+    "submissions": 0
+  },
+  "priorAccessibility": "reused, not rerun; 12 pages/0 violations on prior combined candidate",
+  "backendDiffAgainstMain": "none",
+  "productionSha": "UNKNOWN",
+  "historical500": "OPEN",
+  "websiteRelease": "NO-GO pending Production provenance, approved legal content and hosted conversion/reliability gates",
+  "platformRelease": "NO-GO",
+  "investorHosting": "NO-GO",
+  "productionBuild": {
+    "exitCode": 0,
+    "signal": null,
+    "finishedAt": "2026-11-03T15:23:32.194Z",
+    "staticPages": 208
+  },
+  "supersededBy": "P0-SUMMARY.json"
+}

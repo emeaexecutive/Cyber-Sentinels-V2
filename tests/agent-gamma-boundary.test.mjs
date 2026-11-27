@@ -20,6 +20,10 @@ test("Gamma proves authority, REVIEW, ALLOW, DENY, revocation, Replay, and recei
   for (const marker of ["READY", "REGISTERED", "CREDENTIAL", "MANIFEST", "IDENTITY", "AUTHORITY", "ALLOW", "REVIEW", "POST_REVIEW_ALLOW", "DENY", "TRANSACTION", "REPLAY", "RECEIPT", "OUTCOME", "REVOCATION", "POST_REVOCATION_DENY", "GAMMA_RESULT"]) assert.match(gamma, new RegExp(`"${marker}"`));
   assert.match(gamma, /cs\.authority\.grant/);
   assert.match(gamma, /cs\.authority\.revoke/);
+  assert.match(gamma, /signHeartbeat/);
+  assert.match(gamma, /cs\.agents\.heartbeat/);
+  assert.match(gamma, /SERVER_VERIFIED_MONITORING_HEARTBEAT/);
+  assert.match(gamma, /downstream_execution_observed !== false/);
   assert.match(gamma, /cs\.reviews\.resolve/);
   assert.match(gamma, /original_decision !== "REVIEW"/);
   assert.match(gamma, /submitOutcome\(allowed\.transaction_id/);
@@ -38,4 +42,10 @@ test("Gamma stops before mutation unless the isolated Staging identity and readi
   assert.match(gamma, /\/api\/ready/);
   assert.match(gamma, /readiness\?\.status !== "READY"/);
   assert.doesNotMatch(gamma, /console\.(log|error).*apiKey/);
+});
+
+test("Gamma permits only the canonical Cyber Sentinels Staging origin", () => {
+  assert.match(gamma, /parsedBaseUrl\.origin === "https:\/\/staging\.cybersentinels\.com"/);
+  assert.match(gamma, /cybersentinels\\\.com\$\/i\.test\(parsedBaseUrl\.hostname\) && !isCanonicalStagingOrigin/);
+  assert.match(gamma, /parsedBaseUrl\.hostname\.includes\("kecgtsfibkypjuaxqbjx"\)/);
 });

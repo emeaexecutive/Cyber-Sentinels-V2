@@ -12,6 +12,7 @@ import {
   authenticatePublicApiRequest,
   type PublicApiPrincipal,
 } from "./authentication";
+import { authenticateRegisteredWorkload } from "./workload-identity";
 
 type RouteClass = "registration" | "challenge" | "proof" | "authority" | "review" | "decision" | "read" | "evidence" | "outcome";
 const limits: Record<RouteClass, { limit: number; windowSeconds: number }> = {
@@ -31,6 +32,7 @@ export type PublicApiContext = {
   correlationId: string;
   requestId: string;
   startedAt: number;
+  agentId?: string;
 };
 
 async function consumeRateLimit(principal: PublicApiPrincipal, routeClass: RouteClass) {
@@ -85,7 +87,7 @@ async function recordAudit(input: {
     route: input.route,
     method: input.request.method,
     correlation_id: input.context.correlationId,
-    agent_id: input.agentId ?? null,
+    agent_id: input.agentId ?? input.context.agentId ?? null,
     transaction_id: input.transactionId ?? null,
     decision: input.decision ?? null,
     latency_ms: Math.max(0, Date.now() - input.context.startedAt),
@@ -94,9 +96,12 @@ async function recordAudit(input: {
   });
 }
 
-export async function withPublicApi(
+type AuthenticatedPrincipal = { principal: PublicApiPrincipal; agentId?: string };
+
+async function withAuthenticatedApi(
   request: Request,
   options: { route: string; routeClass: RouteClass; scopes: readonly PublicApiScope[] },
+  authenticate: () => Promise<AuthenticatedPrincipal>,
   handler: (context: PublicApiContext) => Promise<Response>,
 ) {
   const id = correlationId(request);
@@ -105,8 +110,9 @@ export async function withPublicApi(
   let context: PublicApiContext | undefined;
   let rateLimitState: Record<string, unknown> | undefined;
   try {
-    const principal = await authenticatePublicApiRequest(request, options.scopes);
-    context = { principal, correlationId: id, requestId: currentRequestId, startedAt };
+    const authenticated = await authenticate();
+    const principal = authenticated.principal;
+    context = { principal, correlationId: id, requestId: currentRequestId, startedAt, agentId: authenticated.agentId };
     rateLimitState = await consumeRateLimit(principal, options.routeClass);
     const response = await handler(context);
     await recordAudit({ context, request, route: options.route, status: response.status });
@@ -122,4 +128,33 @@ export async function withPublicApi(
     }
     return applyRateLimitHeaders(publicApiErrorResponse(safe, id, currentRequestId), rateLimitState);
   }
+}
+
+export async function withPublicApi(
+  request: Request,
+  options: { route: string; routeClass: RouteClass; scopes: readonly PublicApiScope[] },
+  handler: (context: PublicApiContext) => Promise<Response>,
+) {
+  return withAuthenticatedApi(
+    request,
+    options,
+    async () => ({ principal: await authenticatePublicApiRequest(request, options.scopes) }),
+    handler,
+  );
+}
+
+export async function withWorkloadApi(
+  request: Request,
+  options: { route: string; routeClass: RouteClass; scope: PublicApiScope; agentId: string },
+  handler: (context: PublicApiContext) => Promise<Response>,
+) {
+  return withAuthenticatedApi(
+    request,
+    { route: options.route, routeClass: options.routeClass, scopes: [options.scope] },
+    async () => {
+      const workload = await authenticateRegisteredWorkload(request, options.agentId, options.scope);
+      return { principal: workload.principal, agentId: workload.agentId };
+    },
+    handler,
+  );
 }

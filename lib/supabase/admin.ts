@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
-import { getServiceRoleEnv } from "@/lib/env";
+import { getServiceRoleEnv } from "@/lib/env.server";
 
 export function createServiceRoleClient() {
   const { supabaseUrl, serviceRoleKey } = getServiceRoleEnv(

@@ -75,8 +75,8 @@ async function handleEvidenceUpload(req: Request) {
 
   if (!usageLimit.ok) {
     return NextResponse.json(
-      { ok: false, error: usageLimit.reason },
-      { status: 403 }
+      { ok: false, error: usageLimit.reason, code: usageLimit.code },
+      { status: usageLimit.code === "USAGE_LOOKUP_UNAVAILABLE" ? 503 : 403 }
     );
   }
 
@@ -186,7 +186,7 @@ async function handleEvidenceUpload(req: Request) {
       storage_path: storagePath,
       public_url: null,
       file_url: null,
-      media_type: fileType,
+      media_type: ["PNG", "JPG", "JPEG"].includes(fileType) ? "image" : "document",
       notes,
       uploaded_by: actor,
       status: "pending_review",

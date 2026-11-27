@@ -1,13 +1,15 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
-  ...publicSocialMetadata("Security | Cyber Sentinels", "Cyber Sentinels security design, evidence handling and responsible disclosure information.", "/security"),
+  robots: { index: false, follow: true },
+  ...publicSocialMetadata("Security | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/security"),
   title: "Security | Cyber Sentinels",
-  description: "Cyber Sentinels security design, evidence handling and responsible disclosure information.",
-  alternates: { canonical: "/security" },
+  description: "Publication status: this page is under review; an approved version has not been published.",
+  alternates: publicPageAlternates("/security"),
 };
 
 export default function SecurityPage() {

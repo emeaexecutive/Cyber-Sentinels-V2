@@ -6,6 +6,7 @@ type TurnstileVerifyResponse = {
   "error-codes"?: string[];
   challenge_ts?: string;
   hostname?: string;
+  action?: string;
 };
 
 export type TurnstileVerificationResult = {
@@ -18,11 +19,14 @@ export type TurnstileVerificationResult = {
     | "missing_token"
     | "invalid_token"
     | "hostname_mismatch"
+    | "action_mismatch"
     | "provider_unavailable"
     | "provider_error";
   errorCodes?: string[];
   hostname?: string;
   challengeTimestamp?: string;
+  providerHttpStatus?: number;
+  action?: string;
 };
 
 type RateLimitBucket = {
@@ -151,10 +155,6 @@ export function getTurnstileSiteKey() {
   return String(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? process.env.TURNSTILE_SITE_KEY ?? "").trim();
 }
 
-export function canBypassBotProtection() {
-  return process.env.NODE_ENV !== "production" && !process.env.VERCEL_ENV;
-}
-
 function safeTurnstileErrorCodes(value: unknown) {
   if (!Array.isArray(value)) return undefined;
   const codes = value
@@ -188,6 +188,7 @@ export async function verifyTurnstileToken(
   token: string | null | undefined,
   ip?: string | null,
   expectedHostname?: string | null,
+  expectedAction?: string,
 ): Promise<TurnstileVerificationResult> {
   const secret = String(process.env.TURNSTILE_SECRET_KEY ?? "").trim();
 
@@ -197,9 +198,7 @@ export async function verifyTurnstileToken(
   }
 
   if (!secret) {
-    return canBypassBotProtection()
-      ? { ok: true, skipped: true, reason: "turnstile_not_configured" }
-      : { ok: false, skipped: false, reason: "turnstile_not_configured" };
+    return { ok: false, skipped: false, reason: "turnstile_not_configured" };
   }
 
   if (!configuration.ok) {
@@ -208,6 +207,13 @@ export async function verifyTurnstileToken(
 
   if (!token) {
     return { ok: false, skipped: false, reason: "missing_token" };
+  }
+
+  if (typeof token !== "string" || token.length > 2048 || /\s/.test(token)) {
+    return { ok: false, skipped: false, reason: "invalid_token" };
+  }
+  if (!expectedAction || !/^[a-zA-Z0-9_-]{1,32}$/.test(expectedAction)) {
+    return { ok: false, skipped: false, reason: "turnstile_configuration_invalid" };
   }
 
   try {
@@ -224,10 +230,21 @@ export async function verifyTurnstileToken(
     });
 
     if (!response.ok) {
-      return { ok: false, skipped: false, reason: "provider_unavailable" };
+      const failure = (await response.json().catch(() => ({}))) as TurnstileVerifyResponse;
+      const errorCodes = safeTurnstileErrorCodes(failure["error-codes"]);
+      return {
+        ok: false, skipped: false, reason: "provider_unavailable", providerHttpStatus: response.status,
+        ...(errorCodes ? { errorCodes } : {}),
+      };
     }
 
     const result = (await response.json().catch(() => ({}))) as TurnstileVerifyResponse;
+    if (!result || typeof result !== "object" || Array.isArray(result)) {
+      return { ok: false, skipped: false, reason: "provider_error" };
+    }
+    if (result["error-codes"] !== undefined && (!Array.isArray(result["error-codes"]) || result["error-codes"].some(code => typeof code !== "string"))) {
+      return { ok: false, skipped: false, reason: "provider_error" };
+    }
     const errorCodes = safeTurnstileErrorCodes(result["error-codes"]);
     const hostname = safeTurnstileHostname(result.hostname);
     const challengeTimestamp = safeTurnstileTimestamp(result.challenge_ts);
@@ -235,9 +252,16 @@ export async function verifyTurnstileToken(
       ...(errorCodes ? { errorCodes } : {}),
       ...(hostname ? { hostname } : {}),
       ...(challengeTimestamp ? { challengeTimestamp } : {}),
+      ...(typeof result.action === "string" && /^[a-zA-Z0-9_-]{1,32}$/.test(result.action) ? { action: result.action } : {}),
     };
 
     if (result.success === true) {
+      if (result["error-codes"]?.length || !challengeTimestamp || Date.parse(challengeTimestamp) > Date.now() + 30_000 || Date.now() - Date.parse(challengeTimestamp) > 300_000) {
+        return { ok: false, skipped: false, reason: "invalid_token", ...diagnostics };
+      }
+      if (result.action !== expectedAction) {
+        return { ok: false, skipped: false, reason: "action_mismatch", ...diagnostics };
+      }
       const expected = safeTurnstileHostname(
         configuration.mode === "preview-test" ? getPreviewTurnstileExpectedHostname() : expectedHostname
       );
@@ -264,11 +288,13 @@ export async function verifyTurnstileToken(
 }
 
 export function getTurnstileTokenFromForm(formData: FormData) {
-  return String(formData.get("cf-turnstile-response") ?? "").trim();
+  const token = formData.get("cf-turnstile-response");
+  return typeof token === "string" ? token : "";
 }
 
 export function getTurnstileTokenFromJson(body: Record<string, unknown>) {
-  return String(body.turnstileToken ?? body.turnstile_token ?? body["cf-turnstile-response"] ?? "").trim();
+  const token = body.turnstileToken ?? body.turnstile_token ?? body["cf-turnstile-response"];
+  return typeof token === "string" ? token : "";
 }
 
 export function checkRateLimit({ key, limit, windowMs }: RateLimitOptions) {

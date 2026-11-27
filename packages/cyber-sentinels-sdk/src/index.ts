@@ -161,7 +161,9 @@ export type ProofSubmission = {
 
 export type DecisionRequest = {
   operational_entity_id: string;
-  action: { type: string; target: string; purpose: string; environment: string };
+  action: { type: string; target: string; purpose: string; environment: string; exact_scope?: {
+    tool: string; provider: string; payload_digest: string; data_scope: string[]; amount_minor?: number; currency?: string;
+  } };
   idempotency_key: string;
   decision_type?: string;
   context?: {
@@ -184,6 +186,30 @@ export type DecisionRequest = {
   };
 };
 
+export type WorkloadBinding = {
+  binding_id: string;
+  tenant_id: string;
+  workload_id: string;
+  issuer: string;
+  subject: string;
+  scopes: ApiScope[];
+  status: "ACTIVE" | "REVOKED";
+  expires_at: string;
+  revoked_at: string | null;
+  created_at: string;
+};
+
+export type WorkloadBindings = ApiResponseMetadata & { bindings: WorkloadBinding[] };
+export type RegisteredWorkloadBinding = ApiResponseMetadata & WorkloadBinding;
+
+export type RegisterWorkloadBindingInput = {
+  subject: string;
+  scopes: ["trust:request"];
+  expires_at: string;
+};
+
+export type WorkloadDecisionInput = Omit<DecisionRequest, "operational_entity_id" | "idempotency_key">;
+
 export type EvidenceSubmission = {
   provider: { key: "self"; class: "APPLICATION_SIGNAL"; event_id: string; finding: string };
   type: string;
@@ -192,6 +218,12 @@ export type EvidenceSubmission = {
   occurred_at?: string;
   expires_at?: string | null;
   digest?: string;
+};
+
+export type OpenGraphSiteRequest = {
+  operational_entity_id: string;
+  target_url: string;
+  idempotency_key: string;
 };
 
 export type OutcomeSubmission = {
@@ -315,7 +347,11 @@ export type ConsequenceTime = {
   previous_allow_standing_authorization: false;
 };
 
-export type Receipt = Transaction & { receipt_version: string; authority_version: string | null; current_condition_references: string[]; material_change_references: string[]; consequence_time: ConsequenceTime };
+export type AuthorityReceiptProof = { version: "authority-receipt-signature-v1"; algorithm: "Ed25519"; keyId: string; tenantId: string; receiptId: string; payloadDigest: string; signature: string };
+export type Receipt = Transaction & { receipt_version: string; authority_version: string | null; current_condition_references: string[]; material_change_references: string[]; consequence_time: ConsequenceTime;
+  tenant_id?: string; cryptographic_verification?: { status: "NOT_CONFIGURED" } | { status: "SIGNED"; proof: AuthorityReceiptProof };
+  execution_evidence?: { decision_is_execution_proof: false; public_submissions: Record<string, unknown>[]; canonical_outcomes: Record<string, unknown>[]; latest_outcome: string };
+};
 export type Replay = ApiResponseMetadata & {
   replay_id: string;
   decision_id: string;
@@ -416,6 +452,12 @@ export type HeartbeatClaims = {
   environment: "production" | "staging"; authority_id: string; policy_id: string; policy_version: string;
 };
 export type SignedHeartbeat = HeartbeatClaims & { signature: string };
+export type SwarmHeartbeatClaims = { domain: "cyber-sentinels:swarm-heartbeat:v1"; audience: string; tenantId: string; memberId: string; version: number; sequence: number; at: number };
+export type SignedSwarmHeartbeat = { mode: "swarm"; claims: SwarmHeartbeatClaims; signature: string };
+export async function signSwarmHeartbeat(claims: SwarmHeartbeatClaims, privateKey: CryptoKey): Promise<SignedSwarmHeartbeat> {
+  return { mode: "swarm", claims, signature: await signCanonical(claims, privateKey) };
+}
+
 /** Signs a first-party control-plane heartbeat, not downstream execution proof. */
 export async function signHeartbeat(claims: HeartbeatClaims, tenantId: string, audience: string, privateKey: CryptoKey): Promise<SignedHeartbeat> {
   const { agent_id, credential_id, event_id, issued_at, environment, authority_id, policy_id, policy_version } = claims;
@@ -471,6 +513,13 @@ function validateOptions(options: ClientOptions) {
   return baseUrl.toString().replace(/\/$/, "");
 }
 
+function validateWorkloadAccessToken(token: string) {
+  if (token.length > 16_384 || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)) {
+    throw new TypeError("A compact signed workload access token is required.");
+  }
+  return token;
+}
+
 function positiveHeaderNumber(value: string | null) {
   if (value === null || value.trim() === "") return null;
   const parsed = Number(value);
@@ -487,10 +536,22 @@ export class CyberSentinels {
     registerManifest: (agentId: string, input: SignedPublicManifest, options?: RequestOptions) => Promise<Record<string, unknown>>;
     issueChallenge: (agentId: string, options?: RequestOptions) => Promise<Challenge>;
     submitProof: (agentId: string, input: ProofSubmission, options?: RequestOptions) => Promise<Record<string, unknown>>;
-    heartbeat: (agentId: string, input: SignedHeartbeat, options?: RequestOptions) => Promise<Record<string, unknown>>;
+    heartbeat: (agentId: string, input: SignedHeartbeat | SignedSwarmHeartbeat, options?: RequestOptions) => Promise<Record<string, unknown>>;
     verify: (agentId: string, input: ProofSubmission, options?: RequestOptions) => Promise<Record<string, unknown>>;
     getAuthority: (agentId: string, options?: RequestOptions) => Promise<Authority>;
     getTrustState: (agentId: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
+    listWorkloadBindings: (agentId: string, options?: RequestOptions) => Promise<WorkloadBindings>;
+    registerWorkloadBinding: (agentId: string, input: RegisterWorkloadBindingInput, options?: RequestOptions) => Promise<RegisteredWorkloadBinding>;
+    revokeWorkloadBinding: (agentId: string, bindingId: string, options?: RequestOptions) => Promise<ApiResponseMetadata & { binding_id: string; status: "REVOKED" }>;
+  };
+  readonly workloads: {
+    requestDecision: (
+      agentId: string,
+      accessToken: string,
+      input: WorkloadDecisionInput,
+      idempotencyKey: string,
+      options?: RequestOptions,
+    ) => Promise<DecisionResult>;
   };
   readonly decisions: {
     create: (input: DecisionRequest, options?: RequestOptions) => Promise<DecisionResult>;
@@ -521,6 +582,9 @@ export class CyberSentinels {
   };
   readonly evidence: {
     submit: (input: EvidenceSubmission, options?: RequestOptions) => Promise<EvidenceResult>;
+  };
+  readonly tools: {
+    requestOpenGraphSite: (input: OpenGraphSiteRequest, options?: RequestOptions) => Promise<Record<string, unknown>>;
   };
   readonly incidents: {
     open: (input: Record<string, unknown>, options?: RequestOptions) => Promise<Record<string, unknown>>;
@@ -559,6 +623,24 @@ export class CyberSentinels {
       verify: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/proof`, input, requestOptions),
       getAuthority,
       getTrustState: (agentId, requestOptions) => this.#request("GET", `/api/v1/agents/${encodeURIComponent(agentId)}/trust-state`, undefined, requestOptions),
+      listWorkloadBindings: (agentId, requestOptions) => this.#request("GET", `/api/v1/agents/${encodeURIComponent(agentId)}/workload-bindings`, undefined, requestOptions),
+      registerWorkloadBinding: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/workload-bindings`, input, requestOptions),
+      revokeWorkloadBinding: (agentId, bindingId, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/workload-bindings/${encodeURIComponent(bindingId)}/revoke`, {}, requestOptions),
+    };
+    this.workloads = {
+      requestDecision: (agentId, accessToken, input, idempotencyKey, requestOptions) => {
+        if (!idempotencyKey || !/^[A-Za-z0-9_.:-]{1,120}$/.test(idempotencyKey)) {
+          throw new TypeError("A valid workload decision idempotency key is required.");
+        }
+        return this.#request(
+          "POST",
+          `/api/v1/workloads/${encodeURIComponent(agentId)}/decisions`,
+          input,
+          requestOptions,
+          idempotencyKey,
+          validateWorkloadAccessToken(accessToken),
+        );
+      },
     };
     const requestDecision = (input: DecisionRequest, requestOptions?: RequestOptions) =>
       this.#request<DecisionResult>("POST", "/api/v1/trust/decisions", input, requestOptions, input.idempotency_key);
@@ -589,6 +671,15 @@ export class CyberSentinels {
     this.evidence = {
       submit: (input, requestOptions) => this.#request("POST", "/api/v1/evidence", input, requestOptions),
     };
+    this.tools = {
+      requestOpenGraphSite: (input, requestOptions) => this.#request(
+        "POST",
+        "/api/v1/tools/opengraph/site",
+        { operational_entity_id: input.operational_entity_id, target_url: input.target_url },
+        requestOptions,
+        input.idempotency_key,
+      ),
+    };
     this.incidents = {
       open: (input, options) => this.#request("POST", "/api/v1/incidents", input, options),
       get: (id, options) => this.#request("GET", `/api/v1/incidents/${encodeURIComponent(id)}`, undefined, options),
@@ -616,6 +707,7 @@ export class CyberSentinels {
     body?: unknown,
     options: RequestOptions = {},
     idempotencyKey?: string,
+    workloadAccessToken?: string,
   ): Promise<T> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(new DOMException("Request timed out", "TimeoutError")), options.timeoutMs ?? this.#timeoutMs);
@@ -626,6 +718,7 @@ export class CyberSentinels {
         authorization: `Bearer ${this.#apiKey}`,
         accept: "application/json",
       };
+      if (workloadAccessToken) headers.authorization = `Bearer ${workloadAccessToken}`;
       if (body !== undefined) headers["content-type"] = "application/json";
       if (idempotencyKey) headers["idempotency-key"] = idempotencyKey;
       const response = await this.#fetch(`${this.#baseUrl}${path}`, {

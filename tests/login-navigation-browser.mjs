@@ -17,15 +17,16 @@ before(async () => {
       contents: `
         import React, { useEffect } from "react";
         import { createRoot } from "react-dom/client";
-        import LoginPage from "./app/login/page";
+        import LoginExperience from "./components/login-experience";
         import { GlobalNavigation } from "./components/global-navigation";
         function App() {
           useEffect(() => { window.__fixtureMounted = true; }, []);
+          const locale = window.location.pathname.startsWith("/es/") ? "es" : "en";
           return <>
-            <GlobalNavigation accessLevel={window.__fixture.protected ? "user" : "public"} />
+            <GlobalNavigation accessLevel={window.__fixture.protected ? "user" : "public"} locale={locale} />
             {window.__fixture.protected
               ? <main data-protected-fixture><h1>Authenticated fixture workspace</h1></main>
-              : <LoginPage />}
+              : <LoginExperience locale={locale} />}
           </>;
         }
         createRoot(document.getElementById("root")).render(<App />);
@@ -74,10 +75,8 @@ before(async () => {
                 });
                 return claims;
               },
-              signInWithPassword: async () => {
-                window.__authCalls.push("signInWithPassword");
-                const response = await fetch("/__fixture/authenticate", { method: "POST" });
-                if (!response.ok) throw new Error("Fixture sign-in failed");
+              setSession: async () => {
+                window.__authCalls.push("setSession");
                 return { data: { user }, error: null };
               },
             };
@@ -90,7 +89,7 @@ before(async () => {
   });
   script = bundle.outputFiles[0].text;
   css = (await postcss([tailwindcss({
-    content: ["./app/login/page.tsx", "./components/global-navigation.tsx"], theme: {}, plugins: [],
+    content: ["./components/login-experience.tsx", "./components/global-navigation.tsx"], theme: {}, plugins: [],
   })]).process(await readFile("app/globals.css", "utf8"), { from: "app/globals.css" })).css;
   browser = await chromium.launch({ headless: true });
 });
@@ -124,12 +123,12 @@ async function withFixture(options, run) {
       if (url.pathname === "/fixture.js") return send("application/javascript", script);
       if (url.pathname === "/style.css") return send("text/css", css);
       if (url.pathname === "/favicon.ico") { res.statusCode = 204; return res.end(); }
-      if (url.pathname === "/__fixture/authenticate") {
+      if (url.pathname === "/api/auth/submit") {
         assert.equal(req.method, "POST");
         authenticationCalls++;
         return respondAtBoundary("authentication", () => {
           res.setHeader("Set-Cookie", "fixture_authenticated=1; Path=/; HttpOnly; SameSite=Lax");
-          send("application/json", '{"ok":true}');
+          send("application/json", '{"error":null,"data":{"session":{"access_token":"fixture-access","refresh_token":"fixture-refresh"}}}');
         });
       }
       if (url.pathname === "/api/auth/replay-event") {
@@ -145,7 +144,7 @@ async function withFixture(options, run) {
         });
         return;
       }
-      assert.ok(["/login", "/operational-entities"].includes(url.pathname), `Unexpected route ${url.pathname}`);
+      assert.ok(["/login", "/es/login", "/operational-entities"].includes(url.pathname), `Unexpected route ${url.pathname}`);
       const authenticated = Boolean(options.authenticated || req.headers.cookie?.includes("fixture_authenticated=1"));
       const protectedPage = url.pathname === "/operational-entities";
       if (protectedPage && !authenticated) {
@@ -154,7 +153,8 @@ async function withFixture(options, run) {
       }
       documentRequests.push({ path: url.pathname + url.search, destination: req.headers["sec-fetch-dest"], authenticated });
       const fixture = { authenticated, protected: protectedPage, delayClaims: Boolean(options.delayClaims), documentId: documentRequests.length };
-      return send("text/html", `<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"></head><body><div id="root"></div><script>window.__fixture=${JSON.stringify(fixture)};window.__authCalls=[];</script><script src="/fixture.js"></script></body></html>`);
+      const locale = url.pathname.startsWith("/es/") ? "es" : "en";
+      return send("text/html", `<!doctype html><html lang="${locale}"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"></head><body><div id="root"></div><script>window.__fixture=${JSON.stringify(fixture)};window.__authCalls=[];</script><script src="/fixture.js"></script></body></html>`);
     } catch (error) {
       errors.push(error.message);
       res.statusCode = 500;
@@ -267,7 +267,7 @@ test("a delayed getClaims result cannot override clicking Forgot password", asyn
 
 for (const scenario of [
   { boundary: "replay-event", endpoint: "/api/auth/replay-event", events: ["login"] },
-  { boundary: "authentication", endpoint: "/__fixture/authenticate", events: [] },
+  { boundary: "authentication", endpoint: "/api/auth/submit", events: [] },
 ]) {
   test(`a delayed password-login ${scenario.boundary} response cannot override Forgot password`, { timeout: 20_000 }, async () => {
     await withFixture({ delayResponse: scenario.boundary }, async (fixture) => {
@@ -291,7 +291,7 @@ for (const scenario of [
       assert.equal(await resetButton.isEnabled(), true);
       assert.equal(fixture.authenticationCalls(), 1);
       assert.deepEqual(fixture.replayEvents.map(({ event_type }) => event_type), scenario.events);
-      assert.deepEqual(await page.evaluate(() => window.__authCalls), ["getUser", "signInWithPassword"]);
+      assert.deepEqual(await page.evaluate(() => window.__authCalls), ["getUser", "setSession"]);
     });
   });
 }
@@ -359,6 +359,28 @@ for (const width of [1440, 768, 390]) {
       assert.deepEqual(fixture.replayEvents.map(({ event_type }) => event_type), ["login"]);
       assert.deepEqual(await page.evaluate(() => JSON.parse(sessionStorage.getItem("fixture-router-calls") || "[]")), [], "password login must not rely on a stale SPA shell");
       assert.deepEqual(await page.evaluate(() => JSON.parse(sessionStorage.getItem("fixture-protected-renders") || "[]")), ["/operational-entities"]);
+    });
+  });
+}
+
+for (const width of [1440, 390]) {
+  test(`public language control switches to Spanish and persists its cookie at ${width}px`, async () => {
+    await withFixture({ width }, async ({ page, origin }) => {
+      await page.goto(`${origin}/login`);
+      await settleRendering(page);
+      if (width < 640) await page.getByRole("button", { name: "Open menu", exact: true }).click();
+      await page.getByRole("button", { name: "Change language. Current language: English", exact: true }).click();
+      await page.getByRole("button", { name: "Español · sitio público", exact: true }).click();
+      await page.waitForURL(`${origin}/es/login`);
+      await settleRendering(page);
+
+      assert.equal(await page.locator("main").getAttribute("lang"), "es");
+      await page.getByRole("heading", { name: "Iniciar sesión", exact: true }).waitFor();
+      await page.getByLabel("Correo electrónico", { exact: true }).waitFor();
+      assert.equal(
+        (await page.context().cookies()).find(({ name }) => name === "cyber_sentinels_locale")?.value,
+        "es",
+      );
     });
   });
 }

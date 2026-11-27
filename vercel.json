@@ -1,14 +1,19 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "installCommand": "npm ci",
   "git": {
     "deploymentEnabled": {
+      "release/execution14-preview-safe": false,
       "main": false,
+      "feat/authority-of-record-tenente": false,
       "feat/execution-proof-provider-qualification": false,
       "feat/real-provider-qualification": false,
       "fix/login-security-check": false,
-      "fix/codeql-coordinated-3-38": false
+      "feat/tenente-swarm-authority-control": false,
+      "fix/codeql-coordinated-3-38": false,
+      "codex/governed-soc-runtime-20261112": false,
+      "release/execution16-consolidated-pr139": false,
+      "release/execution19-qualified-candidate": false
     }
   },
   "cleanUrls": true,
@@ -18,5 +23,6 @@
       "path": "/api/trust/jobs/process",
       "schedule": "0 2 * * *"
     }
-  ]
+  ],
+  "installCommand": "npm ci"
 }

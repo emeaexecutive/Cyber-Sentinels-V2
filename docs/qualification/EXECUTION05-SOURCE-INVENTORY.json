@@ -1,0 +1,3334 @@
+{
+  "observedAt": "2026-11-15T16:07:05.341Z",
+  "enforcement": "c6f84ebefd901725440f602288016c741d004b2c",
+  "website": "9b58683a63ce71b7f6d48936dfd71f90f52b15c3",
+  "method": "Git committed source inventory. No semantic translation or browser completion claim. Route groups/dynamic templates are source paths, not enumerated reachable URLs.",
+  "overlap": [
+    {
+      "a": 141,
+      "b": 142,
+      "shared": [
+        "gitleaks-verified-fixtures.ignore",
+        "package.json"
+      ]
+    },
+    {
+      "a": 140,
+      "b": 142,
+      "shared": [
+        "lib/swarm/containment.ts",
+        "package.json",
+        "tests/swarm-loop-governance.test.mjs"
+      ]
+    },
+    {
+      "a": 140,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 139,
+      "b": 142,
+      "shared": [
+        ".env.example",
+        ".github/workflows/watchtower-signals.yml",
+        "app/api/tenente/swarm/route.ts",
+        "gitleaks-verified-fixtures.ignore",
+        "lib/soc/copilot.ts",
+        "lib/soc/workflow.ts",
+        "lib/swarm/operations.ts",
+        "package.json",
+        "tests/fixtures/soc-control.mjs",
+        "tests/soc-copilot.test.mjs",
+        "tests/swarm-route.test.mjs"
+      ]
+    },
+    {
+      "a": 139,
+      "b": 141,
+      "shared": [
+        "gitleaks-verified-fixtures.ignore",
+        "next.config.mjs",
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    {
+      "a": 139,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 138,
+      "b": 142,
+      "shared": [
+        "docs/qualification/EXECUTION03-SCHEMA-SECRET-SCAN-TRIAGE.json",
+        "docs/qualification/EXECUTION03-SCHEMA-SECRET-SCAN.md",
+        "gitleaks-verified-fixtures.ignore"
+      ]
+    },
+    {
+      "a": 138,
+      "b": 141,
+      "shared": [
+        "gitleaks-verified-fixtures.ignore"
+      ]
+    },
+    {
+      "a": 138,
+      "b": 139,
+      "shared": [
+        "gitleaks-verified-fixtures.ignore"
+      ]
+    },
+    {
+      "a": 137,
+      "b": 141,
+      "shared": [
+        "tsconfig.json"
+      ]
+    },
+    {
+      "a": 137,
+      "b": 139,
+      "shared": [
+        "docs/product/TYPESCRIPT-BUILD-QUALIFICATION.md",
+        "tsconfig.json"
+      ]
+    },
+    {
+      "a": 136,
+      "b": 142,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 136,
+      "b": 141,
+      "shared": [
+        ".github/workflows/public-spanish-readonly.yml",
+        "components/watchtowers/watchtower-page.tsx",
+        "components/watchtowers/watchtowers.css",
+        "package.json",
+        "tools/watchtowers/import-local-evidence.mjs"
+      ]
+    },
+    {
+      "a": 136,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 136,
+      "b": 139,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 135,
+      "b": 142,
+      "shared": [
+        ".github/workflows/watchtower-signals.yml",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 135,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 135,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 135,
+      "b": 139,
+      "shared": [
+        ".github/workflows/watchtower-signals.yml",
+        "package.json"
+      ]
+    },
+    {
+      "a": 135,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 134,
+      "b": 142,
+      "shared": [
+        "tests/fixtures/watchtower-signal-dependency.mjs",
+        "tests/watchtower-river-postgres.test.mjs"
+      ]
+    },
+    {
+      "a": 134,
+      "b": 136,
+      "shared": [
+        ".gitignore"
+      ]
+    },
+    {
+      "a": 133,
+      "b": 142,
+      "shared": [
+        "app/developers/quickstart/page.tsx",
+        "package.json"
+      ]
+    },
+    {
+      "a": 133,
+      "b": 141,
+      "shared": [
+        ".github/workflows/public-spanish-readonly.yml",
+        "app/accessibility/page.tsx",
+        "app/careers/page.tsx",
+        "app/cookies/page.tsx",
+        "app/legal/page.tsx",
+        "app/media-centre/page.tsx",
+        "app/modern-slavery/page.tsx",
+        "app/our-people/page.tsx",
+        "app/privacy/page.tsx",
+        "app/regulatory/page.tsx",
+        "app/security/page.tsx",
+        "app/terms/page.tsx",
+        "components/public-language-selector.tsx",
+        "next.config.mjs",
+        "package.json"
+      ]
+    },
+    {
+      "a": 133,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 133,
+      "b": 139,
+      "shared": [
+        "next.config.mjs",
+        "package.json"
+      ]
+    },
+    {
+      "a": 133,
+      "b": 136,
+      "shared": [
+        ".github/workflows/public-spanish-readonly.yml",
+        "app/platform/page.tsx",
+        "artifacts/spanish-completion/generated-source-manifest.json",
+        "lib/i18n/public-locales.ts",
+        "package.json",
+        "tests/public-i18n.test.mjs",
+        "tests/spanish-public-completion.test.mjs",
+        "tools/i18n/generate-spanish-public.mjs",
+        "tools/i18n/public-catalog.mjs"
+      ]
+    },
+    {
+      "a": 133,
+      "b": 135,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 132,
+      "b": 142,
+      "shared": [
+        "supabase/migrations/20261108100241_atomic_native_dispatch.sql",
+        "tests/fixtures/native-dispatch-database.sql",
+        "tests/native-dispatch-postgres.test.mjs"
+      ]
+    },
+    {
+      "a": 132,
+      "b": 134,
+      "shared": [
+        ".github/workflows/approval-single-use.yml"
+      ]
+    },
+    {
+      "a": 131,
+      "b": 142,
+      "shared": [
+        "lib/operational-entities/native-enforcement-server.ts",
+        "lib/operational-entities/native-enforcement.ts",
+        "package-lock.json",
+        "package.json",
+        "tests/controlled-provider-outcome-qualification.test.mjs",
+        "tests/native-enforcement-outcome-proof.test.mjs"
+      ]
+    },
+    {
+      "a": 131,
+      "b": 141,
+      "shared": [
+        "app/accessibility/page.tsx",
+        "app/careers/page.tsx",
+        "app/cookies/page.tsx",
+        "app/legal/page.tsx",
+        "app/media-centre/page.tsx",
+        "app/our-people/page.tsx",
+        "app/privacy/page.tsx",
+        "app/regulatory/page.tsx",
+        "app/security/page.tsx",
+        "app/terms/page.tsx",
+        "components/public-language-selector.tsx",
+        "next.config.mjs",
+        "package.json"
+      ]
+    },
+    {
+      "a": 131,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 131,
+      "b": 139,
+      "shared": [
+        "next.config.mjs",
+        "package.json"
+      ]
+    },
+    {
+      "a": 131,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 131,
+      "b": 135,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 131,
+      "b": 133,
+      "shared": [
+        "app/accessibility/page.tsx",
+        "app/ai-governance/page.tsx",
+        "app/careers/page.tsx",
+        "app/cookies/page.tsx",
+        "app/corporate-sustainability/page.tsx",
+        "app/data-rights/page.tsx",
+        "app/demo/page.tsx",
+        "app/demo/trust-runtime/page.tsx",
+        "app/enterprise-access/page.tsx",
+        "app/globals.css",
+        "app/help/page.tsx",
+        "app/how-to-use/page.tsx",
+        "app/layout.tsx",
+        "app/legal/page.tsx",
+        "app/media-centre/page.tsx",
+        "app/modern-slavery-statement/page.tsx",
+        "app/our-people/page.tsx",
+        "app/page.tsx",
+        "app/pricing/page.tsx",
+        "app/privacy/page.tsx",
+        "app/regulatory/page.tsx",
+        "app/security/page.tsx",
+        "app/solutions/page.tsx",
+        "app/terms/page.tsx",
+        "app/transparency/page.tsx",
+        "app/verification-receipts/page.tsx",
+        "app/world-id-preview/page.tsx",
+        "artifacts/recovery-20261103/HANDOFF.md",
+        "artifacts/recovery-20261103/P0-RELEASE-DECISION.md",
+        "artifacts/recovery-20261103/P0-SUMMARY.json",
+        "artifacts/recovery-20261103/P0-VERIFICATION.md",
+        "artifacts/recovery-20261103/VERIFICATION.md",
+        "artifacts/recovery-20261103/auth-and-contact.png",
+        "artifacts/recovery-20261103/environment-names.json",
+        "artifacts/recovery-20261103/hosted-critical-paths.json",
+        "artifacts/recovery-20261103/interactions.json",
+        "artifacts/recovery-20261103/legal-publication-notice.png",
+        "artifacts/recovery-20261103/legal-review-inventory.json",
+        "artifacts/recovery-20261103/manifest.txt",
+        "artifacts/recovery-20261103/native-build-result.json",
+        "artifacts/recovery-20261103/open-prs.json",
+        "artifacts/recovery-20261103/p0-browser-results.json",
+        "artifacts/recovery-20261103/p0-file-manifest.txt",
+        "artifacts/recovery-20261103/p0-source-manifest.json",
+        "artifacts/recovery-20261103/prior-proof/REPORT.md",
+        "artifacts/recovery-20261103/prior-proof/accessibility.json",
+        "artifacts/recovery-20261103/prior-proof/arabic-navigation.png",
+        "artifacts/recovery-20261103/prior-proof/header-desktop.png",
+        "artifacts/recovery-20261103/prior-proof/interactions.json",
+        "artifacts/recovery-20261103/prior-proof/language-mobile.png",
+        "artifacts/recovery-20261103/prior-proof/pricing-cards-desktop.png",
+        "artifacts/recovery-20261103/prior-proof/verification-summary.json",
+        "artifacts/recovery-20261103/production-audit.json",
+        "artifacts/recovery-20261103/production-equivalence.json",
+        "artifacts/recovery-20261103/production-extra-files.json",
+        "artifacts/recovery-20261103/production-source-manifest.json",
+        "artifacts/recovery-20261103/proof/arabic-navigation.png",
+        "artifacts/recovery-20261103/proof/header-desktop.png",
+        "artifacts/recovery-20261103/proof/language-mobile.png",
+        "artifacts/recovery-20261103/proof/pricing-1024.png",
+        "artifacts/recovery-20261103/proof/pricing-1440.png",
+        "artifacts/recovery-20261103/proof/pricing-390.png",
+        "artifacts/recovery-20261103/proof/pricing-768.png",
+        "artifacts/recovery-20261103/proof/pricing-cards-desktop.png",
+        "artifacts/recovery-20261103/provenance.json",
+        "artifacts/recovery-20261103/public-mailbox-approval.json",
+        "artifacts/recovery-20261103/route-smoke.json",
+        "artifacts/recovery-20261103/source-identity.json",
+        "artifacts/recovery-20261103/source-manifest.json",
+        "artifacts/recovery-20261103/verification-summary.json",
+        "components/auth-unavailable.tsx",
+        "components/executive-summary.tsx",
+        "components/global-navigation.tsx",
+        "components/legal-draft-page.tsx",
+        "components/pricing-card.tsx",
+        "components/public-language-selector.tsx",
+        "components/public-page-adoption-rail.tsx",
+        "next.config.mjs",
+        "package.json",
+        "tests/public-help-preview.test.mjs",
+        "tests/public-positioning.test.mjs",
+        "tests/public-surface-navigation.test.mjs",
+        "tests/rc3-living-trust-experience.test.mjs",
+        "tests/rc4-enterprise-proof.test.mjs",
+        "tests/website-auth-entry.test.mjs",
+        "tests/website-release-gates.test.mjs",
+        "tools/release/website-p0-browser-checks.mjs",
+        "tools/release/website-recovery-build.mjs",
+        "tools/release/website-recovery-interactions.mjs",
+        "tools/release/website-recovery-smoke.mjs"
+      ]
+    },
+    {
+      "a": 130,
+      "b": 142,
+      "shared": [
+        "app/api/v1/agents/[agentId]/workload-bindings/[bindingId]/revoke/route.ts",
+        "app/api/v1/agents/[agentId]/workload-bindings/route.ts",
+        "app/api/v1/workloads/[agentId]/decisions/route.ts",
+        "app/developers/quickstart/page.tsx",
+        "docs/tenente/WORKLOAD-IDENTITY-PR-A.md",
+        "examples/powershell/agent-gamma.ps1",
+        "lib/public-api/v1/contracts.ts",
+        "lib/public-api/v1/handler.ts",
+        "lib/public-api/v1/openapi.ts",
+        "lib/public-api/v1/workload-bindings.ts",
+        "lib/public-api/v1/workload-identity.ts",
+        "lib/public-api/v1/workload-token.ts",
+        "package-lock.json",
+        "package.json",
+        "packages/cyber-sentinels-sdk/README.md",
+        "packages/cyber-sentinels-sdk/src/index.ts",
+        "supabase/migrations/20261104150000_workload_identity_bindings.sql",
+        "tests/cyber-sentinels-sdk.test.mjs",
+        "tests/external-agent-client-parity.test.mjs",
+        "tests/workload-identity.test.mjs"
+      ]
+    },
+    {
+      "a": 130,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 130,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 130,
+      "b": 139,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 130,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 130,
+      "b": 135,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 130,
+      "b": 133,
+      "shared": [
+        "app/developers/quickstart/page.tsx",
+        "package.json"
+      ]
+    },
+    {
+      "a": 130,
+      "b": 131,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 129,
+      "b": 141,
+      "shared": [
+        "app/accessibility/page.tsx",
+        "app/careers/page.tsx",
+        "app/cookies/page.tsx",
+        "app/legal/page.tsx",
+        "app/media-centre/page.tsx",
+        "app/our-people/page.tsx",
+        "app/privacy/page.tsx",
+        "app/regulatory/page.tsx",
+        "app/security/page.tsx",
+        "app/terms/page.tsx",
+        "components/public-language-selector.tsx",
+        "next.config.mjs"
+      ]
+    },
+    {
+      "a": 129,
+      "b": 139,
+      "shared": [
+        "next.config.mjs"
+      ]
+    },
+    {
+      "a": 129,
+      "b": 133,
+      "shared": [
+        "app/accessibility/page.tsx",
+        "app/ai-governance/page.tsx",
+        "app/careers/page.tsx",
+        "app/cookies/page.tsx",
+        "app/corporate-sustainability/page.tsx",
+        "app/data-rights/page.tsx",
+        "app/demo/page.tsx",
+        "app/demo/trust-runtime/page.tsx",
+        "app/enterprise-access/page.tsx",
+        "app/globals.css",
+        "app/help/page.tsx",
+        "app/how-to-use/page.tsx",
+        "app/layout.tsx",
+        "app/legal/page.tsx",
+        "app/media-centre/page.tsx",
+        "app/modern-slavery-statement/page.tsx",
+        "app/our-people/page.tsx",
+        "app/page.tsx",
+        "app/pricing/page.tsx",
+        "app/privacy/page.tsx",
+        "app/regulatory/page.tsx",
+        "app/security/page.tsx",
+        "app/solutions/page.tsx",
+        "app/terms/page.tsx",
+        "app/transparency/page.tsx",
+        "app/verification-receipts/page.tsx",
+        "app/world-id-preview/page.tsx",
+        "artifacts/recovery-20261103/HANDOFF.md",
+        "artifacts/recovery-20261103/P0-RELEASE-DECISION.md",
+        "artifacts/recovery-20261103/P0-SUMMARY.json",
+        "artifacts/recovery-20261103/P0-VERIFICATION.md",
+        "artifacts/recovery-20261103/VERIFICATION.md",
+        "artifacts/recovery-20261103/auth-and-contact.png",
+        "artifacts/recovery-20261103/environment-names.json",
+        "artifacts/recovery-20261103/hosted-critical-paths.json",
+        "artifacts/recovery-20261103/interactions.json",
+        "artifacts/recovery-20261103/legal-publication-notice.png",
+        "artifacts/recovery-20261103/legal-review-inventory.json",
+        "artifacts/recovery-20261103/manifest.txt",
+        "artifacts/recovery-20261103/native-build-result.json",
+        "artifacts/recovery-20261103/open-prs.json",
+        "artifacts/recovery-20261103/p0-browser-results.json",
+        "artifacts/recovery-20261103/p0-file-manifest.txt",
+        "artifacts/recovery-20261103/p0-source-manifest.json",
+        "artifacts/recovery-20261103/prior-proof/REPORT.md",
+        "artifacts/recovery-20261103/prior-proof/accessibility.json",
+        "artifacts/recovery-20261103/prior-proof/arabic-navigation.png",
+        "artifacts/recovery-20261103/prior-proof/header-desktop.png",
+        "artifacts/recovery-20261103/prior-proof/interactions.json",
+        "artifacts/recovery-20261103/prior-proof/language-mobile.png",
+        "artifacts/recovery-20261103/prior-proof/pricing-cards-desktop.png",
+        "artifacts/recovery-20261103/prior-proof/verification-summary.json",
+        "artifacts/recovery-20261103/production-audit.json",
+        "artifacts/recovery-20261103/production-equivalence.json",
+        "artifacts/recovery-20261103/production-extra-files.json",
+        "artifacts/recovery-20261103/production-source-manifest.json",
+        "artifacts/recovery-20261103/proof/arabic-navigation.png",
+        "artifacts/recovery-20261103/proof/header-desktop.png",
+        "artifacts/recovery-20261103/proof/language-mobile.png",
+        "artifacts/recovery-20261103/proof/pricing-1024.png",
+        "artifacts/recovery-20261103/proof/pricing-1440.png",
+        "artifacts/recovery-20261103/proof/pricing-390.png",
+        "artifacts/recovery-20261103/proof/pricing-768.png",
+        "artifacts/recovery-20261103/proof/pricing-cards-desktop.png",
+        "artifacts/recovery-20261103/provenance.json",
+        "artifacts/recovery-20261103/public-mailbox-approval.json",
+        "artifacts/recovery-20261103/route-smoke.json",
+        "artifacts/recovery-20261103/source-identity.json",
+        "artifacts/recovery-20261103/source-manifest.json",
+        "artifacts/recovery-20261103/verification-summary.json",
+        "components/auth-unavailable.tsx",
+        "components/executive-summary.tsx",
+        "components/global-navigation.tsx",
+        "components/legal-draft-page.tsx",
+        "components/pricing-card.tsx",
+        "components/public-language-selector.tsx",
+        "components/public-page-adoption-rail.tsx",
+        "next.config.mjs",
+        "tests/public-help-preview.test.mjs",
+        "tests/public-positioning.test.mjs",
+        "tests/public-surface-navigation.test.mjs",
+        "tests/rc3-living-trust-experience.test.mjs",
+        "tests/rc4-enterprise-proof.test.mjs",
+        "tests/website-auth-entry.test.mjs",
+        "tests/website-release-gates.test.mjs",
+        "tools/release/website-p0-browser-checks.mjs",
+        "tools/release/website-recovery-build.mjs",
+        "tools/release/website-recovery-interactions.mjs",
+        "tools/release/website-recovery-smoke.mjs"
+      ]
+    },
+    {
+      "a": 129,
+      "b": 131,
+      "shared": [
+        "app/accessibility/page.tsx",
+        "app/ai-governance/page.tsx",
+        "app/careers/page.tsx",
+        "app/cookies/page.tsx",
+        "app/corporate-sustainability/page.tsx",
+        "app/data-rights/page.tsx",
+        "app/demo/page.tsx",
+        "app/demo/trust-runtime/page.tsx",
+        "app/enterprise-access/page.tsx",
+        "app/globals.css",
+        "app/help/page.tsx",
+        "app/how-to-use/page.tsx",
+        "app/layout.tsx",
+        "app/legal/page.tsx",
+        "app/media-centre/page.tsx",
+        "app/modern-slavery-statement/page.tsx",
+        "app/our-people/page.tsx",
+        "app/page.tsx",
+        "app/pricing/page.tsx",
+        "app/privacy/page.tsx",
+        "app/regulatory/page.tsx",
+        "app/security/page.tsx",
+        "app/solutions/page.tsx",
+        "app/terms/page.tsx",
+        "app/transparency/page.tsx",
+        "app/verification-receipts/page.tsx",
+        "app/world-id-preview/page.tsx",
+        "artifacts/recovery-20261103/HANDOFF.md",
+        "artifacts/recovery-20261103/P0-RELEASE-DECISION.md",
+        "artifacts/recovery-20261103/P0-SUMMARY.json",
+        "artifacts/recovery-20261103/P0-VERIFICATION.md",
+        "artifacts/recovery-20261103/VERIFICATION.md",
+        "artifacts/recovery-20261103/auth-and-contact.png",
+        "artifacts/recovery-20261103/environment-names.json",
+        "artifacts/recovery-20261103/hosted-critical-paths.json",
+        "artifacts/recovery-20261103/interactions.json",
+        "artifacts/recovery-20261103/legal-publication-notice.png",
+        "artifacts/recovery-20261103/legal-review-inventory.json",
+        "artifacts/recovery-20261103/manifest.txt",
+        "artifacts/recovery-20261103/native-build-result.json",
+        "artifacts/recovery-20261103/open-prs.json",
+        "artifacts/recovery-20261103/p0-browser-results.json",
+        "artifacts/recovery-20261103/p0-file-manifest.txt",
+        "artifacts/recovery-20261103/p0-source-manifest.json",
+        "artifacts/recovery-20261103/prior-proof/REPORT.md",
+        "artifacts/recovery-20261103/prior-proof/accessibility.json",
+        "artifacts/recovery-20261103/prior-proof/arabic-navigation.png",
+        "artifacts/recovery-20261103/prior-proof/header-desktop.png",
+        "artifacts/recovery-20261103/prior-proof/interactions.json",
+        "artifacts/recovery-20261103/prior-proof/language-mobile.png",
+        "artifacts/recovery-20261103/prior-proof/pricing-cards-desktop.png",
+        "artifacts/recovery-20261103/prior-proof/verification-summary.json",
+        "artifacts/recovery-20261103/production-audit.json",
+        "artifacts/recovery-20261103/production-equivalence.json",
+        "artifacts/recovery-20261103/production-extra-files.json",
+        "artifacts/recovery-20261103/production-source-manifest.json",
+        "artifacts/recovery-20261103/proof/arabic-navigation.png",
+        "artifacts/recovery-20261103/proof/header-desktop.png",
+        "artifacts/recovery-20261103/proof/language-mobile.png",
+        "artifacts/recovery-20261103/proof/pricing-1024.png",
+        "artifacts/recovery-20261103/proof/pricing-1440.png",
+        "artifacts/recovery-20261103/proof/pricing-390.png",
+        "artifacts/recovery-20261103/proof/pricing-768.png",
+        "artifacts/recovery-20261103/proof/pricing-cards-desktop.png",
+        "artifacts/recovery-20261103/provenance.json",
+        "artifacts/recovery-20261103/public-mailbox-approval.json",
+        "artifacts/recovery-20261103/route-smoke.json",
+        "artifacts/recovery-20261103/source-identity.json",
+        "artifacts/recovery-20261103/source-manifest.json",
+        "artifacts/recovery-20261103/verification-summary.json",
+        "components/auth-unavailable.tsx",
+        "components/executive-summary.tsx",
+        "components/global-navigation.tsx",
+        "components/legal-draft-page.tsx",
+        "components/pricing-card.tsx",
+        "components/public-language-selector.tsx",
+        "components/public-page-adoption-rail.tsx",
+        "next.config.mjs",
+        "tests/public-help-preview.test.mjs",
+        "tests/public-positioning.test.mjs",
+        "tests/public-surface-navigation.test.mjs",
+        "tests/rc3-living-trust-experience.test.mjs",
+        "tests/rc4-enterprise-proof.test.mjs",
+        "tests/website-auth-entry.test.mjs",
+        "tests/website-release-gates.test.mjs",
+        "tools/release/website-p0-browser-checks.mjs",
+        "tools/release/website-recovery-build.mjs",
+        "tools/release/website-recovery-interactions.mjs",
+        "tools/release/website-recovery-smoke.mjs"
+      ]
+    },
+    {
+      "a": 128,
+      "b": 142,
+      "shared": [
+        "docs/authority-of-record/TWELVE_SCENARIO_AUDIT_20261029.md",
+        "lib/operational-entities/native-enforcement.ts",
+        "package.json",
+        "supabase/migrations/20261028230354_single_use_high_consequence_approval.sql",
+        "tests/controlled-provider-outcome-qualification.test.mjs",
+        "tests/twelve-scenario-approval-sql.test.mjs",
+        "tests/twelve-scenario-execution.test.mjs"
+      ]
+    },
+    {
+      "a": 128,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 128,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 128,
+      "b": 139,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 128,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 128,
+      "b": 135,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 128,
+      "b": 133,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 128,
+      "b": 131,
+      "shared": [
+        "lib/operational-entities/native-enforcement.ts",
+        "package.json",
+        "tests/controlled-provider-outcome-qualification.test.mjs"
+      ]
+    },
+    {
+      "a": 128,
+      "b": 130,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 126,
+      "b": 142,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 126,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 126,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 126,
+      "b": 139,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 126,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 126,
+      "b": 135,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 126,
+      "b": 133,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 126,
+      "b": 131,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 126,
+      "b": 130,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 126,
+      "b": 128,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 142,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 139,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 135,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 133,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 131,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 130,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 128,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 125,
+      "b": 126,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 142,
+      "shared": [
+        "lib/swarm/enterprise-context.ts",
+        "package.json",
+        "tests/swarm-delegation-properties.test.mjs",
+        "tests/swarm-enterprise-context.test.mjs",
+        "tests/swarm-five-agent-demo.test.mjs",
+        "tools/swarm/five-agent-demo.mjs"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 139,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 135,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 133,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 131,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 130,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 128,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 126,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 123,
+      "b": 125,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 142,
+      "shared": [
+        "app/api/tenente/swarm/route.ts",
+        "gitleaks-verified-fixtures.ignore",
+        "lib/operational-entities/native-enforcement-server.ts",
+        "lib/operational-entities/native-enforcement.ts",
+        "lib/public-api/v1/openapi.ts",
+        "lib/swarm/containment.ts",
+        "lib/swarm/native-server-controls.ts",
+        "lib/swarm/operations.ts",
+        "package.json",
+        "packages/cyber-sentinels-sdk/README.md",
+        "packages/cyber-sentinels-sdk/src/index.ts",
+        "tests/fixtures/swarm-control.mjs",
+        "tests/swarm-http-budget.test.mjs",
+        "tests/swarm-native-server-controls.test.mjs",
+        "tests/swarm-route.test.mjs"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 141,
+      "shared": [
+        "gitleaks-verified-fixtures.ignore",
+        "package.json"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 140,
+      "shared": [
+        "lib/swarm/containment.ts",
+        "package.json"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 139,
+      "shared": [
+        "app/api/tenente/swarm/route.ts",
+        "app/tenente/swarm/swarm-console.tsx",
+        "gitleaks-verified-fixtures.ignore",
+        "lib/swarm/operations.ts",
+        "package.json",
+        "tests/swarm-route.test.mjs"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 138,
+      "shared": [
+        "gitleaks-verified-fixtures.ignore"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 136,
+      "shared": [
+        "app/platform/page.tsx",
+        "package.json"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 135,
+      "shared": [
+        "lib/swarm/store.ts",
+        "package.json"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 133,
+      "shared": [
+        "app/platform/page.tsx",
+        "package.json"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 131,
+      "shared": [
+        "lib/operational-entities/native-enforcement-server.ts",
+        "lib/operational-entities/native-enforcement.ts",
+        "package.json"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 130,
+      "shared": [
+        "lib/public-api/v1/openapi.ts",
+        "package.json",
+        "packages/cyber-sentinels-sdk/README.md",
+        "packages/cyber-sentinels-sdk/src/index.ts"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 128,
+      "shared": [
+        "lib/operational-entities/native-enforcement.ts",
+        "package.json"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 126,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 125,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 118,
+      "b": 123,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 142,
+      "shared": [
+        "app/developers/quickstart/page.tsx",
+        "examples/powershell/agent-gamma.ps1",
+        "lib/operational-entities/native-enforcement-server.ts",
+        "lib/operational-entities/native-enforcement.ts",
+        "lib/public-api/v1/contracts.ts",
+        "lib/public-api/v1/openapi.ts",
+        "package.json",
+        "packages/cyber-sentinels-sdk/src/index.ts",
+        "tests/cyber-sentinels-sdk.test.mjs",
+        "tests/external-agent-client-parity.test.mjs",
+        "tools/qualification/authority-of-record-local.mjs"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 139,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 135,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 133,
+      "shared": [
+        "app/api/auth/password-reset/request/route.ts",
+        "app/api/auth/turnstile/route.ts",
+        "app/api/enterprise-access/route.ts",
+        "app/api/waitlist/route.ts",
+        "app/developers/quickstart/page.tsx",
+        "app/login/page.tsx",
+        "components/turnstile-field.tsx",
+        "components/waitlist-form.tsx",
+        "lib/bot-protection.ts",
+        "middleware.ts",
+        "package.json",
+        "tests/fixtures/sign-out-session.mjs",
+        "tests/password-recovery-flow.test.mjs",
+        "tests/production-domain-readiness.test.mjs",
+        "tests/request-demo-api.test.mjs",
+        "tests/turnstile-configuration.test.mjs"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 131,
+      "shared": [
+        "lib/operational-entities/native-enforcement-server.ts",
+        "lib/operational-entities/native-enforcement.ts",
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 130,
+      "shared": [
+        "app/developers/quickstart/page.tsx",
+        "examples/powershell/agent-gamma.ps1",
+        "lib/public-api/v1/contracts.ts",
+        "lib/public-api/v1/openapi.ts",
+        "package.json",
+        "packages/cyber-sentinels-sdk/src/index.ts",
+        "tests/cyber-sentinels-sdk.test.mjs",
+        "tests/external-agent-client-parity.test.mjs"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 128,
+      "shared": [
+        "lib/operational-entities/native-enforcement.ts",
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 126,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 125,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 123,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 116,
+      "b": 118,
+      "shared": [
+        "lib/operational-entities/delegated-authority-server.ts",
+        "lib/operational-entities/http-tool-adapter.ts",
+        "lib/operational-entities/native-enforcement-server.ts",
+        "lib/operational-entities/native-enforcement.ts",
+        "lib/public-api/v1/openapi.ts",
+        "package.json",
+        "packages/cyber-sentinels-sdk/src/index.ts",
+        "tests/authority-of-record-tenente.test.mjs",
+        "tests/migration-namespace-reconciliation.test.mjs",
+        "vercel.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 142,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 139,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 135,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 133,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 131,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 130,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 128,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 126,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 125,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 123,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 118,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 100,
+      "b": 116,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 142,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 139,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 135,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 133,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 131,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 130,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 128,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 126,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 125,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 123,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 118,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 116,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 96,
+      "b": 100,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 142,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 141,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 140,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 139,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 136,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 135,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 133,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 131,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 130,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 128,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 126,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 125,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 123,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 118,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 116,
+      "shared": [
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 100,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "a": 95,
+      "b": 96,
+      "shared": [
+        "package-lock.json",
+        "package.json"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "file": "app/(enterprise)/trust-centre/fabric/page.tsx",
+      "route": "/(enterprise)/trust-centre/fabric",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/(enterprise)/trust-centre/page.tsx",
+      "route": "/(enterprise)/trust-centre",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/about-us/page.tsx",
+      "route": "/about-us",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/about/future-of-trust/page.tsx",
+      "route": "/about/future-of-trust",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/about/mission/page.tsx",
+      "route": "/about/mission",
+      "spanishRoute": "/es/about/mission",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/about/page.tsx",
+      "route": "/about",
+      "spanishRoute": "/es/about",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/accessibility/page.tsx",
+      "route": "/accessibility",
+      "spanishRoute": "/es/accessibility",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/account/reset-password/page.tsx",
+      "route": "/account/reset-password",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/access/page.tsx",
+      "route": "/admin/access",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/agents/page.tsx",
+      "route": "/admin/agents",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/api-tests/page.tsx",
+      "route": "/admin/api-tests",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/benchmarking/page.tsx",
+      "route": "/admin/benchmarking",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/consensus/policies/page.tsx",
+      "route": "/admin/consensus/policies",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/consensus/providers/page.tsx",
+      "route": "/admin/consensus/providers",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/consent/page.tsx",
+      "route": "/admin/consent",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/deployment-readiness/page.tsx",
+      "route": "/admin/deployment-readiness",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/detection-status/page.tsx",
+      "route": "/admin/detection-status",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/evidence-graph/page.tsx",
+      "route": "/admin/evidence-graph",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/fake-actors/[id]/page.tsx",
+      "route": "/admin/fake-actors/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/fake-actors/page.tsx",
+      "route": "/admin/fake-actors",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/founder-control/page.tsx",
+      "route": "/admin/founder-control",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/integrations/ats/page.tsx",
+      "route": "/admin/integrations/ats",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/integrations/page.tsx",
+      "route": "/admin/integrations",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/launch-control/page.tsx",
+      "route": "/admin/launch-control",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/page.tsx",
+      "route": "/admin",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/pilot-overview/page.tsx",
+      "route": "/admin/pilot-overview",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/provider-status/page.tsx",
+      "route": "/admin/provider-status",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/readiness-gate/page.tsx",
+      "route": "/admin/readiness-gate",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/reviews/page.tsx",
+      "route": "/admin/reviews",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/runtime-validation/page.tsx",
+      "route": "/admin/runtime-validation",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/support/[id]/page.tsx",
+      "route": "/admin/support/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/support/page.tsx",
+      "route": "/admin/support",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/test-lab/page.tsx",
+      "route": "/admin/test-lab",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/test-results/page.tsx",
+      "route": "/admin/test-results",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/trust-architecture/page.tsx",
+      "route": "/admin/trust-architecture",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/trust-architecture/policies/page.tsx",
+      "route": "/admin/trust-architecture/policies",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/trust-architecture/simulations/page.tsx",
+      "route": "/admin/trust-architecture/simulations",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/trust-execution/page.tsx",
+      "route": "/admin/trust-execution",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/trust-integrity/page.tsx",
+      "route": "/admin/trust-integrity",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/trust-memory/page.tsx",
+      "route": "/admin/trust-memory",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/admin/verification-testbench/page.tsx",
+      "route": "/admin/verification-testbench",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/agent-passport/page.tsx",
+      "route": "/agent-passport",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/agent-registry/[id]/page.tsx",
+      "route": "/agent-registry/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/agent-registry/page.tsx",
+      "route": "/agent-registry",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/agents/[id]/page.tsx",
+      "route": "/agents/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/agents/[id]/runtime/page.tsx",
+      "route": "/agents/[id]/runtime",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/agents/page.tsx",
+      "route": "/agents",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/agents/register/page.tsx",
+      "route": "/agents/register",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/ai-governance/page.tsx",
+      "route": "/ai-governance",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/api-docs/page.tsx",
+      "route": "/api-docs",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/appeals/page.tsx",
+      "route": "/appeals",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/architecture/page.tsx",
+      "route": "/architecture",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/autonomy-governance/page.tsx",
+      "route": "/autonomy-governance",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/back-office/page.tsx",
+      "route": "/back-office",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/billing/page.tsx",
+      "route": "/billing",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/careers/page.tsx",
+      "route": "/careers",
+      "spanishRoute": "/es/careers",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/clearances/page.tsx",
+      "route": "/clearances",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/client-portal/page.tsx",
+      "route": "/client-portal",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/command-center/page.tsx",
+      "route": "/command-center",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/compliance-export/page.tsx",
+      "route": "/compliance-export",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/cookies/page.tsx",
+      "route": "/cookies",
+      "spanishRoute": "/es/cookies",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/corporate-sustainability/page.tsx",
+      "route": "/corporate-sustainability",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/access-governance/page.tsx",
+      "route": "/dashboard/access-governance",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/agent-risk/page.tsx",
+      "route": "/dashboard/agent-risk",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/consensus/decisions/[decisionId]/page.tsx",
+      "route": "/dashboard/consensus/decisions/[decisionId]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/consensus/page.tsx",
+      "route": "/dashboard/consensus",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/consensus/subjects/[subjectId]/page.tsx",
+      "route": "/dashboard/consensus/subjects/[subjectId]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/decisions/page.tsx",
+      "route": "/dashboard/decisions",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/environment-scope/page.tsx",
+      "route": "/dashboard/environment-scope",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/governance/page.tsx",
+      "route": "/dashboard/governance",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/identity/operations/page.tsx",
+      "route": "/dashboard/identity/operations",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/identity/page.tsx",
+      "route": "/dashboard/identity",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/identity/providers/page.tsx",
+      "route": "/dashboard/identity/providers",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/identity/verifications/[id]/page.tsx",
+      "route": "/dashboard/identity/verifications/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/incident-evidence/page.tsx",
+      "route": "/dashboard/incident-evidence",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/interview-risk/page.tsx",
+      "route": "/dashboard/interview-risk",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/network-risk/page.tsx",
+      "route": "/dashboard/network-risk",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "route": "/dashboard",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/regulatory-readiness/page.tsx",
+      "route": "/dashboard/regulatory-readiness",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/replay/[entityId]/page.tsx",
+      "route": "/dashboard/replay/[entityId]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/replay/page.tsx",
+      "route": "/dashboard/replay",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/reviews/page.tsx",
+      "route": "/dashboard/reviews",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/serious-incidents/page.tsx",
+      "route": "/dashboard/serious-incidents",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/session-integrity/page.tsx",
+      "route": "/dashboard/session-integrity",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/session-security/page.tsx",
+      "route": "/dashboard/session-security",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/track-block/page.tsx",
+      "route": "/dashboard/track-block",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/trust-architecture/decisions/[decisionId]/page.tsx",
+      "route": "/dashboard/trust-architecture/decisions/[decisionId]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/trust-architecture/domains/[domainKey]/page.tsx",
+      "route": "/dashboard/trust-architecture/domains/[domainKey]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/trust-architecture/page.tsx",
+      "route": "/dashboard/trust-architecture",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/trust-architecture/subjects/[subjectId]/page.tsx",
+      "route": "/dashboard/trust-architecture/subjects/[subjectId]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/trust-posture/page.tsx",
+      "route": "/dashboard/trust-posture",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/trust-runtime/page.tsx",
+      "route": "/dashboard/trust-runtime",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/dashboard/validation/page.tsx",
+      "route": "/dashboard/validation",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/data-rights/page.tsx",
+      "route": "/data-rights",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/decision-engine/page.tsx",
+      "route": "/decision-engine",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/deepfake-detection/page.tsx",
+      "route": "/deepfake-detection",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/demo-lab/page.tsx",
+      "route": "/demo-lab",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/demo/agent-tracking-flow/page.tsx",
+      "route": "/demo/agent-tracking-flow",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/demo/hiring-attack/page.tsx",
+      "route": "/demo/hiring-attack",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/demo/page.tsx",
+      "route": "/demo",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/demo/session-integrity/page.tsx",
+      "route": "/demo/session-integrity",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/demo/track-block-candidate-alice/page.tsx",
+      "route": "/demo/track-block-candidate-alice",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/demo/trust-execution-flow/page.tsx",
+      "route": "/demo/trust-execution-flow",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/demo/trust-memory/page.tsx",
+      "route": "/demo/trust-memory",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/demo/trust-runtime/page.tsx",
+      "route": "/demo/trust-runtime",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/demo/vale/page.tsx",
+      "route": "/demo/vale",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/design-partner/page.tsx",
+      "route": "/design-partner",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/design-partners/page.tsx",
+      "route": "/design-partners",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/developer-console/page.tsx",
+      "route": "/developer-console",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/developers/api-keys/page.tsx",
+      "route": "/developers/api-keys",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/developers/api-reference/page.tsx",
+      "route": "/developers/api-reference",
+      "spanishRoute": "/es/developers/api-reference",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/developers/authentication/page.tsx",
+      "route": "/developers/authentication",
+      "spanishRoute": "/es/developers/authentication",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/developers/docs/page.tsx",
+      "route": "/developers/docs",
+      "spanishRoute": "/es/developers/docs",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/developers/page.tsx",
+      "route": "/developers",
+      "spanishRoute": "/es/developers",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/developers/quickstart/page.tsx",
+      "route": "/developers/quickstart",
+      "spanishRoute": "/es/developers/quickstart",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/developers/trust-events/page.tsx",
+      "route": "/developers/trust-events",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/documents/operational-trust-whitepaper/page.tsx",
+      "route": "/documents/operational-trust-whitepaper",
+      "spanishRoute": "/es/documents/operational-trust-whitepaper",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/documents/page.tsx",
+      "route": "/documents",
+      "spanishRoute": "/es/documents",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/embed/[id]/page.tsx",
+      "route": "/embed/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise-access/page.tsx",
+      "route": "/enterprise-access",
+      "spanishRoute": "/es/enterprise-access",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/enterprise/agent-governance/page.tsx",
+      "route": "/enterprise/agent-governance",
+      "spanishRoute": "/es/enterprise/agent-governance",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/enterprise/auditability/page.tsx",
+      "route": "/enterprise/auditability",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise/buyer-documentation/page.tsx",
+      "route": "/enterprise/buyer-documentation",
+      "spanishRoute": "/es/enterprise/buyer-documentation",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/enterprise/compliance/page.tsx",
+      "route": "/enterprise/compliance",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise/consortium/page.tsx",
+      "route": "/enterprise/consortium",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise/control-plane/page.tsx",
+      "route": "/enterprise/control-plane",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise/demo-stories/page.tsx",
+      "route": "/enterprise/demo-stories",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise/hiring-security/page.tsx",
+      "route": "/enterprise/hiring-security",
+      "spanishRoute": "/es/enterprise/hiring-security",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/enterprise/identity-governance/page.tsx",
+      "route": "/enterprise/identity-governance",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise/operations/page.tsx",
+      "route": "/enterprise/operations",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise/page.tsx",
+      "route": "/enterprise",
+      "spanishRoute": "/es/enterprise",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/enterprise/pilot-checklist/page.tsx",
+      "route": "/enterprise/pilot-checklist",
+      "spanishRoute": "/es/enterprise/pilot-checklist",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/enterprise/pilot-setup/page.tsx",
+      "route": "/enterprise/pilot-setup",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise/pilot/page.tsx",
+      "route": "/enterprise/pilot",
+      "spanishRoute": "/es/enterprise/pilot",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/enterprise/readiness/page.tsx",
+      "route": "/enterprise/readiness",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise/trust-platform/page.tsx",
+      "route": "/enterprise/trust-platform",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/enterprise/walkthrough/page.tsx",
+      "route": "/enterprise/walkthrough",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/evidence-upload/page.tsx",
+      "route": "/evidence-upload",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/evidence-vault/page.tsx",
+      "route": "/evidence-vault",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/execution-passports/page.tsx",
+      "route": "/execution-passports",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/feedback/page.tsx",
+      "route": "/feedback",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/funding/page.tsx",
+      "route": "/funding",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/global-trust/page.tsx",
+      "route": "/global-trust",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/governance/page.tsx",
+      "route": "/governance",
+      "spanishRoute": "/es/governance",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/help/page.tsx",
+      "route": "/help",
+      "spanishRoute": "/es/help",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/hiring-shield/page.tsx",
+      "route": "/hiring-shield",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/how-to-use/page.tsx",
+      "route": "/how-to-use",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/human-presence-genome/page.tsx",
+      "route": "/human-presence-genome",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/human-presence-index/page.tsx",
+      "route": "/human-presence-index",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/intent-verification/page.tsx",
+      "route": "/intent-verification",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/interview/session/[id]/page.tsx",
+      "route": "/interview/session/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/investor/page.tsx",
+      "route": "/investor",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/journal/page.tsx",
+      "route": "/journal",
+      "spanishRoute": "/es/journal",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/knowledge-base/page.tsx",
+      "route": "/knowledge-base",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/launch-console/page.tsx",
+      "route": "/launch-console",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/launch-control/page.tsx",
+      "route": "/launch-control",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/legal/page.tsx",
+      "route": "/legal",
+      "spanishRoute": "/es/legal",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/linkedin-verification/page.tsx",
+      "route": "/linkedin-verification",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/login/page.tsx",
+      "route": "/login",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/marketplace-trust/page.tsx",
+      "route": "/marketplace-trust",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/media-centre/page.tsx",
+      "route": "/media-centre",
+      "spanishRoute": "/es/media-centre",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/messages/page.tsx",
+      "route": "/messages",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/methodology/page.tsx",
+      "route": "/methodology",
+      "spanishRoute": "/es/methodology",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/mission-control/page.tsx",
+      "route": "/mission-control",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/modern-slavery-statement/page.tsx",
+      "route": "/modern-slavery-statement",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/modern-slavery/page.tsx",
+      "route": "/modern-slavery",
+      "spanishRoute": "/es/modern-slavery",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/notifications/page.tsx",
+      "route": "/notifications",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/operational-entities/[entityId]/page.tsx",
+      "route": "/operational-entities/[entityId]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/operational-entities/page.tsx",
+      "route": "/operational-entities",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/operational-principles/page.tsx",
+      "route": "/operational-principles",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/origin-dna/page.tsx",
+      "route": "/origin-dna",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/origin-trace/page.tsx",
+      "route": "/origin-trace",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/our-people/page.tsx",
+      "route": "/our-people",
+      "spanishRoute": "/es/our-people",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/page.tsx",
+      "route": "/",
+      "spanishRoute": "/es",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/passport/page.tsx",
+      "route": "/passport",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/passports/[id]/page.tsx",
+      "route": "/passports/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/passports/page.tsx",
+      "route": "/passports",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/permissions-firewall/page.tsx",
+      "route": "/permissions-firewall",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/pilot/getting-started/page.tsx",
+      "route": "/pilot/getting-started",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/pilot/scorecard/page.tsx",
+      "route": "/pilot/scorecard",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/pilot/welcome/page.tsx",
+      "route": "/pilot/welcome",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/platform/page.tsx",
+      "route": "/platform",
+      "spanishRoute": "/es/platform",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/policy-engine/page.tsx",
+      "route": "/policy-engine",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/pricing/page.tsx",
+      "route": "/pricing",
+      "spanishRoute": "/es/pricing",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/privacy/consent-history/page.tsx",
+      "route": "/privacy/consent-history",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/privacy/cookies/page.tsx",
+      "route": "/privacy/cookies",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/privacy/page.tsx",
+      "route": "/privacy",
+      "spanishRoute": "/es/privacy",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/privacy/preferences/page.tsx",
+      "route": "/privacy/preferences",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/pro-waitlist/page.tsx",
+      "route": "/pro-waitlist",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/profile/[id]/page.tsx",
+      "route": "/profile/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/profile/page.tsx",
+      "route": "/profile",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/qa-console/page.tsx",
+      "route": "/qa-console",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/reality-chain/page.tsx",
+      "route": "/reality-chain",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/reality-os/page.tsx",
+      "route": "/reality-os",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/reality-passport/page.tsx",
+      "route": "/reality-passport",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/reality-twin/page.tsx",
+      "route": "/reality-twin",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/recruiter/dashboard/page.tsx",
+      "route": "/recruiter/dashboard",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/regulatory/page.tsx",
+      "route": "/regulatory",
+      "spanishRoute": "/es/regulatory",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/replay/[id]/page.tsx",
+      "route": "/replay/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/reset-password/page.tsx",
+      "route": "/reset-password",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/resources/agent-security/[slug]/page.tsx",
+      "route": "/resources/agent-security/[slug]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/resources/agent-security/page.tsx",
+      "route": "/resources/agent-security",
+      "spanishRoute": "/es/resources/agent-security",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/revocation-engine/page.tsx",
+      "route": "/revocation-engine",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/seal/[id]/page.tsx",
+      "route": "/seal/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/security/page.tsx",
+      "route": "/security",
+      "spanishRoute": "/es/security",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/sentinel-operations/page.tsx",
+      "route": "/sentinel-operations",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/signals/page.tsx",
+      "route": "/signals",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/solutions/page.tsx",
+      "route": "/solutions",
+      "spanishRoute": "/es/solutions",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/state-verification/page.tsx",
+      "route": "/state-verification",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/status/page.tsx",
+      "route": "/status",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/status/verification/page.tsx",
+      "route": "/status/verification",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/step-up-verification/page.tsx",
+      "route": "/step-up-verification",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/sustainability/page.tsx",
+      "route": "/sustainability",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/synthetic-counterpart/page.tsx",
+      "route": "/synthetic-counterpart",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/team-access/page.tsx",
+      "route": "/team-access",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/team-workspace/page.tsx",
+      "route": "/team-workspace",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/tenente-swarm/page.tsx",
+      "route": "/tenente-swarm",
+      "spanishRoute": "/es/tenente-swarm",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/tenente-swarm/river-crossing/page.tsx",
+      "route": "/tenente-swarm/river-crossing",
+      "spanishRoute": "/es/tenente-swarm/river-crossing",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/tenente-swarm/torch-code/page.tsx",
+      "route": "/tenente-swarm/torch-code",
+      "spanishRoute": "/es/tenente-swarm/torch-code",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/terms/page.tsx",
+      "route": "/terms",
+      "spanishRoute": "/es/terms",
+      "status": "NOTICE_ONLY_APPROVAL_REQUIRED"
+    },
+    {
+      "file": "app/timeline/page.tsx",
+      "route": "/timeline",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/transparency/page.tsx",
+      "route": "/transparency",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-algorithm/page.tsx",
+      "route": "/trust-algorithm",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-assistant/page.tsx",
+      "route": "/trust-assistant",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-badges/page.tsx",
+      "route": "/trust-badges",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-center/page.tsx",
+      "route": "/trust-center",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-embeds/page.tsx",
+      "route": "/trust-embeds",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-evaluation-lab/page.tsx",
+      "route": "/trust-evaluation-lab",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-events/page.tsx",
+      "route": "/trust-events",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-fabric/page.tsx",
+      "route": "/trust-fabric",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-feed/page.tsx",
+      "route": "/trust-feed",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-graph-engine/page.tsx",
+      "route": "/trust-graph-engine",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-graph-explorer/page.tsx",
+      "route": "/trust-graph-explorer",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-graph/page.tsx",
+      "route": "/trust-graph",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-intelligence/page.tsx",
+      "route": "/trust-intelligence",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-ledger/page.tsx",
+      "route": "/trust-ledger",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-os/page.tsx",
+      "route": "/trust-os",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-posture/page.tsx",
+      "route": "/trust-posture",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-prediction/page.tsx",
+      "route": "/trust-prediction",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-principles/page.tsx",
+      "route": "/trust-principles",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-radar/page.tsx",
+      "route": "/trust-radar",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-recovery/page.tsx",
+      "route": "/trust-recovery",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-registry/page.tsx",
+      "route": "/trust-registry",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-replay/page.tsx",
+      "route": "/trust-replay",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-seal-authority/page.tsx",
+      "route": "/trust-seal-authority",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-timeline/[id]/page.tsx",
+      "route": "/trust-timeline/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust-timeline/page.tsx",
+      "route": "/trust-timeline",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust/agent/[id]/page.tsx",
+      "route": "/trust/agent/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust/analytics/page.tsx",
+      "route": "/trust/analytics",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust/data-sovereignty/page.tsx",
+      "route": "/trust/data-sovereignty",
+      "spanishRoute": "/es/trust/data-sovereignty",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/trust/hiring-report/[id]/page.tsx",
+      "route": "/trust/hiring-report/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust/interview-report/[id]/page.tsx",
+      "route": "/trust/interview-report/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust/media/[id]/page.tsx",
+      "route": "/trust/media/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust/page.tsx",
+      "route": "/trust",
+      "spanishRoute": "/es/trust",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/trust/posture/page.tsx",
+      "route": "/trust/posture",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust/receipt/[id]/page.tsx",
+      "route": "/trust/receipt/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust/session/[id]/page.tsx",
+      "route": "/trust/session/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust/transactions/[transactionId]/page.tsx",
+      "route": "/trust/transactions/[transactionId]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trust/transparency/page.tsx",
+      "route": "/trust/transparency",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/trustops/page.tsx",
+      "route": "/trustops",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verification-queue/page.tsx",
+      "route": "/verification-queue",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verification-receipts/page.tsx",
+      "route": "/verification-receipts",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verification-replay/page.tsx",
+      "route": "/verification-replay",
+      "spanishRoute": "/es/verification-replay",
+      "status": "PUBLIC_SOURCE_PRESENT_RUNTIME_NOT_RETESTED"
+    },
+    {
+      "file": "app/verification/receipt/[id]/page.tsx",
+      "route": "/verification/receipt/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verifier-network/page.tsx",
+      "route": "/verifier-network",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verify-email/page.tsx",
+      "route": "/verify-email",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verify/[id]/page.tsx",
+      "route": "/verify/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verify/candidate/page.tsx",
+      "route": "/verify/candidate",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verify/page.tsx",
+      "route": "/verify",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verify/provenance/page.tsx",
+      "route": "/verify/provenance",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verify/recruiter/page.tsx",
+      "route": "/verify/recruiter",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/verify/session/page.tsx",
+      "route": "/verify/session",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/video-verification/page.tsx",
+      "route": "/video-verification",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/why-now/page.tsx",
+      "route": "/why-now",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/workforce-trust/page.tsx",
+      "route": "/workforce-trust",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/workspace/[id]/page.tsx",
+      "route": "/workspace/[id]",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/workspace/page.tsx",
+      "route": "/workspace",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    },
+    {
+      "file": "app/world-id-preview/page.tsx",
+      "route": "/world-id-preview",
+      "spanishRoute": null,
+      "status": "NO_REGISTERED_SPANISH_EQUIVALENT"
+    }
+  ]
+}

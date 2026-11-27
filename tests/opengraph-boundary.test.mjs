@@ -53,7 +53,7 @@ test("only canonical ALLOW reaches the OpenGraph executor and provider response 
     outcomeCertainty: "UNVERIFIED", occurredAt: context().requestedAt, evidenceDigest: "a".repeat(64), failureCode: null,
   };
   let calls = 0;
-  const executor = async (target) => { calls++; assert.equal(target.url, request().targetUrl); return providerResult; };
+  const executor = async (target) => { assert.equal(h.calls.at(-1), "reserveExternalExecution"); calls++; assert.equal(target.url, request().targetUrl); return providerResult; };
   h.deps.recordExternalAcknowledgement = async (_record, acknowledgement) => {
     assert.match(acknowledgement.externalReference, /^opengraph:/);
     return "synthetic:opengraph-ack";
@@ -69,9 +69,23 @@ test("only canonical ALLOW reaches the OpenGraph executor and provider response 
   assert.equal(receipt.decision, "ALLOW");
   assert.equal(receipt.externalExecution.requested, true);
   assert.equal(receipt.externalExecution.outcome, "UNKNOWN");
-  assert.equal(receipt.externalExecution.requestReference, "opengraph:" + "a".repeat(64));
+  assert.equal(receipt.externalExecution.requestReference, "synthetic:durable-request");
   assert.equal(receipt.externalExecution.acknowledgementReference, "synthetic:opengraph-ack");
   assert.equal(receipt.externalExecution.outcomeReference, "synthetic:opengraph-unknown-outcome");
+});
+
+test("missing or failed request persistence prevents OpenGraph execution", async () => {
+  for (const missing of [true, false]) {
+    const h = harness(composeOpenGraphRequest(request(), context()));
+    let calls = 0;
+    if (missing) delete h.deps.reserveExternalExecution;
+    else h.deps.reserveExternalExecution = async () => {
+      throw Object.assign(new Error("Persistence failed"), { code: "TRUST_TRANSACTION_PERSISTENCE_FAILED" });
+    };
+    await assert.rejects(governOpenGraphRequest(request(), h.deps, async () => context(), async () => { calls++; }),
+      { code: "TRUST_TRANSACTION_PERSISTENCE_FAILED" });
+    assert.equal(calls, 0);
+  }
 });
 
 test("REVIEW, DENY and revoked authority never invoke the configured OpenGraph executor", async () => {
@@ -86,6 +100,7 @@ test("REVIEW, DENY and revoked authority never invoke the configured OpenGraph e
     assert.equal(receipt.decision, decision);
     assert.equal(receipt.externalExecution.requested, false);
     assert.equal(calls, 0);
+    assert.equal(h.calls.includes("reserveExternalExecution"), false);
   }
   const h = harness(composeOpenGraphRequest(request(), context()));
   let calls = 0;

@@ -2,11 +2,24 @@ import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import test from "node:test";
 import { createJudgeMeWebhookHandler } from "../lib/providers/judgeme-webhook.ts";
+import { readFile } from "node:fs/promises";
+import { isJudgeMeWebhookCallback } from "../lib/providers/judgeme-route.ts";
 
 const secret = "fixture-private-token";
 const installation = { id: "11111111-1111-4111-8111-111111111111", enterpriseId: "22222222-2222-4222-8222-222222222222", shopDomain: "demo.myshopify.com", serviceSubjectId: "33333333-3333-4333-8333-333333333333", status: "active" };
 const bodyObject = { shop_domain: installation.shopDomain, review: { id: "456", product_external_id: "123", rating: 5, verified: "verified-purchase", curated: "ok", hidden: false, created_at: "2026-10-02T11:00:00.000Z", updated_at: "2026-10-02T11:30:00.000Z", body: "must not be retained", reviewer: { email: "must-not-be-retained" } } };
 const at = "2026-10-02T11:45:00.000Z";
+
+test("middleware exempts only the exact Judge.me webhook POST route shape", async () => {
+  const middleware = await readFile(new URL("../middleware.ts", import.meta.url), "utf8");
+  assert.match(middleware, /isJudgeMeWebhookCallback\(pathname, req\.method\)/);
+  assert.equal(isJudgeMeWebhookCallback(`/api/providers/judgeme/webhook/${installation.id}/review-created`, "POST"), true);
+  assert.equal(isJudgeMeWebhookCallback(`/api/providers/judgeme/webhook/${installation.id}/review-updated`, "POST"), true);
+  assert.equal(isJudgeMeWebhookCallback(`/api/providers/judgeme/webhook/${installation.id}/review-created-fail`, "POST"), true);
+  assert.equal(isJudgeMeWebhookCallback(`/api/providers/judgeme/webhook/${installation.id}/unknown`, "POST"), false);
+  assert.equal(isJudgeMeWebhookCallback(`/api/providers/judgeme/install`, "POST"), false);
+  assert.equal(isJudgeMeWebhookCallback(`/api/providers/judgeme/webhook/${installation.id}/review-created`, "GET"), false);
+});
 
 function request(body = JSON.stringify(bodyObject), signingKey = secret) {
   const signature = createHmac("sha256", signingKey).update(Buffer.from(body)).digest("hex");

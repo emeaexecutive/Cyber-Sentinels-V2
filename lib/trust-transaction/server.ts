@@ -1,4 +1,5 @@
 import "server-only";
+import { loadTrustedModelState } from "./model-approval-server";
 import { currentControlPlaneEvidence, productionControlPlaneContext } from "@/lib/public-api/v1/control-plane-evidence";
 import { CONTROL_PLANE_PROVENANCE } from "@/lib/operational-entities/control-plane-evidence";
 
@@ -486,6 +487,7 @@ async function callExternalRelay(record: PersistedCanonicalDecision, requestRefe
 export function createCanonicalTrustTransactionDependencies(input: { supabase: SupabaseClient; user: User; allowExternalExecution?: boolean }): CanonicalTrustTransactionDependencies {
   const db = createServiceRoleClient();
   return {
+    loadTrustedModelState,
     async authenticateActor() {
       const current = await input.supabase.auth.getUser();
       if (current.error || !current.data.user || current.data.user.id !== input.user.id) throw new CanonicalTransactionError("Authentication required.", 401, "AUTHENTICATION_REQUIRED");
@@ -712,6 +714,10 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
       const result = await rpc(db, "Trust Memory write", "emit_canonical_trust_transaction_memory_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId });
       return typeof result.trustMemoryReference === "string" ? result.trustMemoryReference : "";
     },
+    async reserveExternalExecution(record) {
+      const request = await rpc(db, "External request persistence", "request_canonical_external_execution_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId, p_configured: true });
+      return String(request.requestReference);
+    },
     async requestExternalExecution(record) {
       const externalExecutionAllowed = input.allowExternalExecution !== false;
       const configured = externalExecutionAllowed && Boolean(process.env.TRUST_ACTION_RELAY_URL?.trim() && process.env.TRUST_ACTION_RELAY_SECRET?.trim());
@@ -740,6 +746,7 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
 export function createCanonicalTrustTransactionDependenciesForApiClient(input: {
   enterpriseId: string;
   clientId: string;
+  allowExternalExecution?: boolean;
 }): CanonicalTrustTransactionDependencies {
   const syntheticUser = {
     id: input.clientId,
@@ -753,6 +760,8 @@ export function createCanonicalTrustTransactionDependenciesForApiClient(input: {
   const dependencies = createCanonicalTrustTransactionDependencies({
     supabase: {} as SupabaseClient,
     user: syntheticUser,
+    // Decision APIs do not carry destination-bound execution authority.
+    allowExternalExecution: input.allowExternalExecution ?? false,
   });
   const db = createServiceRoleClient();
   dependencies.authenticateActor = async () => ({

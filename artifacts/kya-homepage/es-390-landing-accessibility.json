@@ -1,0 +1,244 @@
+[
+  {
+    "scope": "#know-your-agent",
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "messageKey": "nonBmp"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element content contains only non-text characters"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+            "target": [
+              "li:nth-child(1) > .text-xl.block[aria-hidden=\"true\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "messageKey": "nonBmp"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element content contains only non-text characters"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+            "target": [
+              "li:nth-child(2) > .text-xl.block[aria-hidden=\"true\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "messageKey": "nonBmp"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element content contains only non-text characters"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+            "target": [
+              "li:nth-child(3) > .text-xl.block[aria-hidden=\"true\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "messageKey": "nonBmp"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element content contains only non-text characters"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+            "target": [
+              "li:nth-child(4) > .text-xl.block[aria-hidden=\"true\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "messageKey": "nonBmp"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element content contains only non-text characters"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span aria-hidden=\"true\" class=\"mt-2 block text-xl text-cyan-300\">↓</span>",
+            "target": [
+              "li:nth-child(5) > .text-xl.block[aria-hidden=\"true\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+          }
+        ]
+      }
+    ],
+    "passedRules": 18,
+    "manualReview": [
+      {
+        "rule": "color-contrast",
+        "target": [
+          "li:nth-child(1) > .text-xl.block[aria-hidden=\"true\"]"
+        ],
+        "foreground": [
+          103,
+          232,
+          249
+        ],
+        "background": [
+          4,
+          7,
+          12
+        ],
+        "contrastRatio": 13.91851881442053,
+        "threshold": 4.5,
+        "result": "PASS",
+        "method": "Rendered computed colors; raw axe glyph finding retained"
+      },
+      {
+        "rule": "color-contrast",
+        "target": [
+          "li:nth-child(2) > .text-xl.block[aria-hidden=\"true\"]"
+        ],
+        "foreground": [
+          103,
+          232,
+          249
+        ],
+        "background": [
+          4,
+          7,
+          12
+        ],
+        "contrastRatio": 13.91851881442053,
+        "threshold": 4.5,
+        "result": "PASS",
+        "method": "Rendered computed colors; raw axe glyph finding retained"
+      },
+      {
+        "rule": "color-contrast",
+        "target": [
+          "li:nth-child(3) > .text-xl.block[aria-hidden=\"true\"]"
+        ],
+        "foreground": [
+          103,
+          232,
+          249
+        ],
+        "background": [
+          4,
+          7,
+          12
+        ],
+        "contrastRatio": 13.91851881442053,
+        "threshold": 4.5,
+        "result": "PASS",
+        "method": "Rendered computed colors; raw axe glyph finding retained"
+      },
+      {
+        "rule": "color-contrast",
+        "target": [
+          "li:nth-child(4) > .text-xl.block[aria-hidden=\"true\"]"
+        ],
+        "foreground": [
+          103,
+          232,
+          249
+        ],
+        "background": [
+          4,
+          7,
+          12
+        ],
+        "contrastRatio": 13.91851881442053,
+        "threshold": 4.5,
+        "result": "PASS",
+        "method": "Rendered computed colors; raw axe glyph finding retained"
+      },
+      {
+        "rule": "color-contrast",
+        "target": [
+          "li:nth-child(5) > .text-xl.block[aria-hidden=\"true\"]"
+        ],
+        "foreground": [
+          103,
+          232,
+          249
+        ],
+        "background": [
+          4,
+          7,
+          12
+        ],
+        "contrastRatio": 13.91851881442053,
+        "threshold": 4.5,
+        "result": "PASS",
+        "method": "Rendered computed colors; raw axe glyph finding retained"
+      }
+    ]
+  },
+  {
+    "scope": "header",
+    "violations": [],
+    "incomplete": [],
+    "passedRules": 13,
+    "manualReview": []
+  }
+]

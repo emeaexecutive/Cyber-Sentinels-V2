@@ -78,6 +78,7 @@ export function harness(input, options = {}) {
     async extendEvidenceGraph(record) { calls.push("extendEvidenceGraph"); assert.equal(record.digest, records[0].digest); return "synthetic:graph"; },
     async appendReplay(record) { calls.push("appendReplay"); assert.equal(record.digest, records[0].digest); return "synthetic:replay"; },
     async emitTrustMemory(record) { calls.push("emitTrustMemory"); assert.equal(record.digest, records[0].digest); return "synthetic:memory"; },
+    async reserveExternalExecution() { calls.push("reserveExternalExecution"); return "synthetic:durable-request"; },
     async requestExternalExecution() { calls.push("requestExternalExecution"); return { configured: false, requestReference: null, acknowledgement: null, outcome: null }; },
     async recordExternalAcknowledgement() { throw new Error("No provider acknowledgement exists in this synthetic fixture"); },
     async recordExternalOutcome() { throw new Error("No provider outcome exists in this synthetic fixture"); },

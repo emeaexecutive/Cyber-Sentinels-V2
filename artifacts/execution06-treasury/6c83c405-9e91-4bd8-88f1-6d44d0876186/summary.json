@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "synthetic": true,
+  "liveFunds": false,
+  "cases": [
+    {
+      "case": "EUR50000_ALLOW",
+      "decision": "ALLOW",
+      "observedEffects": 1,
+      "receipt": "fc03e8063a3cb3a904b2ff305a2172c947b3e30c800fc62db28fa1b035167307"
+    },
+    {
+      "case": "REVIEW_THEN_DUAL_APPROVAL",
+      "beforeApprovalEffects": 1,
+      "afterApprovalEffects": 2
+    },
+    {
+      "case": "REVOKED_DENY",
+      "additionalEffects": 0
+    },
+    {
+      "case": "FINAL_ALLOWANCE_AND_AMBIGUOUS_RESPONSE",
+      "admitted": 1,
+      "denied": 1,
+      "clientOutcome": "UNKNOWN_BEFORE_RECONCILIATION",
+      "independentlyObservedSyntheticEffects": 1,
+      "replayDidNotReexecute": true
+    }
+  ],
+  "firstCheckpoint": {
+    "tenantId": "10000000-0000-4000-8000-000000000001",
+    "count": 17,
+    "head": "923a7eedb9e8e9e23aacd46996fa0295580612d4e71d40cdcf09fb0d4c7180c5",
+    "effectsDigest": "4ec63c482fcc37f38534e41afd7e538150b45da940be37db355c9d4e97b9b41a",
+    "synthetic": true
+  },
+  "raceCheckpoint": {
+    "tenantId": "10000000-0000-4000-8000-000000000001",
+    "count": 13,
+    "head": "2aaf606ce40dc37afd7cbcc27de10d6db0242d8decba0ec9e1e74ad44186d9e8",
+    "effectsDigest": "3ef2375cd17078ac4f402c3b63dac3f3177dbdecdc9d8e39efa954326d70bb03",
+    "synthetic": true
+  }
+}

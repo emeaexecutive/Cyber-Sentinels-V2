@@ -1,0 +1,1517 @@
+[
+  {
+    "id": "positive-openIncident",
+    "operationId": "openIncident",
+    "method": "POST",
+    "path": "/api/v1/incidents",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "openIncident",
+    "contractRequirements": {
+      "scopes": [
+        "incidents:write"
+      ],
+      "parameters": [],
+      "requestSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "transaction_id",
+          "summary",
+          "observed_at"
+        ],
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "UTC ISO timestamp including milliseconds, ending Z."
+          },
+          "kind": {
+            "const": "TRANSACTION_LINK"
+          },
+          "evidence_object_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "evidence_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "provider_account": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "session": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "api_tool": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "model_service": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "infrastructure": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "credential_reference": {
+                "type": "string",
+                "maxLength": 200
+              }
+            }
+          },
+          "observed_purpose": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "outcome_layer": {
+            "enum": [
+              "provider",
+              "runtime",
+              "destination"
+            ]
+          },
+          "outcome_status": {
+            "enum": [
+              "SUCCEEDED",
+              "FAILED",
+              "UNKNOWN"
+            ]
+          }
+        },
+        "dependentRequired": {
+          "evidence_object_id": [
+            "evidence_digest"
+          ],
+          "evidence_digest": [
+            "evidence_object_id"
+          ]
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "not": {
+                    "const": "TRANSACTION_LINK"
+                  }
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "evidence_object_id",
+                "evidence_digest"
+              ]
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "OUTCOME"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "outcome_layer",
+                "outcome_status"
+              ]
+            },
+            "else": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "outcome_layer"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "outcome_status"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "PURPOSE_OBSERVATION"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "observed_purpose"
+              ]
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "observed_purpose"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "positive-getIncident",
+    "operationId": "getIncident",
+    "method": "GET",
+    "path": "/api/v1/incidents/{incidentId}",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "incidents:read"
+      ],
+      "parameters": [
+        {
+          "name": "incidentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-appendIncidentChronology",
+    "operationId": "appendIncidentChronology",
+    "method": "POST",
+    "path": "/api/v1/incidents/{incidentId}/chronology",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "appendIncidentChronology",
+    "contractRequirements": {
+      "scopes": [
+        "incidents:write"
+      ],
+      "parameters": [
+        {
+          "name": "incidentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "transaction_id",
+          "summary",
+          "observed_at",
+          "kind"
+        ],
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "UTC ISO timestamp including milliseconds, ending Z."
+          },
+          "kind": {
+            "enum": [
+              "TRANSACTION_LINK",
+              "EXECUTION_OBSERVATION",
+              "OUTCOME",
+              "DETECTION",
+              "INTERVENTION",
+              "CONTAINMENT",
+              "REMEDIATION",
+              "PURPOSE_OBSERVATION"
+            ]
+          },
+          "evidence_object_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "evidence_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "provider_account": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "session": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "api_tool": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "model_service": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "infrastructure": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "credential_reference": {
+                "type": "string",
+                "maxLength": 200
+              }
+            }
+          },
+          "observed_purpose": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "outcome_layer": {
+            "enum": [
+              "provider",
+              "runtime",
+              "destination"
+            ]
+          },
+          "outcome_status": {
+            "enum": [
+              "SUCCEEDED",
+              "FAILED",
+              "UNKNOWN"
+            ]
+          }
+        },
+        "dependentRequired": {
+          "evidence_object_id": [
+            "evidence_digest"
+          ],
+          "evidence_digest": [
+            "evidence_object_id"
+          ]
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "not": {
+                    "const": "TRANSACTION_LINK"
+                  }
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "evidence_object_id",
+                "evidence_digest"
+              ]
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "OUTCOME"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "outcome_layer",
+                "outcome_status"
+              ]
+            },
+            "else": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "outcome_layer"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "outcome_status"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "PURPOSE_OBSERVATION"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "observed_purpose"
+              ]
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "observed_purpose"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "positive-replayIncident",
+    "operationId": "replayIncident",
+    "method": "GET",
+    "path": "/api/v1/incidents/{incidentId}/replay",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "incidents:read"
+      ],
+      "parameters": [
+        {
+          "name": "incidentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-exportIncident",
+    "operationId": "exportIncident",
+    "method": "POST",
+    "path": "/api/v1/incidents/{incidentId}/exports",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "exportIncident",
+    "contractRequirements": {
+      "scopes": [
+        "evidence:export"
+      ],
+      "parameters": [
+        {
+          "name": "incidentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": {
+        "type": "object",
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "id": "positive-registerAgent",
+    "operationId": "registerAgent",
+    "method": "POST",
+    "path": "/api/v1/agents",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "registerAgent",
+    "contractRequirements": {
+      "scopes": [
+        "agents:write"
+      ],
+      "parameters": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/RegisterAgentRequest"
+      }
+    }
+  },
+  {
+    "id": "positive-getAgent",
+    "operationId": "getAgent",
+    "method": "GET",
+    "path": "/api/v1/agents/{agentId}",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "authority:read"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-listWorkloadBindings",
+    "operationId": "listWorkloadBindings",
+    "method": "GET",
+    "path": "/api/v1/agents/{agentId}/workload-bindings",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "agents:write"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-registerWorkloadBinding",
+    "operationId": "registerWorkloadBinding",
+    "method": "POST",
+    "path": "/api/v1/agents/{agentId}/workload-bindings",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "registerWorkloadBinding",
+    "contractRequirements": {
+      "scopes": [
+        "agents:write"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/WorkloadBindingRequest"
+      }
+    }
+  },
+  {
+    "id": "positive-revokeWorkloadBinding",
+    "operationId": "revokeWorkloadBinding",
+    "method": "POST",
+    "path": "/api/v1/agents/{agentId}/workload-bindings/{bindingId}/revoke",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "agents:write"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        },
+        {
+          "name": "bindingId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-registerAgentCredential",
+    "operationId": "registerAgentCredential",
+    "method": "POST",
+    "path": "/api/v1/agents/{agentId}/credentials",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "registerAgentCredential",
+    "contractRequirements": {
+      "scopes": [
+        "agents:write"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/RegisterCredentialRequest"
+      }
+    }
+  },
+  {
+    "id": "positive-registerAgentManifest",
+    "operationId": "registerAgentManifest",
+    "method": "POST",
+    "path": "/api/v1/agents/{agentId}/manifest",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "registerAgentManifest",
+    "contractRequirements": {
+      "scopes": [
+        "agents:write"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/SignedManifest"
+      }
+    }
+  },
+  {
+    "id": "positive-issueAgentChallenge",
+    "operationId": "issueAgentChallenge",
+    "method": "POST",
+    "path": "/api/v1/agents/{agentId}/challenge",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "issueAgentChallenge",
+    "contractRequirements": {
+      "scopes": [
+        "agents:verify"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": {
+        "type": "object",
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "id": "positive-submitAgentHeartbeat",
+    "operationId": "submitAgentHeartbeat",
+    "method": "POST",
+    "path": "/api/v1/agents/{agentId}/heartbeat",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "submitAgentHeartbeat",
+    "contractRequirements": {
+      "scopes": [
+        "agents:verify"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "agent_id",
+              "credential_id",
+              "event_id",
+              "issued_at",
+              "environment",
+              "authority_id",
+              "policy_id",
+              "policy_version",
+              "signature"
+            ],
+            "properties": {
+              "agent_id": {
+                "type": "string"
+              },
+              "credential_id": {
+                "type": "string"
+              },
+              "event_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{22,128}$"
+              },
+              "issued_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "UTC ISO timestamp with milliseconds and Z suffix"
+              },
+              "environment": {
+                "enum": [
+                  "production",
+                  "staging"
+                ],
+                "description": "Staging requires the explicit qualification flag and the pinned Staging database; Production behavior is unchanged."
+              },
+              "authority_id": {
+                "type": "string"
+              },
+              "policy_id": {
+                "type": "string"
+              },
+              "policy_version": {
+                "type": "string"
+              },
+              "signature": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{86}$"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mode",
+              "claims",
+              "signature"
+            ],
+            "properties": {
+              "mode": {
+                "const": "swarm"
+              },
+              "signature": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{86}$"
+              },
+              "claims": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "domain",
+                  "audience",
+                  "tenantId",
+                  "memberId",
+                  "version",
+                  "sequence",
+                  "at"
+                ],
+                "properties": {
+                  "domain": {
+                    "const": "cyber-sentinels:swarm-heartbeat:v1"
+                  },
+                  "audience": {
+                    "type": "string"
+                  },
+                  "tenantId": {
+                    "type": "string"
+                  },
+                  "memberId": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "at": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "positive-submitAgentProof",
+    "operationId": "submitAgentProof",
+    "method": "POST",
+    "path": "/api/v1/agents/{agentId}/proof",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "bodyInput": "submitAgentProof",
+    "contractRequirements": {
+      "scopes": [
+        "agents:verify"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/Proof"
+      }
+    }
+  },
+  {
+    "id": "positive-getAgentAuthority",
+    "operationId": "getAgentAuthority",
+    "method": "GET",
+    "path": "/api/v1/agents/{agentId}/authority",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "authority:read"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-listAgentAuthorities",
+    "operationId": "listAgentAuthorities",
+    "method": "GET",
+    "path": "/api/v1/agents/{agentId}/authorities",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "authority:read"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-grantAgentAuthority",
+    "operationId": "grantAgentAuthority",
+    "method": "POST",
+    "path": "/api/v1/agents/{agentId}/authorities",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "grantAgentAuthority",
+    "contractRequirements": {
+      "scopes": [
+        "authority:write"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/AuthorityGrantRequest"
+      }
+    }
+  },
+  {
+    "id": "positive-getAgentAuthorityVersion",
+    "operationId": "getAgentAuthorityVersion",
+    "method": "GET",
+    "path": "/api/v1/agents/{agentId}/authorities/{authorityId}",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "authority:read"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        },
+        {
+          "name": "authorityId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-revokeAgentAuthority",
+    "operationId": "revokeAgentAuthority",
+    "method": "POST",
+    "path": "/api/v1/agents/{agentId}/authorities/{authorityId}/revoke",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "bodyInput": "revokeAgentAuthority",
+    "contractRequirements": {
+      "scopes": [
+        "authority:write"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        },
+        {
+          "name": "authorityId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": {
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "id": "positive-getAgentTrustState",
+    "operationId": "getAgentTrustState",
+    "method": "GET",
+    "path": "/api/v1/agents/{agentId}/trust-state",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "authority:read"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-requestTrustDecision",
+    "operationId": "requestTrustDecision",
+    "method": "POST",
+    "path": "/api/v1/trust/decisions",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200,
+      201
+    ],
+    "bodyInput": "requestTrustDecision",
+    "contractRequirements": {
+      "scopes": [
+        "trust:request"
+      ],
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "description": "Random non-secret key for one logical decision. Reuse only for an unchanged retry after an uncertain result; a later action requires a new key and fresh evaluation.",
+          "schema": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 120
+          }
+        }
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/DecisionRequest"
+      }
+    }
+  },
+  {
+    "id": "positive-requestOpenGraphSiteMetadata",
+    "operationId": "requestOpenGraphSiteMetadata",
+    "method": "POST",
+    "path": "/api/v1/tools/opengraph/site",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200,
+      201
+    ],
+    "bodyInput": "requestOpenGraphSiteMetadata",
+    "contractRequirements": {
+      "scopes": [
+        "trust:request"
+      ],
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 180
+          }
+        }
+      ],
+      "requestSchema": {
+        "type": "object",
+        "required": [
+          "operational_entity_id",
+          "target_url"
+        ],
+        "properties": {
+          "operational_entity_id": {
+            "type": "string",
+            "maxLength": 180
+          },
+          "target_url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 300
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "id": "positive-requestWorkloadDecision",
+    "operationId": "requestWorkloadDecision",
+    "method": "POST",
+    "path": "/api/v1/workloads/{agentId}/decisions",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_WORKLOAD_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200,
+      201
+    ],
+    "bodyInput": "requestWorkloadDecision",
+    "contractRequirements": {
+      "scopes": [
+        "trust:request"
+      ],
+      "parameters": [
+        {
+          "name": "agentId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "maxLength": 180
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 120,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          }
+        }
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/WorkloadDecisionRequest"
+      }
+    }
+  },
+  {
+    "id": "positive-getReview",
+    "operationId": "getReview",
+    "method": "GET",
+    "path": "/api/v1/reviews/{reviewReference}",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "review:read"
+      ],
+      "parameters": [
+        {
+          "name": "reviewReference",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-resolveReview",
+    "operationId": "resolveReview",
+    "method": "POST",
+    "path": "/api/v1/reviews/{reviewReference}/resolve",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "bodyInput": "resolveReview",
+    "contractRequirements": {
+      "scopes": [
+        "review:write"
+      ],
+      "parameters": [
+        {
+          "name": "reviewReference",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/ReviewResolutionRequest"
+      }
+    }
+  },
+  {
+    "id": "positive-submitAgentAssertedEvidence",
+    "operationId": "submitAgentAssertedEvidence",
+    "method": "POST",
+    "path": "/api/v1/evidence",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "submitAgentAssertedEvidence",
+    "contractRequirements": {
+      "scopes": [
+        "evidence:write"
+      ],
+      "parameters": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/EvidenceRequest"
+      }
+    }
+  },
+  {
+    "id": "positive-getTrustTransaction",
+    "operationId": "getTrustTransaction",
+    "method": "GET",
+    "path": "/api/v1/trust/transactions/{transactionId}",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "trust:read"
+      ],
+      "parameters": [
+        {
+          "name": "transactionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-getTrustTransactionReplay",
+    "operationId": "getTrustTransactionReplay",
+    "method": "GET",
+    "path": "/api/v1/trust/transactions/{transactionId}/replay",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "trust:read"
+      ],
+      "parameters": [
+        {
+          "name": "transactionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-getTrustTransactionReceipt",
+    "operationId": "getTrustTransactionReceipt",
+    "method": "GET",
+    "path": "/api/v1/trust/transactions/{transactionId}/receipt",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      200
+    ],
+    "contractRequirements": {
+      "scopes": [
+        "trust:read"
+      ],
+      "parameters": [
+        {
+          "name": "transactionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": null
+    }
+  },
+  {
+    "id": "positive-submitTrustTransactionOutcome",
+    "operationId": "submitTrustTransactionOutcome",
+    "method": "POST",
+    "path": "/api/v1/trust/transactions/{transactionId}/outcomes",
+    "syntheticOnly": true,
+    "secretHeaders": {
+      "authorization": "ACCEPTANCE_API_AUTHORIZATION",
+      "cookie": "ACCEPTANCE_VERCEL_SESSION"
+    },
+    "expectedStatuses": [
+      201
+    ],
+    "bodyInput": "submitTrustTransactionOutcome",
+    "contractRequirements": {
+      "scopes": [
+        "outcomes:write"
+      ],
+      "parameters": [
+        {
+          "name": "transactionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/OutcomeRequest"
+      }
+    }
+  }
+]

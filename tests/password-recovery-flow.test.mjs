@@ -52,6 +52,8 @@ export function harness() {
       return json(payload());
     }
     if (url.pathname.endsWith("/user")) return json(user);
+    if (url.pathname.endsWith("/account_access_approvals")) return json([{ status: "APPROVED" }]);
+    if (url.pathname.endsWith("/rpc/record_account_access_attempt")) return json(null);
     throw new Error(`Unexpected fixture Auth path: ${url.pathname}`);
   };
   const cookieStore = {
@@ -69,6 +71,7 @@ export function harness() {
       } },
   });
   const mocks = {
+    "@/lib/supabase/protected-auth": { createProtectedAuthClient: async () => client() },
     "./globals.css": {},
     "@/components/global-navigation": { GlobalNavigation: ({ accessLevel }) => React.createElement("nav", { "data-access": accessLevel }) },
     "@/components/trust-os/enterprise-shell": { EnterpriseTrustOSShell: ({ children }) => React.createElement("section", { "data-enterprise-shell": true }, children) },
@@ -78,7 +81,7 @@ export function harness() {
     "@/components/public-page-adoption-rail": { PublicPageAdoptionRail: () => null },
     "@/src/components/consent/ConsentManager": { ConsentManager: () => null },
     "@/src/components/consent/ConsentPreferencesLink": { ConsentPreferencesLink: () => null },
-    "next/headers": { cookies: async () => cookieStore },
+    "next/headers": { cookies: async () => cookieStore, headers: async () => new Headers() },
     "next/link": { __esModule: true, default: ({ children, ...props }) => React.createElement("a", props, children) },
     "@/lib/supabase/server": { createClient: async (headers) => client(headers), createNavigationClient: async () => client(), isInvalidRefreshTokenError: () => false },
     "@/lib/operational-monitoring": { captureOperationalIssue() {} },
@@ -132,6 +135,18 @@ export function harness() {
     },
   };
 }
+
+test("external workload bearer reaches its own verifier while recovery cookies stay quarantined", async () => {
+  const h = harness();
+  const external = 'eyJhbGciOiJFZERTQSJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlLnRlc3QifQ.invalid';
+  const allowed = await h.guard('/api/v1/workloads/agent:1/decisions', { authorization: `Bearer ${external}` }, 'POST');
+  assert.equal(allowed.status, 200);
+  assert.equal(h.calls.length, 0, 'External bearer must not be submitted to Supabase Auth');
+  await h.begin();
+  const denied = await h.guard('/api/v1/workloads/agent:1/decisions', { authorization: `Bearer ${external}` }, 'POST');
+  assert.equal(denied.status, 403);
+  assert.equal((await denied.json()).error, 'PASSWORD_RECOVERY_REQUIRED');
+});
 
 test("connected recovery: email → PKCE callback → visible form → quarantine → update → sign out → login → no replay", async () => {
   const h = harness();

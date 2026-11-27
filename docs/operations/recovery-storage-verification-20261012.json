@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-10-12T08:31:45.007Z",
+  "status": "PASS",
+  "objects": 1,
+  "checks": [
+    {
+      "bytes": 17504,
+      "sha256": "bdf014e1c83eec26e1fccf73231b500620c5deed0d98b80079b5bc011ad31b92",
+      "localMatchesManifest": true,
+      "secondDownloadMatches": true
+    }
+  ],
+  "archivedMetadataMatchesBeforeCapture": true,
+  "pointInTimeConsistency": "Archived metadata equals live metadata before and after capture; two GETs match SHA-256. Separate object capture, not an atomic DB/Storage snapshot; no historical version proof.",
+  "productionMutations": 0,
+  "metadataUnchangedAfterCapture": true
+}

@@ -1,7 +1,20 @@
-import test from "node:test";
+import { mock, test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
+class MockApiError extends Error {
+ constructor(message,status,code){super(message);this.status=status;this.code=code;}
+}
+mock.module(new URL("../src/lib/trust-architecture/http.ts",import.meta.url).href,{namedExports:{
+ TrustArchitectureApiError:MockApiError,
+ architectureCorrelationId:()=>"",
+ architectureContext:async()=>({}),
+ architectureFailure:()=>new Response(),
+ architectureResponse:()=>new Response(),
+ assertArchitectureMutation:()=>{},
+}});
+const { readScopeContinuityJson } = await import("../src/lib/scope-continuity/http.ts");
+const employmentRoute=readFileSync(new URL("../app/api/employment/decisions/route.ts",import.meta.url),"utf8");
 const evaluateRoute=readFileSync(new URL("../app/api/trust/scope-continuity/evaluate/route.ts",import.meta.url),"utf8");
 const decisionRoute=readFileSync(new URL("../app/api/trust/scope-continuity/decisions/[decisionId]/route.ts",import.meta.url),"utf8");
 const replayRoute=readFileSync(new URL("../app/api/trust/scope-continuity/replay/[executionContextId]/route.ts",import.meta.url),"utf8");
@@ -18,6 +31,15 @@ test("ordinary owner or admin input cannot create independent evidence",()=>{ass
 test("untrusted request shape is validated before canonical database reads",()=>{assert.match(service,/const candidate = validateRequest\(input\.value, input\.correlationId\)/);assert.ok(service.indexOf("validateRequest(input.value, input.correlationId)")<service.indexOf("canonicalInputs(input.enterpriseId, candidate)"));assert.match(service,/status: 400/);});
 test("request validation rejects unsupported fields before persistence hashing",()=>{assert.match(service,/assertKnownFields/);assert.match(service,/UNKNOWN_FIELD/);assert.match(service,/integrity metadata/);});
 test("mutation enforces actual streamed bytes and controlled malformed JSON",()=>{assert.match(http,/request\.body\.getReader\(\)/);assert.match(http,/size > limit/);assert.match(http,/PAYLOAD_TOO_LARGE/);assert.match(http,/MALFORMED_JSON/);});
+test("employment decisions read the bounded stream before recording a decision",()=>{assert.match(employmentRoute,/readScopeContinuityJson\(request,\s*32_000\)/);assert.ok(employmentRoute.indexOf("readScopeContinuityJson(request, 32_000)")<employmentRoute.indexOf("recordEmploymentDecision({"));});
+test("chunked employment requests exceeding the byte limit are canceled before JSON parsing",async()=>{
+ let canceled=false;
+ const body=new ReadableStream({pull(controller){controller.enqueue(new Uint8Array(32_001));},cancel(){canceled=true;}});
+ const request=new Request("https://staging.cybersentinels.com/api/employment/decisions",{method:"POST",headers:{origin:"https://staging.cybersentinels.com","content-type":"application/json"},body,duplex:"half"});
+ assert.equal(request.headers.has("content-length"),false);
+ await assert.rejects(readScopeContinuityJson(request,32_000),error=>error.status===413&&error.code==="PAYLOAD_TOO_LARGE");
+ assert.equal(canceled,true);
+});
 test("API uses correlation IDs and stable safe failures",()=>{for(const route of [evaluateRoute,decisionRoute,replayRoute]){assert.match(route,/scopeContinuityCorrelationId/);assert.match(route,/scopeContinuityFailure/);}assert.doesNotMatch(repository,/console\.error\([^\n]*(input|decision|artifacts)/);});
 test("there is no public unauthenticated attestation ingestion route",()=>{assert.match(evaluateRoute,/scopeContinuityContext/);assert.match(decisionRoute,/scopeContinuityContext/);assert.match(replayRoute,/scopeContinuityContext/);});
 test("service role remains in a server-only repository",()=>{assert.match(repository,/import "server-only"/);assert.match(repository,/createServiceRoleClient/);assert.doesNotMatch(component,/service-role|createServiceRoleClient/);});

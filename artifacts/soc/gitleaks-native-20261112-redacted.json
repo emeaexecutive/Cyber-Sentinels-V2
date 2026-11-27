@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-12",
+  "candidateSha": "41cdd0776be5c496cda8a52f62ef689eb7138ab0",
+  "requestedScope": "runtime diff vs schema branch 483d7dc; no unrelated history",
+  "executable": "Gitleaks.Gitleaks_Microsoft.Winget.Source_8wekyb3d8bbwe/gitleaks.exe",
+  "discovery": "Resolved WinGet symbolic link Target to packaged native executable",
+  "status": "NOT QUALIFIED",
+  "execution": "Native executable version/help probes failed with Access is denied in sandbox",
+  "scanExecuted": false,
+  "findingCount": null,
+  "secretsPrinted": false,
+  "nextAction": "Run redacted diff-scoped gitleaks in authorized CI or an environment permitting this native executable",
+  "supersededBy": "gitleaks-final-20261112.json",
+  "followup": "Authorized native scan succeeded with repository CI rules; exact synthetic-metadata triage in gitleaks-triage-20261112.json"
+}

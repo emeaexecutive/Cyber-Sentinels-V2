@@ -1,6 +1,8 @@
 676e99642674ddcad3e6578379f43d4e01a1bd73:supabase/reconciliation/202607300003_canonical_trust_foundation.sql:generic-api-key:17
 676e99642674ddcad3e6578379f43d4e01a1bd73:supabase/reconciliation/202607300005_consent_persistence_rpc.sql:generic-api-key:17
 676e99642674ddcad3e6578379f43d4e01a1bd73:supabase/reconciliation/202607300006_consent_security_and_rls.sql:generic-api-key:17
+# Historical synthetic readiness-test rotation value removed from the current fixture.
+12d67951201b1dae6a3b91ac9fae405322671905:tests/readiness-route-binding.test.mjs:generic-api-key:23
 # Exact historical evidence false positives; see docs/release/v1-control-plane-production-proof/secret-scan-triage.json.
 192126fa553ea3480818e7687a2745ade86a52b5:docs/release/v1-control-plane-production-proof/attempt-1-error-contract.json:generic-api-key:1475
 192126fa553ea3480818e7687a2745ade86a52b5:docs/release/v1-control-plane-production-proof/attempt-1-error-contract.json:generic-api-key:1548

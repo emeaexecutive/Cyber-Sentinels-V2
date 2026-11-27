@@ -5,7 +5,7 @@ import test from "node:test";
 const read = (path) => readFileSync(path, "utf8");
 
 test("public auth keeps every required account-access path visible", () => {
-  const login = read("app/login/page.tsx");
+  const login = read("components/login-experience.tsx");
   const verification = read("app/verify-email/page.tsx");
   const middleware = read("middleware.ts");
 
@@ -21,7 +21,7 @@ test("public auth keeps every required account-access path visible", () => {
   ]) {
     assert.equal(login.includes(marker), true, `Missing auth marker: ${marker}`);
   }
-  assert.equal(verification.includes('type: "signup"'), true);
+  assert.equal(verification.includes('operation: "resend"'), true);
   assert.equal(existsSync("app/reset-password/page.tsx"), true);
   assert.equal(middleware.includes("email_confirmed_at"), true);
 });

@@ -33,8 +33,6 @@ async function createWorkspace(formData: FormData) {
 
   const slug = `${slugifyWorkspaceName(name)}-${Date.now().toString(36)}`;
   const workspaceId = crypto.randomUUID();
-  // The tenant read policy resolves ownership from the stored workspace.
-  // Read it only after the insert has completed, not through RETURNING.
   const { error: workspaceError } = await supabase
     .from("trust_workspaces")
     .insert({
@@ -46,11 +44,6 @@ async function createWorkspace(formData: FormData) {
     });
 
   if (!workspaceError) {
-    await supabase.from("workspace_members").insert({
-      workspace_id: workspaceId,
-      user_id: user.id,
-      role: "admin",
-    });
     redirect(`/workspace/${workspaceId}`);
   }
 

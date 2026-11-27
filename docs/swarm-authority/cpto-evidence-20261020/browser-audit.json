@@ -1,0 +1,90 @@
+[
+  {
+    "name": "public",
+    "path": "/platform",
+    "device": "desktop",
+    "status": 200,
+    "width": 1440,
+    "scrollWidth": 1440,
+    "h1": [
+      "One provider-neutral control plane for operational trust decisions."
+    ]
+  },
+  {
+    "name": "public",
+    "path": "/platform",
+    "device": "mobile",
+    "status": 200,
+    "width": 390,
+    "scrollWidth": 390,
+    "h1": [
+      "One provider-neutral control plane for operational trust decisions."
+    ]
+  },
+  {
+    "name": "public",
+    "path": "/about",
+    "device": "desktop",
+    "status": 200,
+    "width": 1440,
+    "scrollWidth": 1440,
+    "h1": [
+      "Trust changed quietly."
+    ]
+  },
+  {
+    "name": "public",
+    "path": "/about",
+    "device": "mobile",
+    "status": 200,
+    "width": 390,
+    "scrollWidth": 390,
+    "h1": [
+      "Trust changed quietly."
+    ]
+  },
+  {
+    "name": "local",
+    "path": "/platform",
+    "device": "desktop",
+    "status": 200,
+    "width": 1440,
+    "scrollWidth": 1440,
+    "h1": [
+      "One provider-neutral control plane for operational trust decisions."
+    ]
+  },
+  {
+    "name": "local",
+    "path": "/platform",
+    "device": "mobile",
+    "status": 200,
+    "width": 390,
+    "scrollWidth": 390,
+    "h1": [
+      "One provider-neutral control plane for operational trust decisions."
+    ]
+  },
+  {
+    "name": "local",
+    "path": "/about",
+    "device": "desktop",
+    "status": 200,
+    "width": 1440,
+    "scrollWidth": 1440,
+    "h1": [
+      "Trust changed quietly."
+    ]
+  },
+  {
+    "name": "local",
+    "path": "/about",
+    "device": "mobile",
+    "status": 200,
+    "width": 390,
+    "scrollWidth": 390,
+    "h1": [
+      "Trust changed quietly."
+    ]
+  }
+]

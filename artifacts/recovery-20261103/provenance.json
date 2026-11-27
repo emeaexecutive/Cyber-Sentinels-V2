@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-03",
+  "production": {
+    "id": "dpl_AFsCyKcsWaKBjAdS32F3Uyqp2FUM",
+    "project": "prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr",
+    "state": "READY",
+    "source": "cli",
+    "sourceSha": null,
+    "sourceShaReason": "Live deployment get withGitRepoInfo and latest production list return no source metadata"
+  },
+  "remoteMain": "63a0e0f550f65b4beb3c52afabdba0481b510e69",
+  "localMain": "94a530cfacbc4470a3f02ff8b08dfc60cd3e13de",
+  "founderHead": "b7891662ff98de1d14bfe514a08bd85fcb97a2dd",
+  "cleanup": "6583146710a3121734a4655feb79ec3afd9c533e",
+  "combined": "4922c579d4438628f2ebae02c8a3c808ba37f3a3",
+  "securityPr128": "ab88dbfc848ee09f1ef08d28fd3f1d871981165f",
+  "securityPr128IsAncestorOfCleanup": false,
+  "backendDiffAgainstMain": false,
+  "hostedMutations": 0
+}

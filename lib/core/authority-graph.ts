@@ -122,7 +122,7 @@ function validateChain(chain: AuthorityGrant[], request: AuthorityGraphRequest, 
   add("tenant isolation", chain.every((grant) => grant.tenantId === request.tenantId), "Every grant must belong to the requesting tenant.");
   add("supported delegation", chain.every((grant) => allowedDelegations.has(`${grant.grantorType}->${grant.granteeType}`)), "Only declared organization, human, agent and machine delegation paths are accepted.");
   add("active grants", chain.every((grant) => activeAt(grant, evaluatedAt)), "Expired, revoked, future-dated or malformed grants fail closed.");
-  add("chain linkage", chain.every((grant, index) => index === 0 || (grant.grantorId === chain[index - 1].granteeId && grant.parentGrantId === chain[index - 1].id)), "Every delegated grant must continue from its parent grantee.");
+  add("chain linkage", chain.every((grant, index) => index === 0 || (grant.grantorId === chain[index - 1].granteeId && grant.grantorType === chain[index - 1].granteeType && grant.parentGrantId === chain[index - 1].id)), "Every delegated grant must continue from its parent grantee identity and principal type.");
   add("scope inheritance", chain.every((grant, index) => index === 0 || subset(grant.scope, chain[index - 1].scope)), "A child grant cannot exceed its parent scope.");
   add("maximum delegation depth", chain.every((grant, index) => chain.length - index - 1 <= Math.max(0, grant.maxDelegationDepth)), "Every ancestor's delegation-depth ceiling is enforced.");
 
@@ -181,8 +181,12 @@ function validateChain(chain: AuthorityGrant[], request: AuthorityGraphRequest, 
 export function evaluateAuthorityGraph(request: AuthorityGraphRequest): AuthorityGraphResult {
   const evaluatedAt = Date.parse(request.evaluatedAt ?? new Date().toISOString());
   const grants = new Map(request.grants.map((grant) => [grant.id, { ...grant, scope: unique(grant.scope) }]));
-  const terminals = [...grants.values()].filter((grant) => grant.tenantId === request.tenantId && grant.granteeId === request.subjectId);
-  const failures: AuthorityGraphResult["checks"] = [];
+  // A duplicate identity is ambiguous evidence, not a last-write-wins update.
+  const duplicateIds = grants.size !== request.grants.length;
+  const terminals = duplicateIds ? [] : [...grants.values()].filter((grant) => grant.tenantId === request.tenantId && grant.granteeId === request.subjectId);
+  const failures: AuthorityGraphResult["checks"] = duplicateIds
+    ? [{ name: "unique grant identities", passed: false, detail: "Duplicate grant identities cannot establish authority." }]
+    : [];
 
   for (const terminal of terminals) {
     const built = buildChain(terminal, grants);
@@ -215,7 +219,7 @@ export function evaluateAuthorityGraph(request: AuthorityGraphRequest): Authorit
   return {
     decision: "DENY",
     valid: false,
-    reason: terminals.length ? "No authority chain satisfied every fail-closed check." : "No authority grant reaches the requested subject.",
+    reason: duplicateIds ? "Authority grant identities are ambiguous." : terminals.length ? "No authority chain satisfied every fail-closed check." : "No authority grant reaches the requested subject.",
     chain: [],
     effectiveScope: [],
     effectiveConstraints: { workflowIds: null, actions: null, purposes: null },

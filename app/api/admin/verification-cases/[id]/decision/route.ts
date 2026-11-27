@@ -15,6 +15,7 @@ import {
   getRequestRiskFields,
 } from "@/lib/security";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
@@ -115,7 +116,7 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient();
+    const authClient = await createClient();
     const { id } = await context.params;
 
     if (!uuidPattern.test(id)) {
@@ -126,7 +127,7 @@ export async function POST(
     }
 
     const parsed = parsePayload(await readDecisionPayload(req));
-    const access = await requireAdminApiAccess(req, supabase);
+    const access = await requireAdminApiAccess(req, authClient);
 
     if (!access.ok) {
       return access.response;
@@ -140,6 +141,7 @@ export async function POST(
     }
 
     const user = access.user;
+    const supabase = createServiceRoleClient();
     const actor = user.email ?? user.id;
     const requestRisk = getRequestRiskFields(req);
     const status = getDecisionStatus(

@@ -1,0 +1,26 @@
+{
+  "checks": [
+    {
+      "locale": "en",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "locale": "es",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "locale": "en",
+      "width": 1440,
+      "status": "PASS"
+    },
+    {
+      "locale": "es",
+      "width": 1440,
+      "status": "PASS"
+    }
+  ],
+  "errors": [],
+  "synthetic": true
+}

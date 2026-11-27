@@ -123,7 +123,7 @@ test("Agent Beta is a distinct canonical AI-agent entity with separate owner and
 test("Product Truth marks local implementation working but not Production-proven", () => {
   const capability = registry.find((item) => item.name === "Native delegated Operational Entity authority");
   assert.ok(capability);
-  assert.equal(capability.qualificationLevel, "WORKING");
+  assert.equal(capability.qualificationLevel, "WORKING_LOCAL");
   assert.match(capability.publicClaim, /not Production-proven/i);
   assert.ok(capability.tests.includes("tests/native-delegated-authority.test.mjs"));
 });

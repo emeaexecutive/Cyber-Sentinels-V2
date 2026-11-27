@@ -1,3 +1,4 @@
+export const metadata = { robots: { index: false, follow: true } };
 import { LegalDraftPage } from "@/components/legal-draft-page";
 
 export default function CorporateSustainabilityPage() {

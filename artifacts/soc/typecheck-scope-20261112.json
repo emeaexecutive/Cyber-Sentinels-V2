@@ -1,0 +1,17 @@
+{
+  "files": 1855,
+  "application": 597,
+  "typescriptTests": 3,
+  "generatedRouteTypes": 581,
+  "scratchFiles": 0,
+  "sourceIncluded": true,
+  "excludes": [
+    "node_modules",
+    "tmp",
+    "temp"
+  ],
+  "incrementalBypass": "--incremental false used for fresh typecheck",
+  "node": "v22.23.1",
+  "nodeOptionsPresent": false,
+  "defaultHeapLimitBytes": 4345298944
+}

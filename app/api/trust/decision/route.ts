@@ -150,6 +150,9 @@ export async function POST(req: Request) {
       decision: decisionResult.decision,
       policy_result: policyResult.policy_result,
       reason_codes: uniqueReasonCodes,
+      decision_authority: "ADVISORY_ONLY",
+      execution_authorized: false,
+      canonical_decision_required: true,
       recommended_next_step: getNextStep(
         policyResult.policy_action,
         decisionResult.decision

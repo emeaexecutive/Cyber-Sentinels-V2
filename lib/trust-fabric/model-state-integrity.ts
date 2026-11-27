@@ -457,7 +457,7 @@ export function evaluateModelStateIntegrity(input: EvaluateModelStateIntegrityIn
     correlationId: assessmentId,
     monitoringCoverage: "covered",
     identityContinuity: ["EXACT_MATCH", "SUPPORTED_MATCH", "EXPECTED_CHANGE"].includes(modelIntegrityState) ? "continuous" : "review_required",
-    signingBoundary: "provider_signed",
+    signingBoundary: providerId === "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY" ? "unsigned" : "provider_signed",
     providerClass: input.observed.providerAssertions?.find((item) => item.providerKey === providerId)?.providerClass ?? "RUNTIME_SECURITY_PROVIDER",
     providerKey: providerId,
     environment: input.observed.runtimeEnvironment,

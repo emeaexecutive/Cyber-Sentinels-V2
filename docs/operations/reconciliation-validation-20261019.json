@@ -1,0 +1,63 @@
+{
+  "recorded_at": "2026-10-19T17:55:20.620783+00:00",
+  "source_commit": "1cb31c9f007d9b9b58b3d38113cd549398c57b6b",
+  "production_access": false,
+  "deployments_performed": false,
+  "checks": {
+    "full": {
+      "exit_code": 0,
+      "sha256": "3d156dc2ddd8534e9e058f83cc02702c922578c36db4951be6185644f4a7f31d",
+      "log": "C:\\Users\\emeae\\Documents\\CyberSentinels\\ProductionBackups\\reconciliation-20261019\\reconcile-full.log",
+      "tests": 2173,
+      "passed": 2173,
+      "failed": 0
+    },
+    "authority-pass": {
+      "exit_code": 0,
+      "sha256": "6ddec70f708a50f73b5766f34f387eac7723205d3f3574e488e074b0484dd490",
+      "log": "C:\\Users\\emeae\\Documents\\CyberSentinels\\ProductionBackups\\reconciliation-20261019\\reconcile-authority-pass.log",
+      "tests": 42,
+      "passed": 42,
+      "failed": 0
+    },
+    "typecheck": {
+      "exit_code": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log": "C:\\Users\\emeae\\Documents\\CyberSentinels\\ProductionBackups\\reconciliation-20261019\\reconcile-typecheck.log",
+      "tests": 0,
+      "passed": 0,
+      "failed": 0
+    },
+    "lint": {
+      "exit_code": 0,
+      "sha256": "2aea7d75b830407238a6f73ec8bac698389e8537baeacac92c851ade18053058",
+      "log": "C:\\Users\\emeae\\Documents\\CyberSentinels\\ProductionBackups\\reconciliation-20261019\\reconcile-lint.log",
+      "tests": 0,
+      "passed": 0,
+      "failed": 0,
+      "warnings": 10
+    },
+    "graph-before": {
+      "exit_code": 1,
+      "sha256": "9b25efbb5aab2fa8e6ce9eaee76039860546d313e0224fb8130d5c30737615c3",
+      "log": "C:\\Users\\emeae\\Documents\\CyberSentinels\\ProductionBackups\\reconciliation-20261019\\reconcile-graph-before.log",
+      "tests": 2,
+      "passed": 0,
+      "failed": 2
+    },
+    "build": {
+      "exit_code": 0,
+      "static_pages": 208,
+      "configuration": "isolated synthetic localhost; no workspace secret files",
+      "log": "C:\\Users\\emeae\\Documents\\CyberSentinels\\ProductionBackups\\reconciliation-20261019\\reconcile-build.log",
+      "sha256": "e684b83fe11a177c98a070b0eec6246fa3800721f5d1449a14a90f80faa6059f"
+    }
+  },
+  "founder_story": {
+    "pre_existing_uncommitted": true,
+    "source_sha256": "0f8553b6010558e9753289eb1c91ec55b8c363d5bae40802291743e2e5c6b231",
+    "rendered_check": "PASS: founder heading, delegated-authority conclusion and existing founder narrative present in /about static HTML",
+    "html_sha256": "7b58e9d4415cc8f10605f1d2918d128fcb012408f6e4694deb812ee56655e1e8",
+    "visual_browser_review": false
+  }
+}

@@ -21,6 +21,7 @@ export type RouteSurfaceManifestEntry = RouteVisibilityRecord & {
 export const routeSurfaceManifest: RouteSurfaceManifestEntry[] = [
   { route: "/", visibility: "public", family: "public", indexable: true, reason: "Canonical public homepage." },
   { route: "/platform", visibility: "public", family: "public", indexable: true, reason: "Primary product platform narrative." },
+  { route: "/platform/kya", visibility: "public", family: "public", indexable: true, reason: "Developing KYA identity and delegated authority narrative." },
   { route: "/solutions", visibility: "public", family: "public", indexable: true, reason: "Workflow outcome framing for buyers." },
   { route: "/trust", visibility: "public", family: "public", indexable: true, reason: "Canonical public trust narrative." },
   { route: "/enterprise", visibility: "public", family: "public", indexable: true, reason: "Canonical enterprise story and deployment path." },
@@ -42,8 +43,12 @@ export const routeSurfaceManifest: RouteSurfaceManifestEntry[] = [
 ];
 
 export const canonicalPublicRoutes = [
+  "/tenente-swarm",
+  "/tenente-swarm/torch-code",
+  "/tenente-swarm/river-crossing",
   "/",
   "/platform",
+  "/platform/kya",
   "/solutions",
   "/trust",
   "/trust/data-sovereignty",
@@ -79,6 +84,7 @@ export const canonicalPublicRoutes = [
   "/help",
   "/accessibility",
   "/privacy",
+  "/privacy/cookies",
   "/terms",
   "/cookies",
   "/legal",

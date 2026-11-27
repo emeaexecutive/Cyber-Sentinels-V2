@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-08",
+  "files": [
+    "app/api/evidence/download/route.ts",
+    "app/api/evidence/route.ts",
+    "app/api/evidence/upload/route.ts",
+    "app/api/waitlist/route.ts",
+    "app/evidence-vault/page.tsx",
+    "app/workspace/page.tsx",
+    "docs/API_MATURITY.md",
+    "docs/CYBER_SENTINELS_CAPABILITY_TRUTH_MATRIX.md",
+    "docs/production-recovery-procedure.md",
+    "docs/release/CORE_APPROVAL_BOUNDARY.md",
+    "docs/release/CORE_CANONICAL_SCHEMA.md",
+    "docs/release/CORE_CLOSURE_EVIDENCE_20261008.json",
+    "docs/release/CORE_FINAL_CLOSURE_20261008.md",
+    "docs/release/CORE_RC_FILESET_20261008.json",
+    "docs/release/CORE_SCHEMA_DIFFERENCE_CLOSURE.json",
+    "docs/release/CORE_SCHEMA_DIFFERENCE_CLOSURE.md",
+    "docs/release/CORE_TRUST_MEMORY_PROVENANCE.json",
+    "lib/auth/approval-boundary.ts",
+    "middleware.ts",
+    "package.json",
+    "supabase/canonical-schema-contract.json",
+    "supabase/migrations/20261007150222_account_approval_default_deny.sql",
+    "supabase/migrations/20261007150224_canonical_trust_memory_function_reconciliation.sql",
+    "supabase/migrations/20261007150835_canonical_workspace_bootstrap.sql",
+    "supabase/migrations/20261008093614_canonical_application_access_grants.sql",
+    "supabase/migrations/20261008105722_canonical_application_schema_reconciliation.sql",
+    "supabase/migrations/20261008112858_evidence_download_approval_revalidation.sql",
+    "tests/evidence-download-approval.test.mjs",
+    "tests/final-blocker-sweep.test.mjs",
+    "tests/fixtures/account-approval-boundary.sql",
+    "tests/live/staging-security-closure.test.mjs",
+    "tests/migration-namespace-reconciliation.test.mjs",
+    "tests/rls/account-approval-default-deny.test.mjs",
+    "tests/rls/legacy-security-closure.test.mjs",
+    "tests/rls/trust-event-foundation.test.mjs",
+    "tests/schema-equivalence.test.mjs",
+    "tests/waitlist-approval-boundary.test.mjs",
+    "tests/workspace-owner-creation.test.mjs",
+    "tools/release/application-catalog.mjs",
+    "tools/release/approval-boundary-inventory.mjs",
+    "tools/release/backup-production.ps1",
+    "tools/release/effective-application-schema.sql",
+    "tools/release/reviewed-schema-equivalences.json",
+    "tools/release/schema-contract.mjs",
+    "tools/release/schema-equivalence.mjs",
+    "tools/release/set-staging-qualification-credential.ps1"
+  ],
+  "fileCount": 46,
+  "hashConvention": "SHA-256 of UTF-8 source with CRLF normalized to LF",
+  "qualifiedSource": [
+    {
+      "file": "app/api/evidence/download/route.ts",
+      "sha256": "4ab4d9c51cc24786d205e98e0507562067987f918c01a075d14c148c391393bd"
+    },
+    {
+      "file": "app/api/evidence/route.ts",
+      "sha256": "06b866dc0e0f32067fdeef0ce937aa5f291968a5edf80a043653123310486c77"
+    },
+    {
+      "file": "app/api/evidence/upload/route.ts",
+      "sha256": "394d4ee38cd545131fa2f887deeccc160d6a153cf5546e4f2463d8d2d8d454da"
+    },
+    {
+      "file": "app/api/waitlist/route.ts",
+      "sha256": "f740955d3c7a9e6f554ef5f62e05409c26edb4ea2d1c9f0c4121884808b6433e"
+    },
+    {
+      "file": "app/evidence-vault/page.tsx",
+      "sha256": "0944de86a49922de39612d4395afbf805b355f9429d72c9153d21a9870cb556a"
+    },
+    {
+      "file": "app/workspace/page.tsx",
+      "sha256": "326611220ef15a1418888e78fa3763be1b36e2c38432e3100bf65bbc4ac53fb1"
+    },
+    {
+      "file": "lib/auth/approval-boundary.ts",
+      "sha256": "a1a70d0d0b2f452f31d40ca4105795065d5bdbb632fcda01de2e606fc475f320"
+    },
+    {
+      "file": "middleware.ts",
+      "sha256": "ea3ec1abb9c3a2380973f135660d788b56a474fd971c26b02d984888a06ecd28"
+    },
+    {
+      "file": "package.json",
+      "sha256": "ae4fa3a3385152113c73443eaadd39dde6627d43691c8130b7f5449594671cdf"
+    },
+    {
+      "file": "supabase/canonical-schema-contract.json",
+      "sha256": "659b30b082eae3b8bd5158c8060fd36d2c52e3141049d218c0a02afc08839dbe"
+    },
+    {
+      "file": "supabase/migrations/20261007150222_account_approval_default_deny.sql",
+      "sha256": "d8e42d0b83613e17a94b6ad21b310c9cbf8f351f4538f6d687d1172c0557177f"
+    },
+    {
+      "file": "supabase/migrations/20261007150224_canonical_trust_memory_function_reconciliation.sql",
+      "sha256": "d8b334c90891d5fe6a6c496470989800e9fbde8622b9dee86f325146467a85de"
+    },
+    {
+      "file": "supabase/migrations/20261007150835_canonical_workspace_bootstrap.sql",
+      "sha256": "651f6cf6877f1deb7703fa3b8ad0273431adaa4835555b752a12140e1ea65ffe"
+    },
+    {
+      "file": "supabase/migrations/20261008093614_canonical_application_access_grants.sql",
+      "sha256": "998654f82030142434499aff2211963ebafa33ca8b004139723ed24dca27b506"
+    },
+    {
+      "file": "supabase/migrations/20261008105722_canonical_application_schema_reconciliation.sql",
+      "sha256": "ede4645ab832fe6a2dcd324321c17a19cca25b0e572ae2bd109eab1fa9e19b30"
+    },
+    {
+      "file": "supabase/migrations/20261008112858_evidence_download_approval_revalidation.sql",
+      "sha256": "c477719d3649f199302f00e8c0063f04ae804adac197b3caa73ce30ff2235823"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "classification": "WORKING_LOCAL",
+  "database": "aor_qualification_migration2",
+  "engine": "PostgreSQL 17.11 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+  "checks": [
+    {
+      "name": "Forged direct destination dispatch cannot execute",
+      "result": "PASS",
+      "executionCount": 0
+    },
+    {
+      "name": "ALLOW executes exactly once; idempotent retry does not execute",
+      "result": "PASS",
+      "executionCount": 1
+    },
+    {
+      "name": "Database rejects executable payload different from the canonical decision",
+      "result": "PASS"
+    },
+    {
+      "name": "Concurrent database claims reserve only one execution request",
+      "result": "PASS"
+    },
+    {
+      "name": "Changed reuse of durable reservation is rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "Policy expiry blocks dispatch of an earlier ALLOW without rewriting policy history",
+      "result": "PASS",
+      "executionCount": 0
+    },
+    {
+      "name": "Exact payload digest survives database persistence",
+      "result": "PASS"
+    },
+    {
+      "name": "Actual signed destination observation and correlated outcome persist",
+      "result": "PASS",
+      "outcome": "CONFIRMED"
+    },
+    {
+      "name": "Persisted historical receipt verifies with Ed25519",
+      "result": "PASS"
+    },
+    {
+      "name": "Unresolved REVIEW has zero downstream calls",
+      "result": "PASS",
+      "executionCount": 0
+    },
+    {
+      "name": "Unauthorized reviewer cannot approve the original request",
+      "result": "PASS"
+    },
+    {
+      "name": "Authorized review preserves original REVIEW and requires fresh evaluation",
+      "result": "PASS"
+    },
+    {
+      "name": "MCP tools/call crosses the same controlled HTTP boundary",
+      "result": "PASS"
+    },
+    {
+      "name": "100 authorized versus 1000 actual is a contradiction, not trusted success",
+      "result": "PASS",
+      "outcome": "UNKNOWN"
+    },
+    {
+      "name": "Revoked credential blocks dispatch of an earlier ALLOW",
+      "result": "PASS",
+      "executionCount": 0
+    },
+    {
+      "name": "Audited TENENTE suspension blocks new execution",
+      "result": "PASS",
+      "executionCount": 0
+    },
+    {
+      "name": "Signed authority scope cannot be edited in place",
+      "result": "PASS"
+    },
+    {
+      "name": "Revoked authority returns DENY with zero downstream calls",
+      "result": "PASS",
+      "executionCount": 0
+    },
+    {
+      "name": "Historical ALLOW remains unchanged after revocation",
+      "result": "PASS"
+    },
+    {
+      "name": "Atomic authority restriction appends Trust Memory and Replay",
+      "result": "PASS"
+    },
+    {
+      "name": "PENDING and unauthorized administrator cannot restrict authority",
+      "result": "PASS"
+    },
+    {
+      "name": "Cross-tenant authority mutation denied",
+      "result": "PASS"
+    },
+    {
+      "name": "PENDING authenticated token cannot read protected execution records",
+      "result": "PASS"
+    },
+    {
+      "name": "Direct authenticated RPC denied even with forged administrator argument",
+      "result": "PASS"
+    },
+    {
+      "name": "APPROVED account in another tenant still reads zero execution records",
+      "result": "PASS"
+    }
+  ],
+  "executions": [
+    {
+      "transactionId": "ff0aa5f9-de17-4927-bbe6-d6ab99a8e21b",
+      "authorizedAmount": 100,
+      "actualAmount": 100,
+      "transport": "http"
+    },
+    {
+      "transactionId": "628ec8cd-f246-45ef-8621-aabf2a2abcd1",
+      "authorizedAmount": 100,
+      "actualAmount": 100,
+      "transport": "mcp"
+    },
+    {
+      "transactionId": "17d2870d-a79b-4aa2-9081-7eca2e5bc86a",
+      "authorizedAmount": 100,
+      "actualAmount": 1000,
+      "transport": "http"
+    }
+  ],
+  "limitations": [
+    "Synthetic identity/runtime fixtures; no live identity provider attestation.",
+    "Native evaluator, database RPC and HTTP/MCP adapter qualification; not hosted Next.js/browser qualification.",
+    "No shared Staging or Production calls."
+  ],
+  "result": "PASS",
+  "tenantId": "f42675c1-ddd2-4547-b353-494d9f24dcc7",
+  "transactionIds": [
+    "ff0aa5f9-de17-4927-bbe6-d6ab99a8e21b",
+    "bd2ebbf0-9ee2-450c-b599-2cd7e2a1f441",
+    "628ec8cd-f246-45ef-8621-aabf2a2abcd1",
+    "17d2870d-a79b-4aa2-9081-7eca2e5bc86a",
+    "654115ec-33b7-431e-b4b1-0e428c4046e2"
+  ]
+}

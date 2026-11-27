@@ -78,10 +78,10 @@ test("the production framework and image dependencies use patched releases", () 
   const manifest = readJson("package.json");
   const lock = readJson("package-lock.json");
 
-  assert.equal(manifest.dependencies.next, "15.5.28");
-  assert.equal(lock.packages["node_modules/next"].version, "15.5.28");
-  assert.equal(manifest.devDependencies["eslint-config-next"], "15.5.28");
-  assert.equal(lock.packages["node_modules/eslint-config-next"].version, "15.5.28");
+  assert.equal(manifest.dependencies.next, "15.5.29");
+  assert.equal(lock.packages["node_modules/next"].version, "15.5.29");
+  assert.equal(manifest.devDependencies["eslint-config-next"], "15.5.29");
+  assert.equal(lock.packages["node_modules/eslint-config-next"].version, "15.5.29");
   assert.equal(manifest.overrides.sharp, "0.35.5");
   assert.equal(lock.packages["node_modules/sharp"].version, "0.35.5");
   assert.equal(manifest.overrides["source-map-js"], "1.2.2");

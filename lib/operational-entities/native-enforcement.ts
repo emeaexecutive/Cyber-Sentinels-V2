@@ -436,8 +436,17 @@ export async function executeAuthorizedAction(input: {
     | { created: false; blocked?: false; request: EnforcementRequest; result: EnforcementAdapterResult }
   >;
   adapter: { execute(request: EnforcementRequest): Promise<EnforcementAdapterResult> };
+  // An irrevocable, current-state database claim must precede any adapter effect.
+  claimDispatch?: (request: EnforcementRequest) => Promise<{ claimed: boolean; reason?: string }>;
+  // Server-selected restrictive controls; never selected or disabled by request input.
+  swarmGuard?: {
+    admit(request: EnforcementRequest): Promise<{ allowed: boolean; reasonCodes: string[]; receiptDigest?: string }>;
+    dispatch(request: EnforcementRequest): Promise<{ allowed: boolean; reasonCodes: string[]; receiptDigest?: string }>;
+  };
+  requireSwarmGuard?: boolean;
   now?: () => string;
 }) {
+  input = structuredClone(input);
   exactUuid(input.enterpriseId, "enterpriseId");
   exactUuid(input.transactionId, "transactionId");
   exactUuid(input.authorityId, "authorityId");
@@ -460,14 +469,58 @@ export async function executeAuthorizedAction(input: {
     requestedAt: (dependencies.now ?? (() => new Date().toISOString()))(),
   };
   if (input.decision !== "ALLOW") return { requested: false, request: null, result: null, eligibility: { eligible: false, state: "DENIED" as const, reasonCodes: [input.decision === "DENY" ? "DECISION_DENY_NO_ENFORCEMENT" : "DECISION_REVIEW_NO_ENFORCEMENT"], algorithmVersion: ENFORCEMENT_ELIGIBILITY_VERSION } };
+  if (dependencies.requireSwarmGuard && !dependencies.swarmGuard) throw new NativeEnforcementError("Required swarm verification is unavailable.", "SWARM_GUARD_UNAVAILABLE", 503);
   const existing = await dependencies.findByIdempotencyKey(input.enterpriseId, input.idempotencyKey);
-  if (existing) return { requested: true, request: existing.request, result: existing.result, duplicate: true, eligibility: { eligible: true, state: "ELIGIBLE" as const, reasonCodes: ["IDEMPOTENT_REPLAY"], algorithmVersion: ENFORCEMENT_ELIGIBILITY_VERSION } };
+  const assertSameRequest = (prior: EnforcementRequest) => {
+    if (prior.enterpriseId !== request.enterpriseId || prior.transactionId !== request.transactionId
+      || prior.operationalEntityId !== request.operationalEntityId || prior.authorityId !== request.authorityId
+      || prior.delegationId !== request.delegationId || prior.actionDigest !== request.actionDigest
+      || prior.decisionDigest !== request.decisionDigest) {
+      throw new NativeEnforcementError("The idempotency key belongs to a different authorized action.", "ENFORCEMENT_IDEMPOTENCY_CONFLICT", 409);
+    }
+  };
+  if (existing) {
+    // A cached success must not skip current swarm authentication/containment.
+    // Historical evidence remains available through separately authenticated reads.
+    if (dependencies.swarmGuard) throw new NativeEnforcementError("Guarded execution cannot reuse a cached authorization.", "SWARM_REPLAY_REAUTH_REQUIRED", 409);
+    assertSameRequest(existing.request);
+    return { requested: true, request: existing.request, result: existing.result, duplicate: true, eligibility: { eligible: true, state: "ELIGIBLE" as const, reasonCodes: ["IDEMPOTENT_REPLAY"], algorithmVersion: ENFORCEMENT_ELIGIBILITY_VERSION } };
+  }
   const current = await dependencies.loadCurrentState(request);
-  const eligibility = evaluateEnforcementEligibility({ decision: input.decision, request, current, approval: input.approval });
+  const eligibility = evaluateEnforcementEligibility({ decision: input.decision, request, current, approval: input.approval, now: request.requestedAt });
   if (!eligibility.eligible) return { requested: false, request: null, result: null, eligibility };
+  const guardDenied = (reasonCodes: string[]) => ({ requested: false as const, request: null, result: null, eligibility: { ...eligibility, eligible: false, state: "DENIED" as const, reasonCodes } });
+  if (dependencies.requireSwarmGuard && !dependencies.swarmGuard) return guardDenied(["SWARM_GUARD_UNAVAILABLE"]);
+  if (dependencies.swarmGuard) {
+    try { const checked = await dependencies.swarmGuard.admit(request); if (!checked.allowed) return guardDenied(checked.reasonCodes); }
+    catch { return guardDenied(["SWARM_ADMISSION_UNAVAILABLE"]); }
+  }
   const reservation = await dependencies.reserveRequest(request);
   if (!reservation.created && reservation.blocked) return { requested: false, request: null, result: null, duplicate: false, eligibility: { ...eligibility, eligible: false, state: reservation.reasonCodes.includes("HUMAN_APPROVAL_REQUIRED") ? "REVIEW_REQUIRED" as const : "CANCELLED" as const, reasonCodes: reservation.reasonCodes } };
-  if (!reservation.created) return { requested: true, request: reservation.request, result: reservation.result, duplicate: true, eligibility: { ...eligibility, reasonCodes: ["IDEMPOTENT_REPLAY"] } };
-  const result = await dependencies.adapter.execute(request);
+  if (!reservation.created) {
+    assertSameRequest(reservation.request);
+    return { requested: true, request: reservation.request, result: reservation.result, duplicate: true, eligibility: { ...eligibility, reasonCodes: ["IDEMPOTENT_REPLAY"] } };
+  }
+  if (!dependencies.claimDispatch) throw new NativeEnforcementError("Durable dispatch claim is not configured.", "DURABLE_DISPATCH_UNAVAILABLE", 503);
+  const claim = await dependencies.claimDispatch(request);
+  if (!claim.claimed) return guardDenied([claim.reason ?? "DISPATCH_NOT_CLAIMED"]);
+  // Swarm policy/stop/revocation is checked after the potentially blocking DB
+  // claim. A consumed claim denied here cannot be blindly retried.
+  if (dependencies.swarmGuard) {
+    try { const checked = await dependencies.swarmGuard.dispatch(request); if (!checked.allowed) return guardDenied(checked.reasonCodes); }
+    catch { return guardDenied(["SWARM_DISPATCH_UNAVAILABLE"]); }
+  }
+  // Keep #128's last generic authority/approval check AFTER every potentially
+  // asynchronous claim and guard, including approval expiry inside the guard.
+  const dispatchCurrent = await dependencies.loadCurrentState(request);
+  const dispatchEligibility = evaluateEnforcementEligibility({ decision: input.decision, request, current: dispatchCurrent,
+    approval: input.approval, now: (dependencies.now ?? (() => new Date().toISOString()))() });
+  if (!dispatchEligibility.eligible) return { requested: false, request: null, result: null, eligibility: dispatchEligibility };
+  let result: EnforcementAdapterResult;
+  try { result = await dependencies.adapter.execute(request); }
+  catch {
+    result = { status: "UNKNOWN", adapterReference: null, acknowledgedAt: (dependencies.now ?? (() => new Date().toISOString()))(),
+      executionClaim: null, runtimeObservation: null, destinationObservation: null, reasonCodes: ["DISPATCH_OUTCOME_UNKNOWN_RECONCILIATION_REQUIRED"] };
+  }
   return { requested: true, request, result, duplicate: false, eligibility };
 }

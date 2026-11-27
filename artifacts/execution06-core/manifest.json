@@ -1,0 +1,126 @@
+{
+  "source": "17055a082112c1c8f134f5132ee97100a68b0cf9",
+  "environment": "Windows local; Node22.23.1; locked Execution05 node_modules junction",
+  "dependencyLockSha256": "f80b4933e2c2b364d0f4425904ab19a9ac4a36eb79fc83c9ef12ccd24c5fcce2",
+  "previousDependencyLockSha256": "f80b4933e2c2b364d0f4425904ab19a9ac4a36eb79fc83c9ef12ccd24c5fcce2",
+  "results": {
+    "build": {
+      "exit": 0,
+      "pages": 209
+    },
+    "typecheck": {
+      "exit": 0,
+      "incremental": false,
+      "files": 2728
+    },
+    "lint": {
+      "exit": 0,
+      "errors": 0,
+      "warnings": 10
+    },
+    "api": {
+      "exit": 0,
+      "pass": 65,
+      "skip": 0
+    },
+    "enforcement": {
+      "exit": 0,
+      "pass": 67,
+      "skip": 0
+    },
+    "authBrowser": {
+      "exit": 0,
+      "pass": 32,
+      "skip": 0
+    },
+    "productionAudit": {
+      "exit": 0,
+      "advisories": 0
+    },
+    "scanner": {
+      "exit": 0,
+      "commits": 914,
+      "findings": 0
+    },
+    "newRemoteCI": "NOT_RUN",
+    "hostedFunctional": "NOT_RUN"
+  },
+  "failedAttempts": [
+    {
+      "check": "restricted auth browser",
+      "pass": 7,
+      "fail": 25,
+      "cause": "esbuild directory access; approved rerun passed"
+    },
+    {
+      "check": "concurrent generated-route typecheck",
+      "exit": 2,
+      "cause": "TS6053 while Next regenerated types; sequential final check passed; initial full log was replaced by final log"
+    },
+    {
+      "check": "initial release-scope scanner",
+      "exit": 1,
+      "cause": "exact non-secret fixture finding; narrowly classified"
+    },
+    {
+      "check": "exploratory all-local-refs scan",
+      "exit": 1,
+      "findings": 15176,
+      "cause": "includes unpublished historical branches; untriaged; no machine-wide clean claim"
+    }
+  ],
+  "files": [
+    {
+      "name": "execution06-audit-final.log",
+      "sha256": "5a5c8099e930ba79e639654a3f06b50db31bd38907efa038cbd90ced48d6eb63"
+    },
+    {
+      "name": "execution06-auth-browser-final.log",
+      "sha256": "5d1c902b0d7a9abf74ec9b7037ce7ec0e670b0760bfc624784848b6fda9c6f53"
+    },
+    {
+      "name": "execution06-auth-browser.log",
+      "sha256": "c3758bf146bb48094f5c73803917b737783dccf5d02bd59b5da513391e5c44fb"
+    },
+    {
+      "name": "execution06-build-final.log",
+      "sha256": "c81371f2186bbcd7c5b1824701c97357adbf4d6baff1687395b3db3771178d9c"
+    },
+    {
+      "name": "execution06-core-regression-final.log",
+      "sha256": "d324bd0c91a286591949346f20a2cba000ab99035f0e004877a4d6a173c09e89"
+    },
+    {
+      "name": "execution06-enforcement-final.log",
+      "sha256": "cbb43c64dd2b04bf7f8e2b76e2ae4f061f2c082766a799bf39beed8b56d6899f"
+    },
+    {
+      "name": "execution06-final-scan-redacted.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "name": "execution06-final-scan.log",
+      "sha256": "902ce49f73be458b2f1b0e0262a15886de80b451dd0805d0e7bfa5fa10af1771"
+    },
+    {
+      "name": "execution06-full-lint-final.log",
+      "sha256": "bd591abe6525ce1f26812ce89c7ee06eaa8a6f4489d61ed26b173113d0263a9e"
+    },
+    {
+      "name": "execution06-published-scan-redacted.json",
+      "sha256": "883def512c38a7e1065d259e66cd6f752a3ff2409372adaac824f76e2b30d031"
+    },
+    {
+      "name": "execution06-typecheck-final.log",
+      "sha256": "61929e5d231c25f7e980219f4e8656f1bb8d25f9d6d9d3befa537e48f5ff1ce9"
+    },
+    {
+      "name": "regenerated-torch-local-final.json",
+      "sha256": "03d00ab90346da390d1b0979bed6053bc3d6bf33860e480dfc556c8a67c98ddc"
+    },
+    {
+      "name": "regenerated-torch-local.json",
+      "sha256": "9ea60a34d012d8578924f7470b85e1b37da08be9a630cfa251108392075a24e7"
+    }
+  ]
+}

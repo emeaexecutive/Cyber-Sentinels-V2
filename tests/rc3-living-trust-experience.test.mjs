@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import {renderToStaticMarkup} from "react-dom/server";
+import {harness} from "./fixtures/sign-out-session.mjs";
 
 import { evaluateAuthorityGraph } from "../lib/core/authority-graph.ts";
 import { normalizeEntityIdentity } from "../lib/core/entity-identity.ts";
@@ -22,7 +24,7 @@ test("primary and mobile navigation expose the six release-candidate destination
 
 test("footer is the secondary discovery index and preserves company and support access", async () => {
   const source = await read("app/layout.tsx");
-  for (const section of ["Platform", "Trust", "Solutions", "Enterprise", "Developers & Resources", "Company", "Legal & Support"]) assert.match(source, new RegExp(`title: "${section.replace("&", "&")}"`));
+  for (const section of ["Platform", "Trust", "Solutions", "Enterprise", "Developers & Resources", "Company", "Legal & Support"]) assert.ok(source.includes(`title: "${section}"`), section);
   for (const label of ["About", "Help", "Living Trust Profile", "Trust DNA™", "Trust Memory", "Evidence & Audit", "Pilot Programme", "API Documentation", "Accessibility", "Privacy", "Terms", "Cookies", "Security", "Status"]) assert.match(source, new RegExp(label));
   assert.match(source, /\/trust#living-trust-profile/);
   assert.match(source, /\/enterprise#support/);
@@ -54,12 +56,15 @@ test("canonical public routes remain indexable while protected and archived rout
 });
 
 test("CISO and CIO buyer journeys preserve canonical proof and readiness surfaces", async () => {
-  const [home, demoPage, legacyDemo, platform] = await Promise.all([read("app/page.tsx"), read("app/demo/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("app/platform/page.tsx")]);
+  const [demoPage, legacyDemo] = await Promise.all([read("app/demo/page.tsx"), read("app/demo/trust-execution-flow/page.tsx")]);
+  const h=harness();
+  const home=renderToStaticMarkup(await h.load("app/page.tsx").default());
+  const platform=renderToStaticMarkup(await h.load("app/platform/page.tsx").default());
   assert.match(home, /href="\/enterprise-access\?intent=demo"/);
   assert.match(home, /href="\/developers\/docs"/);
-  for (const href of ["/replay/demo", "/trust-centre/fabric"]) assert.match(demoPage, new RegExp(`href[:=]"${href.replaceAll("/", "\\/")}"`));
+  for (const href of ["/replay/demo", "/platform#trust-fabric"]) assert.match(demoPage, new RegExp(`href[:=]"${href.replaceAll("/", "\\/")}"`));
   assert.match(legacyDemo,/redirect\("\/demo"\)/);
-  assert.equal((home.match(/<Link/g) ?? []).length, 2);
+  assert.deepEqual([...home.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map(match => match[1]), ["/enterprise-access?intent=demo", "/developers/docs", "/platform/kya", "/platform#agent-authority", "/kya-ai-agent-trust-flow.png"]);
   assert.match(platform, /href="\/developers"/);
   assert.match(platform, /href="\/enterprise\/pilot"/);
 });

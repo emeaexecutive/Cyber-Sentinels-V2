@@ -102,7 +102,7 @@ export async function POST(req: Request) {
       storage_path: storagePath,
       public_url: publicUrl || null,
       file_url: publicUrl || null,
-      media_type: fileType,
+      media_type: ["PNG", "JPG", "JPEG"].includes(fileType) ? "image" : "document",
       notes,
       uploaded_by: actor,
       status: "pending_review",

@@ -1,2 +1,61 @@
 # Reviewed deterministic readiness-route test fixture; exact historical finding only.
 12d67951201b1dae6a3b91ac9fae405322671905:tests/readiness-route-binding.test.mjs:generic-api-key:23
+
+# Local PostgreSQL wrong-password fixture; exact historical finding only.
+a9bffc15e6889e874a9f58fb523965fc45260e5c:tools/qualification/execution03-database-rehearsal.mjs:generic-api-key:63
+
+# Exact saved PostgreSQL policy-expression fingerprints; values are catalogue
+# qualifiers/checks and MD5 expectations, not credentials.
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:122
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:123
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:124
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:125
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:126
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:128
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:129
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:130
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:131
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:132
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:135
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:136
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:137
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:138
+3f27eac2384d2179ce9938e1bb2bb5b953318901:supabase/migrations/20261117135536_fail_closed_email_ownership.sql:generic-api-key:139
+
+# SOC fixture metadata: exact reviewed historical fingerprints; no broad path/rule exclusion.
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:34
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:471
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:531
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:591
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:651
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/destination-1794480850563.json:generic-api-key:1
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:711
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:771
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:831
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:891
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:951
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:34
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:468
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:528
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:588
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:648
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:708
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:768
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:828
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:888
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:948
+# Deliberately incorrect local recovery-test password; never an issued credential.
+a9bffc15e6889e874a9f58fb523965fc45260e5c:tools/qualification/execution03-database-rehearsal.mjs:generic-api-key:63
+# Non-secret idempotency identifier in the Execution05 route fixture; never authenticates a request.
+35a979fdabc9c52d13871af8270b1c54e00e0e36:tests/workload-decision-boundary.test.mjs:generic-api-key:62
+# Exact reviewed non-secret fixture/public-key metadata; see Execution06 triage.
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/allow-review-deny.json:generic-api-key:134
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/allow-review-deny.json:generic-api-key:160
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json:generic-api-key:134
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json:generic-api-key:160
+# Exact historical SOC metadata, reviewed in Execution03; no path/rule exclusions.
+# Execution07 reviewed synthetic public-key evidence fingerprints.
+88ad22c083ffd2a5a0fd5c823858b938b567b98f:artifacts/execution07/treasury/demo/race-unknown.json:generic-api-key:134
+88ad22c083ffd2a5a0fd5c823858b938b567b98f:artifacts/execution07/treasury/demo/race-unknown.json:generic-api-key:160
+88ad22c083ffd2a5a0fd5c823858b938b567b98f:artifacts/execution07/treasury/demo/allow-review-deny.json:generic-api-key:134
+88ad22c083ffd2a5a0fd5c823858b938b567b98f:artifacts/execution07/treasury/demo/allow-review-deny.json:generic-api-key:160

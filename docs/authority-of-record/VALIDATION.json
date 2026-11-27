@@ -1,0 +1,219 @@
+{
+  "date": "2026-10-08",
+  "classification": "PARTIAL",
+  "nativeControlledPath": "WORKING_LOCAL",
+  "coreProduction": "NO-GO",
+  "branch": "feat/authority-of-record-tenente",
+  "baseCommit": "5e7b9ed8670f87b8df5884f5c880660125fc4be7",
+  "featureCommit": "Commit containing this artifact; exact SHA supplied in delivery message",
+  "coreBranchUnchanged": true,
+  "sharedMutations": {
+    "staging": 0,
+    "production": 0
+  },
+  "commands": {
+    "regression": {
+      "path": "tmp/aor-tenente/full-regression-release.log",
+      "sha256": "493da17a9eb10a6ba0b77141b7e10b5dc11f151ceb5e38861dc7fd8fc2a1d51b",
+      "exitCode": 0,
+      "invocations": 89,
+      "tests": 2033,
+      "pass": 2033,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "lint": {
+      "path": "tmp/aor-tenente/lint-release.log",
+      "sha256": "ce622f91b1cc3618b6ee8ee2df015f6812379230cbcd953a210fca2418476c74",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 9,
+      "warningScope": "pre-existing ignored scratch files"
+    },
+    "typecheck": {
+      "path": "tmp/aor-tenente/typecheck-release.log",
+      "sha256": "cf4a0ce40a7ecf6917cd8101c508de9fcafe9bed6270eebd52f3fca84f5e1432",
+      "exitCode": 0
+    },
+    "build": {
+      "path": "tmp/aor-tenente/build-release.log",
+      "sha256": "d63af1a1352065ce367d3e8eec3472dc3a1f79b879813cb41efaebbfaf047274",
+      "exitCode": 0,
+      "staticPages": 208
+    },
+    "feature": {
+      "command": "npm run test:authority-of-record",
+      "tests": 40,
+      "pass": 40,
+      "fail": 0,
+      "logSha256": "d050cf3138ead6cd3b55fea94958717910de317867fbeae7ac4fc3b11352d58f"
+    },
+    "apiOpenApiSdk": {
+      "command": "npm run test:external-agent-platform (first invocation of final npm test)",
+      "tests": 149,
+      "pass": 149,
+      "fail": 0
+    }
+  },
+  "localDatabase": {
+    "checks": 25,
+    "result": "PASS",
+    "report": "docs/authority-of-record/LOCAL_QUALIFICATION.json",
+    "sha256": "471a0f6230b4d0c672d36c58c5da9d41b6b32c098d3669b10bb14c18c3b18812",
+    "fixtureBoundary": "Synthetic identity/canonical fixtures plus real native evaluator, PostgreSQL RPC and HTTP/MCP target"
+  },
+  "schema": {
+    "report": "docs/authority-of-record/LOCAL_SCHEMA_QUALIFICATION.json",
+    "sha256": "7564ebd1c197f5998d1ecd1bae960c7f248f0a516fdb9131390f0a65391ce0de",
+    "existingMigrationsUnchanged": true,
+    "addedMigration": "20261008120422_authority_of_record_exact_execution.sql",
+    "productionRestore": false
+  },
+  "docker": {
+    "container": "cs-aor-tenente-local",
+    "image": "public.ecr.aws/supabase/postgres:17.6.1.165",
+    "finalState": "exited",
+    "syntheticDatabasesRetained": true,
+    "unrelatedResourcesDeleted": false
+  },
+  "secretScan": {
+    "raw": {
+      "status": "FAILED",
+      "scope": "tracked-and-untracked-nonignored-release-text",
+      "values_emitted": false,
+      "totals": {
+        "findings": 2,
+        "real_secret_candidates": 1,
+        "test_fixtures": 1,
+        "example_placeholders": 0
+      },
+      "findings": [
+        {
+          "file": "lib/readiness/project-binding.ts",
+          "line": 36,
+          "pattern": "SENSITIVE_ASSIGNMENT",
+          "classification": "REAL_SECRET_CANDIDATE"
+        },
+        {
+          "file": "tests/world-id-verification.test.mjs",
+          "line": 45,
+          "pattern": "SENSITIVE_ASSIGNMENT",
+          "classification": "TEST_FIXTURE"
+        }
+      ]
+    },
+    "reviewDisposition": "No new secret material: unchanged environment-reference false positive and synthetic test fixture; raw scanner remains FAILED"
+  },
+  "changedFiles": [
+    {
+      "path": "app/api/operational-entities/[entityId]/delegated-authority/route.ts",
+      "sha256": "9aca18fe6dc1c926c241625b8918ecc4ecce10a8ef4b45c01e10bd53ad61d55d"
+    },
+    {
+      "path": "app/operational-entities/[entityId]/page.tsx",
+      "sha256": "720046b218e310f6b8dbace9896facf6f98cdee39099b34a23182cecc8c02267"
+    },
+    {
+      "path": "components/tenente-authority-panel.tsx",
+      "sha256": "6d8e47ae53c7c2a5b9af4fa95cd2f11e14eca00a1167d920f9d5451aa6d0c773"
+    },
+    {
+      "path": "docs/authority-of-record/IMPLEMENTATION_REPORT.md",
+      "sha256": "709ddb0e3c57bf03077ca1100e2fc09fbb7b0bdddccd194ed1b64b6dba79dd62"
+    },
+    {
+      "path": "docs/authority-of-record/LOCAL_QUALIFICATION.json",
+      "sha256": "471a0f6230b4d0c672d36c58c5da9d41b6b32c098d3669b10bb14c18c3b18812"
+    },
+    {
+      "path": "docs/authority-of-record/LOCAL_SCHEMA_QUALIFICATION.json",
+      "sha256": "7564ebd1c197f5998d1ecd1bae960c7f248f0a516fdb9131390f0a65391ce0de"
+    },
+    {
+      "path": "docs/authority-of-record/README.md",
+      "sha256": "251928fcf3fc28ae794432a720e6320bee24efd4be059303f6391878b61ce2bf"
+    },
+    {
+      "path": "docs/authority-of-record/TEST_MATRIX.md",
+      "sha256": "85bf8aefb37cc86baaf2c28f3ec15cdc2a34f478d3819191182ff3dab5c4e2eb"
+    },
+    {
+      "path": "lib/operational-entities/delegated-authority-server.ts",
+      "sha256": "868a9146aeb29616e25764017c3ee4f2323b4c93cc22c2449e81a97d99005aa7"
+    },
+    {
+      "path": "lib/operational-entities/delegated-authority.ts",
+      "sha256": "e847cfdb20603904e2c522f4b4d7e079bd07f95e602b4c7d43fa1a489405b28e"
+    },
+    {
+      "path": "lib/operational-entities/http-tool-adapter.ts",
+      "sha256": "0420588c27050951eb14496cc8621581b1b8904f4c9a8aa685e2d8e8e8f6794e"
+    },
+    {
+      "path": "lib/operational-entities/native-enforcement-server.ts",
+      "sha256": "e1404654445a64e27492f76fcb7c111c9b5afdd393124f423ec0ae43eb67344e"
+    },
+    {
+      "path": "lib/operational-entities/native-enforcement.ts",
+      "sha256": "68f0b1f4689646ec45ad0d7ab435018595b4c9f3521a2505187bb48d92cbc0fd"
+    },
+    {
+      "path": "lib/public-api/v1/openapi.ts",
+      "sha256": "d34c1dc198f058d275c7a2f8872b7c30f2afab13e57cc9330a00e994b92d6c59"
+    },
+    {
+      "path": "lib/public-api/v1/runtime.ts",
+      "sha256": "39cd2ff6ee013cf236e44b849654a9c35ab9ddf7dbe37ef17c1e4862a1b4f036"
+    },
+    {
+      "path": "lib/trust-receipts/authority-signature-server.ts",
+      "sha256": "1e853a54c61485e6db31c9e80380659129de48099662cb8b4be81d2b917e55ce"
+    },
+    {
+      "path": "lib/trust-receipts/authority-signature.ts",
+      "sha256": "ffa6c9c1b596fe85055c7e87de4a80f5c9c5c3d88773afb57217f6e882bd2f74"
+    },
+    {
+      "path": "lib/trust-transaction/action-envelope.ts",
+      "sha256": "9a3400d66f99fc75b5d719465890dbaecf0bf0109bc56b76849d1781f45b9371"
+    },
+    {
+      "path": "package.json",
+      "sha256": "d95dbfea5ffa9ca9ae4ad88772e5c2186de20f79af3e7c6b5fa6ecdfab7af683"
+    },
+    {
+      "path": "packages/cyber-sentinels-sdk/src/index.ts",
+      "sha256": "ddb74260fb2018b34762285a56b2dd859f59fb1515811f999d4bc49a9e21fbbd"
+    },
+    {
+      "path": "supabase/migrations/20261008120422_authority_of_record_exact_execution.sql",
+      "sha256": "f54ca1847680acafac90778138e72198e8b45150a2008166b3f8649ca2ea0090"
+    },
+    {
+      "path": "tests/authority-of-record-http.test.mjs",
+      "sha256": "5c64f5aad11ae5a78d5020f6ef58a46a135afcf8e91ea5601abe8a5fdccb29ca"
+    },
+    {
+      "path": "tests/authority-of-record-tenente.test.mjs",
+      "sha256": "43e5c6858c8cfb259250dd86617e6470608fd22d004e696935e53e4d86b17080"
+    },
+    {
+      "path": "tests/fixtures/authority-of-record.mjs",
+      "sha256": "e6078510e43f61b769dd1a818defb690f02489d9b3e6625f4f9fc6676eab8347"
+    },
+    {
+      "path": "tests/synthetic-interaction-trust.test.mjs",
+      "sha256": "fcf05acddfb092d8beed0033cf7d065fc1cff08ed9557c4f992ed930c9c6e301"
+    },
+    {
+      "path": "tools/qualification/authority-of-record-local.mjs",
+      "sha256": "8318509b9de6f39572f9985c8235745dc2e1c46088fdfd78b51a3e8babeef6e3"
+    },
+    {
+      "path": "tools/qualification/setup-authority-of-record-local.mjs",
+      "sha256": "a05f0ff1d20adb582e12a9aa90d5576064c84e7af8e3a5611178c4f8c385cd7b"
+    }
+  ],
+  "self": "docs/authority-of-record/VALIDATION.json"
+}

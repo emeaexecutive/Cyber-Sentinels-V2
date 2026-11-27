@@ -14,6 +14,40 @@ example's `file:../../packages/cyber-sentinels-sdk` dependency with
 Public V1 documentation does not declare a standalone SDK download channel;
 having the supplied repository is therefore an onboarding prerequisite.
 
+## Customer workload identity
+
+Tenant owner/admin API keys manage workload bindings. Obtain the workload
+access token separately from the operator-pinned issuer and pass it only to
+the decision call; the SDK does not acquire or persist workload credentials.
+
+```ts
+const binding = await cs.agents.registerWorkloadBinding(agentId, {
+  subject: "synthetic-test-workload",
+  scopes: ["trust:request"],
+  expires_at: "2026-12-31T23:59:59Z",
+});
+
+const decision = await cs.workloads.requestDecision(
+  agentId,
+  workloadAccessToken,
+  {
+    action: {
+      type: "read_repository",
+      target: "repository:a",
+      purpose: "deployment_evidence_review",
+      environment: "staging",
+    },
+  },
+  crypto.randomUUID(),
+);
+if (decision.decision !== "ALLOW") throw new Error(`Stop execution: ${decision.decision}`);
+```
+
+The administration methods use the API key; `workloads.requestDecision`
+replaces it with the supplied short-lived OIDC token for that request. The
+server verifies issuer, audience, tenant, workload, expiry, signature, and
+scope. `REVIEW` and `DENY` do not authorize execution.
+
 ```ts
 import { CyberSentinels } from "@cyber-sentinels/sdk";
 
@@ -124,3 +158,7 @@ curl --fail-with-body -X POST "$CYBER_SENTINELS_BASE_URL/api/v1/agents/$AGENT_ID
 # Optional incident evidence (V2 Staging foundation)
 
 Explicit new scopes are required: `incidents:write`, `incidents:read`, `evidence:export`. Existing keys are unchanged. Use `cs.incidents.open`, `.append`, `.get`, `.replay` and `.export`. Evidence uploads still use `cs.evidence.submit`; execution observations, per-layer outcomes and purpose observations must match the referenced evidence type, timestamp, digest and claims. `context` values remain attributed assertions. An incomplete package is a draft. Export readiness is not regulatory approval or independent verification.
+
+## Opt-in swarm runtime heartbeat (not Production-qualified)
+
+Use `signSwarmHeartbeat` with the operator-enrolled Ed25519 runtime key, then submit the envelope using `cs.agents.heartbeat(memberId, envelope)`. Claims are `domain: "cyber-sentinels:swarm-heartbeat:v1"`, the exact API `audience`, `tenantId`, `memberId`, current credential `version`, increasing `sequence`, and Unix milliseconds `at`. The API client must own the existing agent binding. The server independently checks all bindings and 30-second freshness. A revoked/suspended member cannot renew; restoration requires a different authorized human and a new public-key enrollment. This signed declaration is not remote attestation or proof of execution. The environment must explicitly enable swarm enforcement.

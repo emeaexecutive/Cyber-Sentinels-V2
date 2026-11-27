@@ -1,0 +1,337 @@
+{
+  "origin": "https://www.cybersentinels.com",
+  "homepage": {
+    "path": "/",
+    "status": 200,
+    "finalUrl": "https://www.cybersentinels.com/",
+    "title": [
+      "Operational Trust Intelligence\u2122 | Cyber Sentinels"
+    ]
+  },
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/",
+      "title": [
+        "Operational Trust Intelligence\u2122 | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/about",
+      "title": [
+        "About | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/about-us",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/about",
+      "title": [
+        "About | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/about/mission",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/about/mission",
+      "title": [
+        "Mission | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/accessibility",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/accessibility",
+      "title": [
+        "Accessibility | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/careers",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/careers",
+      "title": [
+        "Careers | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/cookies",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/cookies",
+      "title": [
+        "Cookies and Preferences | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/developers",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/developers",
+      "title": [
+        "Developers | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/developers/authentication",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/developers/authentication",
+      "title": [
+        "API Authentication | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/developers/docs",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/developers/docs",
+      "title": [
+        "Developer Documentation | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/documents",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/documents",
+      "title": [
+        "Documents and Technical Resources | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/enterprise",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/enterprise",
+      "title": [
+        "Enterprise | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/enterprise-access",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/enterprise-access",
+      "title": [
+        "Enterprise Access | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/enterprise/buyer-documentation",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/enterprise/buyer-documentation",
+      "title": [
+        "Enterprise Buyer Documentation | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/enterprise/hiring-security",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/enterprise/hiring-security",
+      "title": [
+        "Hiring Security | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/enterprise/pilot",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/enterprise/pilot",
+      "title": [
+        "Enterprise Pilot Programme | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/enterprise/pilot-checklist",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/enterprise/pilot-checklist",
+      "title": [
+        "Enterprise Pilot Checklist | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/governance",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/governance",
+      "title": [
+        "Accountable Review and Governance | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/help",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/help",
+      "title": [
+        "Help | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/journal",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/journal",
+      "title": [
+        "Journal | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/legal",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/legal",
+      "title": [
+        "Legal Notices | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/login",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/login",
+      "title": [
+        "Cyber Sentinels | Operational Trust Infrastructure"
+      ]
+    },
+    {
+      "path": "/media-centre",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/media-centre",
+      "title": [
+        "Media Centre | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/methodology",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/methodology",
+      "title": [
+        "Methodology | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/modern-slavery",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/modern-slavery",
+      "title": [
+        "Modern Slavery Statement | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/our-people",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/our-people",
+      "title": [
+        "Our People | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/platform",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/platform",
+      "title": [
+        "Platform | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/pricing",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/pricing",
+      "title": [
+        "Pricing | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/privacy",
+      "title": [
+        "Privacy | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/privacy/preferences",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/privacy/preferences",
+      "title": [
+        "Cyber Sentinels | Operational Trust Infrastructure"
+      ]
+    },
+    {
+      "path": "/regulatory",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/regulatory",
+      "title": [
+        "Regulatory | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/resources/agent-security",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/resources/agent-security",
+      "title": [
+        "AI Agent Security: Authority, Tools and Evidence | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/robots.txt",
+      "title": []
+    },
+    {
+      "path": "/security",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/security",
+      "title": [
+        "Security | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/sitemap.xml",
+      "title": []
+    },
+    {
+      "path": "/solutions",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/solutions",
+      "title": [
+        "Enterprise Solutions | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/status",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/login?next=%2Fstatus",
+      "title": [
+        "Cyber Sentinels | Operational Trust Infrastructure"
+      ]
+    },
+    {
+      "path": "/terms",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/terms",
+      "title": [
+        "Terms and Conditions | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/trust",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/trust",
+      "title": [
+        "Trust Center | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/trust/data-sovereignty",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/trust/data-sovereignty",
+      "title": [
+        "AI and Data Sovereignty | Cyber Sentinels"
+      ]
+    },
+    {
+      "path": "/verification-replay",
+      "status": 200,
+      "finalUrl": "https://www.cybersentinels.com/verification-replay",
+      "title": [
+        "Verification Replay | Cyber Sentinels"
+      ]
+    }
+  ]
+}

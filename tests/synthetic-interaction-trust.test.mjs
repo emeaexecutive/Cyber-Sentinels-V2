@@ -244,8 +244,8 @@ function nativeDelegationEvaluation({ revoked = false, runtimeBinding = "RUNTIME
   const delegation = { delegationId: "synthetic:delegation", enterpriseId: tenantId, delegatorOperationalEntityId: "synthetic:delegator", delegateOperationalEntityId: entityId, parentAuthorityId: parentAuthority.authorityId, parentDelegationId: null, objective: request().purpose, scope, canRedelegate: false, maximumDelegationDepth: 0, depth: 1, issuedAt, notBefore: issuedAt, expiresAt, revokedAt: revoked ? issuedAt : null, policyVersion: "1.0.0", authorityVersion: "1.0.0", status: revoked ? "REVOKED" : "ACTIVE", delegationDigest: "d".repeat(64), evidenceReferences: ["synthetic:delegation-evidence"] };
   // Synthetic stored acceptance; signature validation belongs to the existing
   // native issuance/acceptance tests. This exercises its action-time evaluator.
-  const acceptance = { acceptanceId: "synthetic:acceptance", delegationDigest: delegation.delegationDigest, delegateOperationalEntityId: entityId, acceptedAt: issuedAt };
-  const delegateIdentity = { operationalEntityId: entityId, enterpriseId: tenantId, status: "VERIFIED", ownerState: "CONFIRMED", accountableOwnerId: operatorId, runtimeBinding, evidenceReference: "synthetic:identity", expiresAt };
+  const acceptance = { acceptanceId: "synthetic:acceptance", enterpriseId: tenantId, delegationId: delegation.delegationId, delegationDigest: delegation.delegationDigest, delegateOperationalEntityId: entityId, acceptedAt: issuedAt, credentialFingerprint: "a".repeat(64), manifestDigest: "b".repeat(64) };
+  const delegateIdentity = { operationalEntityId: entityId, enterpriseId: tenantId, status: "VERIFIED", ownerState: "CONFIRMED", accountableOwnerId: operatorId, runtimeBinding, evidenceReference: "synthetic:identity", expiresAt, credentialFingerprint: "a".repeat(64), manifestDigest: "b".repeat(64) };
   return evaluateDelegatedAction({ parentAuthority, delegation, acceptance, delegateIdentity, action: { type: "submit_review", tool: "review.writer", target: request().target, environment: "sandbox", purpose: request().purpose, dataBoundary: "INTERNAL", workflowId }, now: at });
 }
 

@@ -1,0 +1,151 @@
+{
+  "archiveSha256": "081310d3c1f64aaacf3c2207efa62bfa7641c81a670d5e23de6d11ae64784307",
+  "target": "cs-recovery-migration-20261012",
+  "database": "migration_rehearsal_guarded",
+  "startedAt": "2026-10-12T09:13:09.108Z",
+  "productionConnections": 0,
+  "status": "DDL_PASS",
+  "migrations": [
+    {
+      "name": "202610040001_p0p1_security_closure.sql",
+      "sha256": "4e90f2298c9c7a9c2df62e447764d8e06794eb3a46e98fe488aa4a0a6e49e538",
+      "executionSha256": "b13da38c74341b16b2f61b066c5bab2096c8ff2df5a0fc001af09df4670970e4",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "202610040002_account_access_approval.sql",
+      "sha256": "b84613b9209001d0c13f65009cf1d3bad352f916f67acbd42e014551779ad14b",
+      "executionSha256": "10d79c44d7493e43b3e273a3764f868cae2feb25c598ab02834eb88ec906410f",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "202610040003_require_approved_accounts_for_data_api.sql",
+      "sha256": "3fe1f67455b2e0f526705a6c002fcc7d63ce4c6a3f800c30d9313aa72ce32951",
+      "executionSha256": "2d78db39af68710a2d764ee849eac017d6e75e16ed507d8191ae3223f822dbf4",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "202610040004_lock_legacy_passport_decision_writes.sql",
+      "sha256": "c412f1271285c0babcb1f23aea922adaf2fc7f620b6e8f74685cf2ca4f099175",
+      "executionSha256": "f22dfc81ff1111f6195c94edaf4a3f34c363be2424957428e64b73c2b2ebe3d4",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261006105554_model_approval_evidence_lifecycle.sql",
+      "sha256": "a9dc7ef0cfca138a3571b1a88a28076149505a8847c69dc2358122a03817a07c",
+      "executionSha256": "42a06189cc2648041491b7e181d5a3176e7a22ca9fb5a23b125139440d137a44",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261006110619_model_state_replay_event_contract.sql",
+      "sha256": "f6935b25c70130dd87a675058027ff43265d04dbf88ecae0d41ade95a69b59ca",
+      "executionSha256": "df8b2cfa5d5ee3a993e35b5374b4509161343cd2725beac802ca46868922b821",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261007150222_account_approval_default_deny.sql",
+      "sha256": "d8e42d0b83613e17a94b6ad21b310c9cbf8f351f4538f6d687d1172c0557177f",
+      "executionSha256": "5b165bd1ef66b3dc807f18548f31a2add6505f0ba4898023c4e9f0f396cd153d",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261007150224_canonical_trust_memory_function_reconciliation.sql",
+      "sha256": "d8b334c90891d5fe6a6c496470989800e9fbde8622b9dee86f325146467a85de",
+      "executionSha256": "1e6544d410fb7c5880722fe1c469eaddcdc6f58fe14ead4372cc92239402f9bd",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261007150835_canonical_workspace_bootstrap.sql",
+      "sha256": "651f6cf6877f1deb7703fa3b8ad0273431adaa4835555b752a12140e1ea65ffe",
+      "executionSha256": "d52e5729bf982343aa926401c4c80c7d89ee5313dbc166dcd87293afd05d1261",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261008093614_canonical_application_access_grants.sql",
+      "sha256": "998654f82030142434499aff2211963ebafa33ca8b004139723ed24dca27b506",
+      "executionSha256": "05d450f9777b73342313cd592ca4f5f49b4aacc72d33eb7a2579954d0727bf35",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261008105722_canonical_application_schema_reconciliation.sql",
+      "sha256": "47d7bbd74b7e80667ae25e92f4dc03251c36e6ef17827b469f634582d771930b",
+      "executionSha256": "110d68a87d04e576817c4f89965db25b78735623b40bac11e1c59f24488ef5f6",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261008112858_evidence_download_approval_revalidation.sql",
+      "sha256": "c477719d3649f199302f00e8c0063f04ae804adac197b3caa73ce30ff2235823",
+      "executionSha256": "00ff11c3cd822c59654e6eb6bf69cf6a315b9ecd8cfb8b933f5d6bb97d3bc846",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261008120422_authority_of_record_exact_execution.sql",
+      "sha256": "f54ca1847680acafac90778138e72198e8b45150a2008166b3f8649ca2ea0090",
+      "executionSha256": "c666b308f508063c1354e8b968993cb9f53222a419c8ea49b89e86e55c07916c",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261010110000_employment_access_governance_hardening.sql",
+      "sha256": "c4fd00e547aaa7d078bc6ae898e6f284509e1486c3d0358b304e2c8ec74b80f7",
+      "executionSha256": "5a1172419b7fd4e9d255c36f83310187bba853a4d22a710f2a13f7b082aeb54a",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    },
+    {
+      "name": "20261012084456_audited_account_approval_transition.sql",
+      "sha256": "e9c6451e0c906346b198b42332b0571a10eb4f72fe2d6191c2498e69c128d856",
+      "executionSha256": "f552a82988f25219ec85f98e1e457a507e76f72c071bba0316ab9fc9b2fde24c",
+      "transaction": "DDL_AND_LEDGER_ATOMIC",
+      "status": "PASS"
+    }
+  ],
+  "baselineMigrationCount": 119,
+  "dataIntegrity": {
+    "tables": 284,
+    "originalRows": 11133,
+    "differences": [
+      {
+        "schema": "public",
+        "name": "migration_policy_decisions",
+        "beforeRows": 32,
+        "afterRows": 35,
+        "contentChanged": true,
+        "originalRowsPreserved": true,
+        "addedRows": 3
+      },
+      {
+        "schema": "supabase_migrations",
+        "name": "schema_migrations",
+        "beforeRows": 119,
+        "afterRows": 134,
+        "contentChanged": true,
+        "originalRowsPreserved": true,
+        "addedRows": 15
+      }
+    ],
+    "comparison": "All pre-existing columns and physical rows; new columns excluded; migration ledger growth expected",
+    "allOriginalRowsPreserved": true
+  },
+  "approvalBackfill": {
+    "users": 5,
+    "approvals": 5,
+    "pending": 5,
+    "requestedEvents": 5,
+    "approved": 0
+  },
+  "finishedAt": "2026-10-12T09:13:16.120Z",
+  "archiveUnchanged": true
+}

@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-12",
+  "timezone": "Europe/Madrid",
+  "codeSha": "2f77ed63c20fe312c3a5d4c07ef9d70bb9f52eb1",
+  "schemaSourceSha": "483d7dc18c12edfe636a8f8faec06df31389b635",
+  "reportHead": "82093d707ad8f3206862d1539c5d6f837125b42b",
+  "compiledAndTestSourceUnchanged": true,
+  "dependencies": {
+    "method": "npm ci --offline from exact committed package-lock; real isolated node_modules moved into checkout",
+    "exitCode": 0,
+    "packagesAdded": 422,
+    "lockSha256": "419121678eb49557f3c1714ce44f419c5593ae52fe34c256025ee6a05bb16d9b"
+  },
+  "typecheck": {
+    "exitCode": 0,
+    "incremental": false,
+    "scope": {
+      "files": 1855,
+      "application": 597,
+      "typescriptTests": 3,
+      "generatedRouteTypes": 581,
+      "scratchFiles": 0,
+      "sourceIncluded": true,
+      "excludes": [
+        "node_modules",
+        "tmp",
+        "temp"
+      ],
+      "incrementalBypass": "--incremental false used for fresh typecheck",
+      "node": "v22.23.1",
+      "nodeOptionsPresent": false,
+      "defaultHeapLimitBytes": 4345298944
+    }
+  },
+  "regressions": {
+    "tests": 99,
+    "pass": 99,
+    "fail": 0,
+    "skipped": 0
+  },
+  "routeMocks": {
+    "tests": 6,
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0
+  },
+  "browserFixture": {
+    "tests": 1,
+    "pass": 1,
+    "fail": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "exitCode": 0,
+    "scope": "changed SOC code, console, route, fixtures, tests, config and demo tools"
+  },
+  "coldBuild": {
+    "completed": true,
+    "compiled": "4.4min",
+    "staticPages": 209,
+    "startedWithoutNextCache": true,
+    "priorTsBuildInfoMovedToIgnoredScratch": true,
+    "rootInferenceFixed": true,
+    "note": "PowerShell formatted webpack stderr warnings as NativeCommandError; explicit native outcome captured by the following reproducibility run."
+  },
+  "explicitNativeBuild": {
+    "completedUtc": "2026-11-12T11:25:52.8607463Z",
+    "startedUtc": "2026-11-12T11:20:03.1554252Z",
+    "sourceSha": "2f77ed63c20fe312c3a5d4c07ef9d70bb9f52eb1",
+    "note": "Explicit native status capture after cold build; PowerShell stderr formatting had obscured prior shell exit status.",
+    "nativeExitCode": 0
+  },
+  "productionAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "secretScan": {
+    "nativeExitCode": 0,
+    "scope": "483d7dc..2f77ed6 with repository CI config",
+    "remainingFindings": 0,
+    "exactReviewedSyntheticMetadataExceptions": 21,
+    "triage": "artifacts/soc/gitleaks-triage-20261112.json"
+  },
+  "hosted": {
+    "stagingCatalogReadOnly": true,
+    "candidateRuntimeExecuted": false,
+    "databaseWrites": false,
+    "manualDeployments": false,
+    "liveModelInvoked": false,
+    "stagingBlocker": "private swarm persistence tables/RPCs and SWARM/SOC Replay support absent"
+  },
+  "syntheticDetectionDataset": {
+    "records": 4,
+    "truePositive": 2,
+    "falsePositive": 1,
+    "trueNegative": 1,
+    "falseNegative": 0,
+    "precision": 0.6666666666666666,
+    "recall": 1,
+    "productionAccuracyClaim": false
+  },
+  "releaseVerdict": "NO-GO: hosted model/provider/tenant/recovery and full localization acceptance remain unqualified",
+  "logs": [
+    {
+      "file": "artifacts/soc/verification/soc-locked-regression-20261112.log.gz",
+      "sha256": "2bacdc1628ea27f74327b62b19432c4b07e8e0ecd8ce5af5f59a8cf0b3d19cef",
+      "uncompressedBytes": 65152
+    },
+    {
+      "file": "artifacts/soc/verification/soc-route-locked-20261112.log.gz",
+      "sha256": "144c48753277976711e5b0d73d1e4b56f6b75a364b1e233022cceb385ba3c955",
+      "uncompressedBytes": 3458
+    },
+    {
+      "file": "artifacts/soc/verification/soc-browser-locked-20261112.log.gz",
+      "sha256": "98cfdb7004bfaf9e1691b13b0830de39e9c90ffd4ea3b7751392108a373a8f5e",
+      "uncompressedBytes": 782
+    },
+    {
+      "file": "artifacts/soc/verification/soc-lint-locked-20261112.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "uncompressedBytes": 0
+    },
+    {
+      "file": "artifacts/soc/verification/soc-typecheck-locked-20261112.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "uncompressedBytes": 0
+    },
+    {
+      "file": "artifacts/soc/verification/soc-build-locked-20261112.log.gz",
+      "sha256": "a1feadd6465bd8436ccd949b1c02a0b8ad81c264dc669ef8c530f2e6aa301533",
+      "uncompressedBytes": 108424
+    },
+    {
+      "file": "artifacts/soc/verification/soc-build-native-exit-20261112.log.gz",
+      "sha256": "2452670831b16d10be42ea5d342e9ced19414e3e45320a39abe0c00a8c030f13",
+      "uncompressedBytes": 107070
+    },
+    {
+      "file": "artifacts/soc/verification/soc-dependencies-final-20261112.log.gz",
+      "sha256": "c702eb2d7222cdb7302283682edda65a5c24e7b88077691b00f51c3fca5c3e08",
+      "uncompressedBytes": 304
+    },
+    {
+      "file": "artifacts/soc/verification/soc-gitleaks-final-reviewed-20261112.log.gz",
+      "sha256": "2c09a2129c446b918a307576bc0f034b0cffbd2060d8a88105ffb28f683f9095",
+      "uncompressedBytes": 916
+    },
+    {
+      "file": "artifacts/soc/verification/soc-workflow-frozen-final.log.gz",
+      "sha256": "5d4f8e686389e8d43a4822dfaad3852d8ad504f6eb73ee59d537601269934c1a",
+      "uncompressedBytes": 9450
+    },
+    {
+      "file": "artifacts/soc/verification/soc-demo-frozen-final.log.gz",
+      "sha256": "dd38ced7174e7c7987354321f85a5171ef89b50aa503151d2951799a9a7948d2",
+      "uncompressedBytes": 274
+    },
+    {
+      "file": "artifacts/soc/verification/soc-typecheck-20261112.log.gz",
+      "sha256": "339e62d0409dc81d852d07785d574c13ffc965c9175d404c3738a607ef0d6e8f",
+      "uncompressedBytes": 1222
+    }
+  ]
+}

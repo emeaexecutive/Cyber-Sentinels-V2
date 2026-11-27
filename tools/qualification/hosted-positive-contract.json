@@ -1,0 +1,21 @@
+{
+  "status": "PREPARED_NOT_RUN_REQUIRES_ACTUAL_APPROVED_INPUTS",
+  "operationCount": 31,
+  "sources": [
+    {
+      "path": "../../lib/public-api/v1/openapi.ts",
+      "normalizedSha256": "d2a2deac7be28f59bfde349d1c5d8901af7f3f4cdc6f81c4a94f76e186a12a54"
+    },
+    {
+      "path": "../../lib/public-api/v1/contracts.ts",
+      "normalizedSha256": "c0c509325b7354a40440b78ca9802bfdd0eb88e60f43bc4e5fb1c4650ae8eea2"
+    },
+    {
+      "path": "../../lib/operational-incidents/openapi.ts",
+      "normalizedSha256": "d7497df8a10696cbd9c27e09cb4322434d457c71efb4d649538b239bb1e694b6"
+    }
+  ],
+  "inputs": "Supply actual resource IDs in context.bindings and cryptographic/provider/request bodies plus required Idempotency-Key values in context.caseInputs[operationId]. No example or fabricated body is treated as a successful test.",
+  "executionOrder": "The manifest retains contract order, not provisioning order. Select approved cases against existing actual fixtures; run SDK registration/identity/authority journey before resource reads and revocations.",
+  "independentEffects": "HTTP status success is not destination prevention, persistence, SDK parity or full enterprise acceptance."
+}

@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import {harness} from "./fixtures/sign-out-session.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("public authentication surfaces use safe messages and accessible status updates", async () => {
   const [login, loginExperience, verifyEmail] = await Promise.all([
-    read("app/login/page.tsx"),
+    read("components/login-experience.tsx"),
     read("lib/auth/login-experience.ts"),
     read("app/verify-email/page.tsx"),
   ]);
@@ -32,7 +33,26 @@ test("footer cookie preferences remains a keyboard and touch-friendly dialog tri
     read("tailwind.config.ts"),
   ]);
 
-  assert.match(layout, /<ConsentPreferencesLink \/>/);
+  assert.match(layout, /<ConsentPreferencesLink locale=\{locale\}/);
+  const h = harness();
+  let activeLocale = "en";
+  // This unit test exercises the click callback. Supply the hook's locale at
+  // its boundary instead of invoking a real React hook outside a renderer.
+  h.load("src/lib/consent/localization.ts").useConsentLocale = () => activeLocale;
+  const component=h.load("src/components/consent/ConsentPreferencesLink.tsx").ConsentPreferencesLink;
+  const previousWindow=globalThis.window;
+  const events=[];
+  globalThis.window={dispatchEvent:event=>events.push(event.type)};
+  try {
+    for(const locale of ["en","es"]){
+      activeLocale = locale;
+      const button=component({locale});
+      assert.equal(button.type,"button");assert.equal(button.props.type,"button");
+      assert.equal(button.props.children, locale === "es" ? "Preferencias de confianza" : "Cookie preferences");
+      button.props.onClick();
+    }
+    assert.deepEqual(events,["cs:open-consent-preferences","cs:open-consent-preferences"]);
+  } finally {if(previousWindow===undefined)delete globalThis.window;else globalThis.window=previousWindow;}
   assert.match(trigger, /type="button"/);
   assert.match(trigger, /min-h-11/);
   assert.match(trigger, /cs:open-consent-preferences/);

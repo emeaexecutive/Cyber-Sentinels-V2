@@ -10,6 +10,21 @@ export const loginExperienceStates = [
 
 export type LoginExperienceState = (typeof loginExperienceStates)[number];
 
+export type ProtectedAuthOperation = "password" | "signup" | "resend" | "magic-link";
+export type LoginAuthMode = "sign-in" | "create-account" | "forgot-password";
+
+export const authChallengeActions = {
+  password: "login",
+  signup: "signup",
+  resend: "signup",
+  "magic-link": "login",
+} as const satisfies Record<ProtectedAuthOperation, "login" | "signup">;
+
+export function getLoginTurnstileAction(mode: LoginAuthMode) {
+  if (mode === "forgot-password") return "password_reset";
+  return mode === "create-account" ? authChallengeActions.signup : authChallengeActions.password;
+}
+
 export type SafeAuthFailure = {
   state: Extract<
     LoginExperienceState,
@@ -22,6 +37,10 @@ export const rateLimitedMessage =
   "Too many attempts. Please wait a moment and try again.";
 
 export function classifyAuthFailure(error: unknown, fallback: string): SafeAuthFailure {
+  const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
+  if (code === "invalid_credentials") return { state: "AUTHENTICATION_FAILED", message: "Email or password is incorrect." };
+  if (code === "email_not_confirmed") return { state: "EMAIL_VERIFICATION_REQUIRED", message: "Please verify your email to continue." };
+  if (code === "over_request_rate_limit" || code === "over_email_send_rate_limit") return { state: "RATE_LIMITED", message: rateLimitedMessage };
   const raw = error instanceof Error ? error.message : typeof error === "string" ? error : "";
   const message = raw.toLowerCase();
 

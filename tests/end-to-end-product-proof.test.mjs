@@ -21,7 +21,7 @@ test("Turnstile verification is bound to the actual request hostname", async () 
 
 test("normal login and auth recovery enter the canonical Operational Entity product", async () => {
   const [login, callback, redirect, browser, server, layout] = await Promise.all([
-    read("app/login/page.tsx"), read("app/auth/callback/route.ts"),
+    read("components/login-experience.tsx"), read("app/auth/callback/route.ts"),
     read("lib/auth/safe-redirect.ts"),
     read("lib/supabase/client.ts"), read("lib/supabase/server.ts"), read("app/layout.tsx"),
   ]);
@@ -37,7 +37,7 @@ test("normal login and auth recovery enter the canonical Operational Entity prod
 
 test("email signup requires verification and permits only explicit local and Vercel callbacks", async () => {
   const [config, login] = await Promise.all([
-    read("supabase/config.toml"), read("app/login/page.tsx"),
+    read("supabase/config.toml"), read("components/login-experience.tsx"),
   ]);
   assert.match(config, /site_url = "https:\/\/www\.cybersentinels\.com"/);
   assert.match(config, /https:\/\/\*-keith-speres-projects\.vercel\.app\/auth\/callback/);

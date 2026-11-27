@@ -6,7 +6,7 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("login presents a simple customer journey while retaining security controls", async () => {
   const [login, states, turnstile] = await Promise.all([
-    read("app/login/page.tsx"),
+    read("components/login-experience.tsx"),
     read("lib/auth/login-experience.ts"),
     read("components/turnstile-field.tsx"),
   ]);
@@ -40,9 +40,9 @@ test("login presents a simple customer journey while retaining security controls
   ]) assert.match(states, new RegExp(state));
 
   assert.match(login, /resolveSafeInternalRedirect/);
-  assert.match(login, /\/api\/auth\/turnstile/);
-  assert.match(login, /supabase\.auth\.signInWithPassword/);
-  assert.match(login, /supabase\.auth\.signUp/);
+  assert.match(login, /\/api\/auth\/submit/);
+  assert.match(login, /performProtectedAuth\("password"\)/);
+  assert.match(login, /performProtectedAuth\("signup"\)/);
   assert.match(turnstile, /appearance: "interaction-only"/);
   assert.match(turnstile, /quiet/);
   assert.doesNotMatch(login, /result\.error \|\|/);

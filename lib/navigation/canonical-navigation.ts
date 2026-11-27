@@ -3,6 +3,7 @@ export type CanonicalNavigationItem = { href: string; label: string; access: "pu
 export const canonicalNavigation = {
   public: [
     { href: "/platform", label: "Platform", access: "public" },
+    { href: "/platform/kya", label: "KYA", access: "public" },
     { href: "/solutions", label: "Solutions", access: "public" },
     { href: "/developers", label: "Developers", access: "public" },
     { href: "/enterprise", label: "Enterprise", access: "public" },

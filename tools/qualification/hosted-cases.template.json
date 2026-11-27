@@ -1,0 +1,311 @@
+[
+  {
+    "id": "public-openapi",
+    "method": "GET",
+    "path": "/api/v1/openapi.json",
+    "expectedStatuses": [
+      200
+    ],
+    "expectedFields": {
+      "openapi": "3.1.0"
+    }
+  },
+  {
+    "id": "unauth-1-openIncident",
+    "method": "POST",
+    "path": "/api/v1/incidents",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-2-getIncident",
+    "method": "GET",
+    "path": "/api/v1/incidents/00000000-0000-4000-8000-000000000001",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-3-appendIncidentChronology",
+    "method": "POST",
+    "path": "/api/v1/incidents/00000000-0000-4000-8000-000000000001/chronology",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-4-replayIncident",
+    "method": "GET",
+    "path": "/api/v1/incidents/00000000-0000-4000-8000-000000000001/replay",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-5-exportIncident",
+    "method": "POST",
+    "path": "/api/v1/incidents/00000000-0000-4000-8000-000000000001/exports",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-6-registerAgent",
+    "method": "POST",
+    "path": "/api/v1/agents",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-7-getAgent",
+    "method": "GET",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-8-listWorkloadBindings",
+    "method": "GET",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/workload-bindings",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-9-registerWorkloadBinding",
+    "method": "POST",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/workload-bindings",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-10-revokeWorkloadBinding",
+    "method": "POST",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/workload-bindings/00000000-0000-4000-8000-000000000001/revoke",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-11-registerAgentCredential",
+    "method": "POST",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/credentials",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-12-registerAgentManifest",
+    "method": "POST",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/manifest",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-13-issueAgentChallenge",
+    "method": "POST",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/challenge",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-14-submitAgentHeartbeat",
+    "method": "POST",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/heartbeat",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-15-submitAgentProof",
+    "method": "POST",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/proof",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-16-getAgentAuthority",
+    "method": "GET",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/authority",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-17-listAgentAuthorities",
+    "method": "GET",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/authorities",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-18-grantAgentAuthority",
+    "method": "POST",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/authorities",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-19-getAgentAuthorityVersion",
+    "method": "GET",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/authorities/00000000-0000-4000-8000-000000000001",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-20-revokeAgentAuthority",
+    "method": "POST",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/authorities/00000000-0000-4000-8000-000000000001/revoke",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-21-getAgentTrustState",
+    "method": "GET",
+    "path": "/api/v1/agents/00000000-0000-4000-8000-000000000001/trust-state",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-22-requestTrustDecision",
+    "method": "POST",
+    "path": "/api/v1/trust/decisions",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-23-requestOpenGraphSiteMetadata",
+    "method": "POST",
+    "path": "/api/v1/tools/opengraph/site",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-24-requestWorkloadDecision",
+    "method": "POST",
+    "path": "/api/v1/workloads/00000000-0000-4000-8000-000000000001/decisions",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-25-getReview",
+    "method": "GET",
+    "path": "/api/v1/reviews/00000000-0000-4000-8000-000000000001",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-26-resolveReview",
+    "method": "POST",
+    "path": "/api/v1/reviews/00000000-0000-4000-8000-000000000001/resolve",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-27-submitAgentAssertedEvidence",
+    "method": "POST",
+    "path": "/api/v1/evidence",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  },
+  {
+    "id": "unauth-28-getTrustTransaction",
+    "method": "GET",
+    "path": "/api/v1/trust/transactions/00000000-0000-4000-8000-000000000001",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-29-getTrustTransactionReplay",
+    "method": "GET",
+    "path": "/api/v1/trust/transactions/00000000-0000-4000-8000-000000000001/replay",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-30-getTrustTransactionReceipt",
+    "method": "GET",
+    "path": "/api/v1/trust/transactions/00000000-0000-4000-8000-000000000001/receipt",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ]
+  },
+  {
+    "id": "unauth-31-submitTrustTransactionOutcome",
+    "method": "POST",
+    "path": "/api/v1/trust/transactions/00000000-0000-4000-8000-000000000001/outcomes",
+    "syntheticOnly": true,
+    "expectedStatuses": [
+      401
+    ],
+    "body": {}
+  }
+]

@@ -8,6 +8,10 @@ import {
 } from "@/lib/env";
 import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
 import { isPasswordRecoverySession, isRecoveryWorkflowPath, PASSWORD_RECOVERY_COOKIE, PASSWORD_RECOVERY_PATH } from "@/lib/auth/password-recovery";
+import { isJudgeMeWebhookCallback } from "@/lib/providers/judgeme-route";
+import { approvalBoundary, isTenantAdminSurface } from "@/lib/auth/approval-boundary";
+import { isIndexablePublishedSpanishPath, publicEnglishFallbackHref, resolveSpanishRequestPath } from "@/lib/i18n/public-locales";
+import { ACCOUNT_LOCALE_COOKIE } from "@/lib/i18n/account";
 
 const adminVerifiedCookieName = "cyber_admin_verified";
 
@@ -18,6 +22,7 @@ type CookieToSet = {
 };
 
 const userPagePrefixes = [
+  "/tenente",
   "/agents",
   "/billing",
   "/clearances",
@@ -46,6 +51,7 @@ const userPagePrefixes = [
   "/timeline",
   "/team-access",
   "/team-workspace",
+  "/operational-entities",
   "/trust",
   "/trust-replay",
   "/trust-center",
@@ -57,6 +63,39 @@ const userPagePrefixes = [
   "/verification/receipt",
   "/verifier-network",
   "/interview/session",
+];
+
+const protectedUserApiPrefixes = [
+  "/api/tenente",
+  "/api/agents",
+  "/api/appeals",
+  "/api/billing",
+  "/api/candidate",
+  "/api/client",
+  "/api/data-rights",
+  "/api/developer/api-keys",
+  "/api/evidence",
+  "/api/feedback",
+  "/api/interview",
+  "/api/messages",
+  "/api/notifications",
+  "/api/operational-entities",
+  "/api/passports",
+  "/api/provenance",
+  "/api/recruiter",
+  "/api/replay",
+  "/api/session",
+  "/api/step-up",
+  "/api/stripe/create-checkout-session",
+  "/api/stripe/customer-portal",
+  "/api/support",
+  "/api/team",
+  "/api/trust",
+  "/api/trust-events",
+  "/api/trust-reports",
+  "/api/verification",
+  "/api/verifiers",
+  "/api/world-id",
 ];
 
 const adminPagePrefixes = [
@@ -169,7 +208,10 @@ function isProtectedUserPath(pathname: string) {
   ) {
     return false;
   }
-  return matchesPrefix(pathname, userPagePrefixes);
+  return (
+    matchesPrefix(pathname, userPagePrefixes) ||
+    matchesPrefix(pathname, protectedUserApiPrefixes)
+  );
 }
 
 function isProtectedAdminPath(pathname: string) {
@@ -177,7 +219,8 @@ function isProtectedAdminPath(pathname: string) {
     matchesPrefix(pathname, adminPagePrefixes) ||
     matchesPrefix(pathname, internalToolingPrefixes) ||
     matchesPrefix(pathname, experimentalPagePrefixes) ||
-    pathname.startsWith("/api/admin/")
+    pathname.startsWith("/api/admin/") ||
+    /^\/api\/passports\/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/decision$/i.test(pathname)
   );
 }
 
@@ -253,13 +296,26 @@ function redirectTo(req: NextRequest, path: string) {
   return preventIndexing(NextResponse.redirect(new URL(path, req.url)));
 }
 
-function protectedSurfaceUnavailable() {
-  return preventIndexing(
-    new NextResponse("Protected surface unavailable.", { status: 503 })
+function trustedLocaleHeaders(req: NextRequest, locale: "en" | "es", sourcePath?: string) {
+  const headers = new Headers(req.headers);
+  headers.set("x-public-locale", locale);
+  if (sourcePath) headers.set("x-public-source-path", sourcePath);
+  else headers.delete("x-public-source-path");
+  return headers;
+}
+
+function protectedSurfaceUnavailable(req?: NextRequest) {
+  const spanish = req && (req.nextUrl.searchParams.get("lang")?.toLowerCase() === "es" || req.nextUrl.pathname === "/es" || req.nextUrl.pathname.startsWith("/es/"));
+  const response = preventIndexing(
+    new NextResponse(spanish ? "Superficie protegida no disponible." : "Protected surface unavailable.", { status: 503 })
   );
+  response.headers.set("Content-Language", spanish ? "es" : "en");
+  return response;
 }
 
 export async function middleware(req: NextRequest) {
+  req.headers.delete("x-public-locale");
+  req.headers.delete("x-public-source-path");
   const { pathname, search } = req.nextUrl;
   const refreshedCookies: CookieToSet[] = [];
   const refreshedHeaders = new Headers();
@@ -267,7 +323,7 @@ export async function middleware(req: NextRequest) {
     // Indexing policy only: never bypass or replace the existing auth checks.
     const isSearchAsset = pathname === "/robots.txt" || pathname === "/sitemap.xml" || pathname.startsWith("/_next/")
       || pathname === "/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf";
-    if (!isSearchAsset && !isIndexablePublicRoute(pathname)) {
+    if (!isSearchAsset && !isIndexablePublicRoute(pathname) && !isIndexablePublishedSpanishPath(pathname)) {
       response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
     }
     for (const { name, value, options } of refreshedCookies) {
@@ -285,35 +341,63 @@ export async function middleware(req: NextRequest) {
   const recoveryMutation = ["/api/auth/password-reset/request", "/api/auth/password-reset/complete", "/api/auth/logout"].includes(pathname);
   if (!isRecoveryWorkflowPath(pathname) || (!["GET", "HEAD"].includes(req.method) && !recoveryMutation)) {
     let recovery = req.cookies.has(PASSWORD_RECOVERY_COOKIE);
-    const bearer = req.headers.get("authorization")?.match(/^Bearer (ey[^ ]+\.[^ ]+\.[^ ]+)$/i)?.[1];
+    // Workload tokens are verified by the pinned workload verifier, never Auth.
+    // Session cookies and the recovery marker are still checked on this route.
+    const workloadDecision = /^\/api\/v1\/workloads\/[^/]+\/decisions$/.test(pathname) && req.method === "POST";
+    const bearer = workloadDecision ? undefined : req.headers.get("authorization")?.match(/^Bearer (ey[^ ]+\.[^ ]+\.[^ ]+)$/i)?.[1];
     const hasSessionCookie = req.cookies.getAll().some(({ name }) => name.startsWith("sb-") && name.includes("auth-token") && !name.includes("code-verifier"));
     if (bearer || hasSessionCookie) {
-      if (!hasPublicSupabaseEnv()) return protectedSurfaceUnavailable();
-      const env = getPublicSupabaseEnv("recovery quarantine");
-      const auth = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
-        cookies: {
-          getAll: () => req.cookies.getAll(),
-          setAll: (items: CookieToSet[], headers: Record<string, string>) => {
-            items.forEach((item) => req.cookies.set(item.name, item.value));
-            refreshedCookies.push(...items);
-            Object.entries(headers).forEach(([name, value]) => refreshedHeaders.set(name, value));
-          },
-        },
-      });
-      try {
-        const cookieResult = hasSessionCookie ? await auth.auth.getClaims() : null;
-        const bearerResult = bearer ? await auth.auth.getClaims(bearer) : null;
-        if (cookieResult?.error || bearerResult?.error) return finish(protectedSurfaceUnavailable());
-        recovery = isPasswordRecoverySession(cookieResult?.data?.claims) ||
-          isPasswordRecoverySession(bearerResult?.data?.claims) ||
-          (recovery && !cookieResult?.data?.claims);
-        if (cookieResult?.data?.claims) {
-          if (!recovery && req.cookies.has(PASSWORD_RECOVERY_COOKIE)) {
-            // A fresh ordinary login supersedes an abandoned recovery marker.
-            refreshedCookies.push({ name: PASSWORD_RECOVERY_COOKIE, value: "", options: { path: "/", maxAge: 0 } });
+      const mayIgnoreBrowserSessionFailure =
+        hasSessionCookie && !bearer && !req.cookies.has(PASSWORD_RECOVERY_COOKIE);
+
+      if (!hasPublicSupabaseEnv()) {
+        if (!mayIgnoreBrowserSessionFailure) return protectedSurfaceUnavailable(req);
+        console.warn("Supabase session precheck unavailable; route-specific authorization remains enforced.");
+      } else {
+        try {
+          const env = getPublicSupabaseEnv("recovery quarantine");
+          const auth = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+            cookies: {
+              getAll: () => req.cookies.getAll(),
+              setAll: (items: CookieToSet[], headers: Record<string, string>) => {
+                items.forEach((item) => req.cookies.set(item.name, item.value));
+                refreshedCookies.push(...items);
+                Object.entries(headers).forEach(([name, value]) => refreshedHeaders.set(name, value));
+              },
+            },
+          });
+          try {
+            const cookieResult = hasSessionCookie ? await auth.auth.getClaims() : null;
+            const bearerResult = bearer ? await auth.auth.getClaims(bearer) : null;
+            if (cookieResult?.error || bearerResult?.error) {
+              if (!mayIgnoreBrowserSessionFailure) return finish(protectedSurfaceUnavailable(req));
+              console.warn("Supabase session precheck failed; route-specific authorization remains enforced.", {
+                code: cookieResult?.error?.code ?? bearerResult?.error?.code,
+              });
+            } else {
+              recovery = isPasswordRecoverySession(cookieResult?.data?.claims) ||
+                isPasswordRecoverySession(bearerResult?.data?.claims) ||
+                (recovery && !cookieResult?.data?.claims);
+              if (cookieResult?.data?.claims) {
+                if (!recovery && req.cookies.has(PASSWORD_RECOVERY_COOKIE)) {
+                  // A fresh ordinary login supersedes an abandoned recovery marker.
+                  refreshedCookies.push({ name: PASSWORD_RECOVERY_COOKIE, value: "", options: { path: "/", maxAge: 0 } });
+                }
+              }
+            }
+          } catch (error) {
+            if (!mayIgnoreBrowserSessionFailure) return finish(protectedSurfaceUnavailable(req));
+            console.warn("Supabase session precheck failed; route-specific authorization remains enforced.", {
+              error: error instanceof Error ? error.message : "Unknown session validation error.",
+            });
           }
+        } catch (error) {
+          if (!mayIgnoreBrowserSessionFailure) return finish(protectedSurfaceUnavailable(req));
+          console.warn("Supabase session configuration unavailable; route-specific authorization remains enforced.", {
+            error: error instanceof Error ? error.message : "Unknown Supabase configuration error.",
+          });
         }
-      } catch { return finish(protectedSurfaceUnavailable()); }
+      }
     }
     if (recovery) {
       return finish(pathname.startsWith("/api/")
@@ -326,6 +410,39 @@ export async function middleware(req: NextRequest) {
 
 async function applicationMiddleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
+  if (pathname === "/" && req.cookies.get(ACCOUNT_LOCALE_COOKIE)?.value === "es") {
+    const destination = req.nextUrl.clone();
+    destination.pathname = "/es";
+    return NextResponse.redirect(destination);
+  }
+  const spanishRoute = resolveSpanishRequestPath(pathname);
+  if (spanishRoute.kind === "translated") {
+    const requestHeaders = trustedLocaleHeaders(req, "es", spanishRoute.sourcePath);
+    // Real locale routes avoid an internal rewrite re-entering middleware and
+    // clearing the trusted locale before the page and root layout render.
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
+  if (spanishRoute.kind === "unavailable") {
+    const destination = new URL(req.nextUrl.href);
+    destination.host = req.headers.get("host") ?? destination.host;
+    destination.pathname = "/es/unavailable";
+    destination.search = "";
+    destination.searchParams.set("path", `${spanishRoute.sourcePath}${search}`);
+    return NextResponse.redirect(destination);
+  }
+  if (spanishRoute.kind === "unavailable-page") {
+    const requestHeaders = trustedLocaleHeaders(
+      req,
+      "es",
+      publicEnglishFallbackHref(req.nextUrl.searchParams.get("path")),
+    );
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
+  const boundary = approvalBoundary(pathname, req.method);
+  if (pathname.startsWith("/api/") && boundary !== "CUSTOMER") {
+    // API keys verify owner approval in the route; callbacks verify signatures.
+    return NextResponse.next();
+  }
   // Provider callbacks authenticate with a timestamped HMAC in the route.
   // Browser GET access to the provider registry remains session-protected.
   if (
@@ -334,36 +451,35 @@ async function applicationMiddleware(req: NextRequest) {
       "/api/providers",
       "/api/providers/hopae/callback",
       "/api/providers/world-id/callback",
-    ].includes(pathname) || pathname.startsWith("/api/trust-events/ingest/"))
+    ].includes(pathname) || pathname.startsWith("/api/trust-events/ingest/") || isJudgeMeWebhookCallback(pathname, req.method))
   ) {
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: trustedLocaleHeaders(req, "en") } });
   }
   // Enterprise consent-admin APIs authorize workspace owner/admin roles in the
   // route and are not restricted to the platform-wide founder allowlist.
-  if (pathname === "/admin/consent" || pathname.startsWith("/api/admin/consent/")) return NextResponse.next();
-  if (pathname.startsWith("/admin/consensus") || pathname.startsWith("/api/admin/consensus/")) return NextResponse.next();
-  if (pathname.startsWith("/admin/trust-architecture") || pathname.startsWith("/api/admin/trust-architecture/")) return NextResponse.next();
-  const protectsUser = isProtectedUserPath(pathname);
-  const protectsAdmin = isProtectedAdminPath(pathname);
+  const tenantAdmin = isTenantAdminSurface(pathname);
+  const protectsAdmin = !tenantAdmin && isProtectedAdminPath(pathname);
+  const protectsUser = tenantAdmin || isProtectedUserPath(pathname) ||
+    (pathname.startsWith("/api/") && !protectsAdmin);
 
   if (!protectsUser && !protectsAdmin) {
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: trustedLocaleHeaders(req, "en") } });
   }
 
   if (!hasPublicSupabaseEnv()) {
-    return protectedSurfaceUnavailable();
+    return protectedSurfaceUnavailable(req);
   }
 
   let supabaseEnv;
   try {
     supabaseEnv = getPublicSupabaseEnv("middleware Supabase client");
   } catch {
-    return protectedSurfaceUnavailable();
+    return protectedSurfaceUnavailable(req);
   }
 
   let response = NextResponse.next({
     request: {
-      headers: req.headers,
+      headers: trustedLocaleHeaders(req, "en"),
     },
   });
   response = preventIndexing(response);
@@ -429,6 +545,43 @@ async function applicationMiddleware(req: NextRequest) {
   }
 
   if (protectsUser && !protectsAdmin) {
+    const { data: approval, error: approvalError } = await supabase
+      .from("account_access_approvals")
+      .select("status")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (approvalError) {
+      console.error("User access approval lookup failed.", {
+        code: approvalError.code,
+      });
+      return protectedSurfaceUnavailable(req);
+    }
+
+    const approved = approval?.status === "APPROVED";
+    const { error: accessAuditError } = await supabase.rpc(
+      "record_account_access_attempt",
+      { p_access_granted: approved }
+    );
+
+    if (accessAuditError) {
+      console.error("User access approval audit failed.", {
+        code: accessAuditError.code,
+      });
+      return protectedSurfaceUnavailable(req);
+    }
+
+    if (!approved) {
+      if (pathname.startsWith("/api/")) {
+        return NextResponse.json(
+          { ok: false, error: "ACCESS_APPROVAL_REQUIRED" },
+          { status: 403 }
+        );
+      }
+
+      return redirectTo(req, "/access-pending");
+    }
+
     return response;
   }
 
@@ -474,6 +627,6 @@ async function applicationMiddleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|favicon.png).*)",
+    "/((?!_next/static|_next/image|favicon.ico|favicon.png|.*\\.(?:avif|gif|ico|jpe?g|png|svg|webp|pdf|txt|xml|woff2?|ttf|otf|eot|webmanifest)$).*)",
   ],
 };

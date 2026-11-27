@@ -11,7 +11,7 @@ import {
   configurationError,
   getRequestRiskFields,
 } from "@/lib/security";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export async function POST(req: Request) {
   try {
@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       getTurnstileTokenFromJson(body),
       getClientIp(req),
       getExpectedTurnstileHostname(new URL(req.url).hostname),
+      "waitlist",
     );
 
     if (!turnstile.ok) {
@@ -48,13 +49,19 @@ export async function POST(req: Request) {
     }
 
     const email = String(body.email || "").toLowerCase().trim();
-    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-    if (!validEmail || email.length > 254) {
+    if (email.length > 254) {
       return NextResponse.json({ error: "Valid email required" }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!validEmail) {
+      return NextResponse.json({ error: "Valid email required" }, { status: 400 });
+    }
+
+    // Public submission is admitted only after Turnstile and input validation.
+    // The database itself grants no pre-approval access to the waitlist table.
+    const supabase = createServiceRoleClient();
     const requestRisk = getRequestRiskFields(req);
     const { error } = await supabase.from("waitlist").insert({
       email,

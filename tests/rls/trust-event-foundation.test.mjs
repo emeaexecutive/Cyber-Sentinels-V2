@@ -3,7 +3,32 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const migration = await readFile(new URL("../../supabase/migrations/202607200001_canonical_trust_event_foundation.sql", import.meta.url), "utf8");
+const stagingRepair = await readFile(new URL("../../supabase/history/staging/20260816135031_staging_repair_append_trust_event_consent_namespace.sql", import.meta.url), "utf8");
+const productionDefinition = await readFile(new URL("../../supabase/migrations/20260822124942_repair_production_consent_event_metadata.sql", import.meta.url), "utf8");
+const reconciliation = await readFile(new URL("../../supabase/migrations/20261007150224_canonical_trust_memory_function_reconciliation.sql", import.meta.url), "utf8");
 const tables = ["trust_event_envelopes", "trust_events", "trust_event_links", "trust_event_chain_heads", "trust_event_audit", "evidence_objects", "evidence_object_access"];
+
+function appendFunction(source) {
+  const start = source.toLowerCase().indexOf("create or replace function public.append_trust_event_v1(");
+  const end = source.indexOf("$function$;", start);
+  assert.notEqual(start, -1);
+  assert.notEqual(end, -1);
+  return source.slice(start, end + 11).replace(/\s+/g, " ").trim();
+}
+
+test("forward reconciliation hardens both historical variants and preserves canonical invariants", () => {
+  assert.notEqual(appendFunction(reconciliation), appendFunction(stagingRepair));
+  assert.notEqual(appendFunction(reconciliation), appendFunction(productionDefinition));
+  assert.match(reconciliation, /auth\.role\(\) is distinct from 'service_role'/i);
+  assert.match(reconciliation, /p_correlation_id is null/i);
+  assert.match(reconciliation, /v_expected_sequence < 1 or v_expected_sequence > 9007199254740991/i);
+  assert.match(reconciliation, /Missing canonical event fields/i);
+  assert.match(reconciliation, /system\|consent/);
+  assert.match(reconciliation, /p_envelope_id is not null[\s\S]*where id=p_envelope_id and enterprise_id=v_enterprise/i);
+  assert.match(reconciliation, /pg_advisory_xact_lock[\s\S]*for update[\s\S]*return 'CHAIN_CONFLICT'/i);
+  assert.match(reconciliation, /revoke all on function public\.append_trust_event_v1\(jsonb,uuid,uuid\) from public, anon, authenticated/i);
+  assert.match(reconciliation, /grant execute on function public\.append_trust_event_v1\(jsonb,uuid,uuid\) to service_role/i);
+});
 
 test("all Trust Event tables enable RLS, deny anonymous use, and reserve canonical mutation for service_role", () => {
   for (const table of tables) assert.match(migration, new RegExp(`'${table}'`));

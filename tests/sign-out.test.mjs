@@ -26,6 +26,25 @@ test("actual logout route closes the current session, clears cookies and denies 
   assert.equal((await h.guard("/dashboard")).status, 200);
 });
 
+test("account approval blocks protected pages and APIs until the server-side state is approved", async () => {
+  const h = harness();
+  await h.client().auth.signInWithPassword({ email: "fixture@example.test", password: "fixture-password" });
+  h.setAccessStatus("PENDING");
+
+  const page = await h.guard("/dashboard");
+  assert.equal(page.status, 307);
+  assert.equal(new URL(page.headers.get("location")).pathname, "/access-pending");
+  const api = await h.guard("/api/operational-entities");
+  assert.equal(api.status, 403);
+  assert.equal((await api.json()).error, "ACCESS_APPROVAL_REQUIRED");
+  assert.ok(h.calls.some((call) => call.path.endsWith("/rpc/record_account_access_attempt") && call.body.p_access_granted === false));
+
+  h.setAccessStatus("APPROVED");
+  assert.equal((await h.guard("/dashboard")).status, 200);
+  assert.equal((await h.guard("/api/operational-entities")).status, 200);
+  assert.ok(h.calls.some((call) => call.path.endsWith("/rpc/record_account_access_attempt") && call.body.p_access_granted === true));
+});
+
 test("local session cleanup preserves device preferences; Back restore requires server revalidation", () => {
   const state = new Map([["cyber_sentinels_session_started_at", "123"], ["cyber_sentinels_remember_session", "true"]]);
   clearSignedOutSessionState({ removeItem: (key) => state.delete(key) });

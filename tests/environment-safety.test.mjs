@@ -92,7 +92,18 @@ test("staging synthetic mode is accepted", () => {
 
 test("safe output never contains credential or URL values", () => {
   const credential = "postgresql://postgres:do-not-emit@example.invalid:5432/postgres";
-  const output = JSON.stringify(assertSafeStagingEnvironment({ ...staging, hostname: credential }));
+  let output;
+  try { assertSafeStagingEnvironment({ ...staging, hostname: credential }); }
+  catch (error) { output = JSON.stringify({ code: error.code, message: error.message }); }
+  assert.ok(output);
   assert.doesNotMatch(output, /postgresql:|do-not-emit|example\.invalid|password|token|service.role/i);
   assert.equal(output.includes(credential), false);
+});
+
+test("only the exact staging hostname is accepted with its registered project", () => {
+  assert.equal(assertSafeStagingEnvironment({ ...staging, hostname: "https://staging.cybersentinels.com" }).statusCode, "ENVIRONMENT_VALIDATED");
+  for (const hostname of ["unknown.example", "preview.vercel.app", "staging.cybersentinels.com.evil.test"]) {
+    expectSafetyError({ ...staging, hostname }, "ENVIRONMENT_UNKNOWN");
+  }
+  expectSafetyError({ ...staging, hostname: "staging.cybersentinels.com", projectReference: "kecgtsfibkypjuaxqbjx" }, "ENVIRONMENT_REFERENCE_MISMATCH");
 });

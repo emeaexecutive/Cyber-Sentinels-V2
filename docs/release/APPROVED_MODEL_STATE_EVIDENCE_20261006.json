@@ -1,0 +1,861 @@
+{
+  "schema": "approved-model-release-evidence-v1",
+  "date": "2026-10-06",
+  "scope": "STAGING_ONLY",
+  "qualification": "CONTROLLED_MODEL_CONFIGURATION_APPROVAL_NOT_PROVIDER_PROVENANCE_OR_LIVE_RUNTIME_ATTESTATION",
+  "hostedCases": [
+    {
+      "name": "unknown",
+      "model": {
+        "status": "UNKNOWN",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": null,
+        "evidenceDigest": null,
+        "approvalAuthority": null,
+        "approvalReference": null,
+        "modelId": null,
+        "modelProvider": null,
+        "modelVersion": null,
+        "approvedAt": null,
+        "validUntil": null,
+        "evaluatedAt": "2026-10-06T11:04:02.718Z",
+        "reason": "MODEL_APPROVAL_UNKNOWN",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": null,
+      "decision": "REVIEW",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_INSUFFICIENT",
+        "MODEL_APPROVAL_UNKNOWN",
+        "REQUIRED_EVIDENCE_MISSING",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "transactionId": "e778fa5f-96c8-5f5b-a4ca-240215e6ed57",
+      "decisionDigest": "84af43b428e9da516d705d9cd79eafc834e9a6bb7bf439aff03eae48a6de777e",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    },
+    {
+      "name": "caller-self-approved",
+      "model": {
+        "status": "UNKNOWN",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": null,
+        "evidenceDigest": null,
+        "approvalAuthority": null,
+        "approvalReference": null,
+        "modelId": null,
+        "modelProvider": null,
+        "modelVersion": null,
+        "approvedAt": null,
+        "validUntil": null,
+        "evaluatedAt": "2026-10-06T11:04:12.828Z",
+        "reason": "MODEL_APPROVAL_UNKNOWN",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": null,
+      "decision": "REVIEW",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_INSUFFICIENT",
+        "MODEL_APPROVAL_UNKNOWN",
+        "REQUIRED_EVIDENCE_MISSING",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "transactionId": "11b988d1-552c-5fd0-a1a9-23054608b312",
+      "decisionDigest": "032cba5eca816c4f65d15299e70a88f7664cd788ec188cfa3896ade42270c10a",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    },
+    {
+      "name": "approved-runtime-valid",
+      "model": {
+        "status": "APPROVED",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": "d1470fbe-77d4-413d-a1e3-30c44bea6aba",
+        "evidenceDigest": "bcd1f5ac25325c91a167f96879b14a768797aa328fb917040bdd1d1c8ffe7f1c",
+        "approvalAuthority": "operator:release-qualification",
+        "approvalReference": "controlled-registry:qualification",
+        "modelId": "qualification-model",
+        "modelProvider": "controlled-test-registry",
+        "modelVersion": "1.0",
+        "approvedAt": "2026-10-06T11:07:10.954Z",
+        "validUntil": "2026-10-06T12:08:10.954Z",
+        "evaluatedAt": "2026-10-06T11:08:13.843Z",
+        "reason": "MODEL_APPROVAL_APPROVED",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": "EXACT_MATCH",
+      "decision": "ALLOW",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "MODEL_APPROVAL_APPROVED",
+        "MODEL_INTEGRITY_EXACT_MATCH",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "transactionId": "5d1bda19-c075-58ee-b34f-8cd3ca9e7ab4",
+      "decisionDigest": "1bc5973cd3955b2e92e55c1799a3bfa4757edea91b3cdd33f11ef05a016fb475",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    },
+    {
+      "name": "caller-fields-server-wins",
+      "model": {
+        "status": "APPROVED",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": "d1470fbe-77d4-413d-a1e3-30c44bea6aba",
+        "evidenceDigest": "bcd1f5ac25325c91a167f96879b14a768797aa328fb917040bdd1d1c8ffe7f1c",
+        "approvalAuthority": "operator:release-qualification",
+        "approvalReference": "controlled-registry:qualification",
+        "modelId": "qualification-model",
+        "modelProvider": "controlled-test-registry",
+        "modelVersion": "1.0",
+        "approvedAt": "2026-10-06T11:07:10.954Z",
+        "validUntil": "2026-10-06T12:08:10.954Z",
+        "evaluatedAt": "2026-10-06T11:08:23.449Z",
+        "reason": "MODEL_APPROVAL_APPROVED",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": "EXACT_MATCH",
+      "decision": "ALLOW",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "MODEL_APPROVAL_APPROVED",
+        "MODEL_INTEGRITY_EXACT_MATCH",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "transactionId": "bb773a44-b530-59cb-873d-cc459f358039",
+      "decisionDigest": "71f3916a4a3998ff3d565326ceef5f65374c80e262db39ad162f568d2ecbd86f",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    },
+    {
+      "name": "approved-runtime-failed",
+      "model": {
+        "status": "APPROVED",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": "d1470fbe-77d4-413d-a1e3-30c44bea6aba",
+        "evidenceDigest": "bcd1f5ac25325c91a167f96879b14a768797aa328fb917040bdd1d1c8ffe7f1c",
+        "approvalAuthority": "operator:release-qualification",
+        "approvalReference": "controlled-registry:qualification",
+        "modelId": "qualification-model",
+        "modelProvider": "controlled-test-registry",
+        "modelVersion": "1.0",
+        "approvedAt": "2026-10-06T11:07:10.954Z",
+        "validUntil": "2026-10-06T12:08:10.954Z",
+        "evaluatedAt": "2026-10-06T11:08:34.089Z",
+        "reason": "MODEL_APPROVAL_APPROVED",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": "EXACT_MATCH",
+      "decision": "DENY",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+        "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_LOW",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CONFLICT",
+        "EVIDENCE_STALE_OR_UNAVAILABLE",
+        "EVIDENCE_SUFFICIENT",
+        "MISSING_VERIFY_MONITORING",
+        "MISSING_VERIFY_RUNTIME",
+        "MODEL_APPROVAL_APPROVED",
+        "MODEL_INTEGRITY_EXACT_MATCH",
+        "NEGATIVE_PROVIDER_EVIDENCE",
+        "TRUST_FORECAST_ELEVATED",
+        "TRUST_FORECAST_RECOMMENDS_HOLD",
+        "TRUST_GAP_OPEN"
+      ],
+      "transactionId": "989475f2-cb83-5a97-9233-67346be1df41",
+      "decisionDigest": "ae82f73d044fcdefc209d789bd992e010ebfd5b7ebf88d19f95b9c83416fe8e4",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    },
+    {
+      "name": "unapproved",
+      "model": {
+        "status": "UNAPPROVED",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": "add32dcc-b100-4855-8335-79debe155f3f",
+        "evidenceDigest": "db0054288c2e09bf2afbe51d7d8491e0313611c20cf380703fff1b5b130b1541",
+        "approvalAuthority": "operator:release-qualification",
+        "approvalReference": "controlled-registry:qualification",
+        "modelId": "qualification-model",
+        "modelProvider": "controlled-test-registry",
+        "modelVersion": "1.0",
+        "approvedAt": "2026-10-06T11:07:41.058Z",
+        "validUntil": "2026-10-06T12:08:41.058Z",
+        "evaluatedAt": "2026-10-06T11:08:43.615Z",
+        "reason": "MODEL_APPROVAL_UNAPPROVED",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": null,
+      "decision": "DENY",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+        "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_LOW",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CONFLICT",
+        "EVIDENCE_STALE_OR_UNAVAILABLE",
+        "EVIDENCE_SUFFICIENT",
+        "MISSING_VERIFY_AGENT_CONFIGURATION",
+        "MISSING_VERIFY_MONITORING",
+        "MODEL_APPROVAL_UNAPPROVED",
+        "NEGATIVE_PROVIDER_EVIDENCE",
+        "TRUST_FORECAST_ELEVATED",
+        "TRUST_FORECAST_RECOMMENDS_HOLD",
+        "TRUST_GAP_OPEN"
+      ],
+      "transactionId": "c02a58b9-cec6-5d5f-a2db-217901fc99ce",
+      "decisionDigest": "fdef8921046e8ea8bd65b313c0b30c6809a9294e98c7057788ca5a9aab73e72d",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    },
+    {
+      "name": "expired",
+      "model": {
+        "status": "EXPIRED",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": "a52239d9-2c02-4e2a-9b8a-be4b892aeb45",
+        "evidenceDigest": "998c982d62602e5a226887e622db04385819caac6be354182c33c9b53d98c27c",
+        "approvalAuthority": "operator:release-qualification",
+        "approvalReference": "controlled-registry:qualification",
+        "modelId": "qualification-model",
+        "modelProvider": "controlled-test-registry",
+        "modelVersion": "1.0",
+        "approvedAt": "2026-10-06T11:07:50.719Z",
+        "validUntil": "2026-10-06T11:08:55.720Z",
+        "evaluatedAt": "2026-10-06T11:08:59.070Z",
+        "reason": "MODEL_APPROVAL_EXPIRED",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": null,
+      "decision": "REVIEW",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+        "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_STALE_OR_UNAVAILABLE",
+        "EVIDENCE_SUFFICIENT",
+        "MISSING_VERIFY_AGENT_CONFIGURATION",
+        "MISSING_VERIFY_MONITORING",
+        "MODEL_APPROVAL_EXPIRED",
+        "TRUST_FORECAST_ELEVATED",
+        "TRUST_FORECAST_RECOMMENDS_HOLD",
+        "TRUST_GAP_OPEN"
+      ],
+      "transactionId": "1bd6d55f-2663-53c4-8505-23821d592107",
+      "decisionDigest": "89dad5a24e929adb4c53d6fcbb6efd7ecb4d00ecccb548552b6f30d68ad26bc2",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    },
+    {
+      "name": "tenant-mismatch",
+      "model": {
+        "status": "CONFLICTED",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": "bf6725ed-0c75-4935-ae44-9ac1aa105d34",
+        "evidenceDigest": "31dcddefff95f07e5cd9628ba42992a593bec751dc7278b198c216a7bd560d49",
+        "approvalAuthority": null,
+        "approvalReference": null,
+        "modelId": null,
+        "modelProvider": null,
+        "modelVersion": null,
+        "approvedAt": null,
+        "validUntil": null,
+        "evaluatedAt": "2026-10-06T11:09:08.400Z",
+        "reason": "MODEL_APPROVAL_SCOPE_MISMATCH",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": null,
+      "decision": "DENY",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "MODEL_APPROVAL_SCOPE_MISMATCH",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "transactionId": "5b460be8-fee7-509f-ac03-9346e59af531",
+      "decisionDigest": "a2fa5cd380948fddb7f079c8745dc6e25083726b020c27dfdebad66dde307ea1",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    },
+    {
+      "name": "agent-mismatch",
+      "model": {
+        "status": "CONFLICTED",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": "a38c5f5a-94d7-4fac-8612-bdce1cb21052",
+        "evidenceDigest": "77be340203420d6a4e5e61ed920509eb87608910b6db4e6afc47b5cdbad3a709",
+        "approvalAuthority": null,
+        "approvalReference": null,
+        "modelId": null,
+        "modelProvider": null,
+        "modelVersion": null,
+        "approvedAt": null,
+        "validUntil": null,
+        "evaluatedAt": "2026-10-06T11:09:17.615Z",
+        "reason": "MODEL_APPROVAL_SCOPE_MISMATCH",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": null,
+      "decision": "DENY",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "MODEL_APPROVAL_SCOPE_MISMATCH",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "transactionId": "5517537c-d70a-50aa-baff-78539f1a5637",
+      "decisionDigest": "85072cf2b750b55cba57684b7bd6c4413e6d4f7db8192dfda0d623616af7fbff",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    },
+    {
+      "name": "tampered-evidence",
+      "model": {
+        "status": "CONFLICTED",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": "02f2e659-6108-4a5a-9445-06b682b871a4",
+        "evidenceDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "approvalAuthority": null,
+        "approvalReference": null,
+        "modelId": null,
+        "modelProvider": null,
+        "modelVersion": null,
+        "approvedAt": null,
+        "validUntil": null,
+        "evaluatedAt": "2026-10-06T11:09:25.749Z",
+        "reason": "MODEL_APPROVAL_EVIDENCE_TAMPERED",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": null,
+      "decision": "DENY",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "MODEL_APPROVAL_EVIDENCE_TAMPERED",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "transactionId": "017425e6-8607-5f1f-968b-af452331333e",
+      "decisionDigest": "7624411b16190b324c1f948f06b5ec9b530808905c14add722e25fe68a8337ef",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    },
+    {
+      "name": "revoked",
+      "model": {
+        "status": "REVOKED",
+        "source": "CYBER_SENTINELS_MODEL_APPROVAL_REGISTRY",
+        "evidenceReference": "89346f93-15d7-43dd-a7b6-096af8070e8e",
+        "evidenceDigest": "66ce33fe30a9bd4fafbc19ad919c188f7197eda68b695aeaf367bb777087653f",
+        "approvalAuthority": "operator:release-qualification",
+        "approvalReference": "controlled-registry:qualification",
+        "modelId": "qualification-model",
+        "modelProvider": "controlled-test-registry",
+        "modelVersion": "1.0",
+        "approvedAt": "2026-10-06T11:08:32.234Z",
+        "validUntil": "2026-10-06T12:09:32.234Z",
+        "evaluatedAt": "2026-10-06T11:09:34.995Z",
+        "reason": "MODEL_APPROVAL_REVOKED",
+        "provenance": "CONTROLLED_REGISTRY_NOT_PROVIDER_ATTESTATION"
+      },
+      "modelIntegrity": null,
+      "decision": "DENY",
+      "reasonCodes": [
+        "CANONICAL_POLICY_ALLOW",
+        "DELEGATED_AUTHORITY_VALID",
+        "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+        "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_LOW",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CONFLICT",
+        "EVIDENCE_STALE_OR_UNAVAILABLE",
+        "EVIDENCE_SUFFICIENT",
+        "MISSING_VERIFY_AGENT_CONFIGURATION",
+        "MISSING_VERIFY_MONITORING",
+        "MODEL_APPROVAL_REVOKED",
+        "NEGATIVE_PROVIDER_EVIDENCE",
+        "TRUST_FORECAST_ELEVATED",
+        "TRUST_FORECAST_RECOMMENDS_HOLD",
+        "TRUST_GAP_OPEN"
+      ],
+      "transactionId": "ebac837d-0578-530c-8295-9ad7f92b8d61",
+      "decisionDigest": "a9253f42eb2038fc5686be436d0e2b04166f39f9df3f11289eb8fd242ab88a8b",
+      "executionCounts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receiptHttp": 200,
+      "replay": {
+        "http": 200,
+        "decisionTimeModelVisible": true
+      }
+    }
+  ],
+  "failedRuntimeIdentityAssurance": [
+    "CURRENT"
+  ],
+  "historical": {
+    "transactionId": "5d1bda19-c075-58ee-b34f-8cd3ca9e7ab4",
+    "snapshotDigest": "9f6fe31d335fcde9bbf52ac22cc0b4c914f4105dbb19f0ede06f4e8d2e38ae7c",
+    "afterRevocationUnchanged": true,
+    "receiptHttp": 200,
+    "replayHttp": 200,
+    "currentState": "REVOKED",
+    "historicalState": "APPROVED"
+  },
+  "crossTenantReceipt": 404,
+  "directSecurity": [
+    {
+      "name": "authenticated caller cannot write controlled approval ledger",
+      "code": "42501"
+    },
+    {
+      "name": "approval ledger mutation rejected even for service role",
+      "code": "P0001"
+    },
+    {
+      "name": "approval ledger deletion rejected",
+      "code": "P0001"
+    }
+  ],
+  "chronology": [
+    {
+      "event": "MODEL_APPROVAL_APPROVED",
+      "reference": "d1470fbe-77d4-413d-a1e3-30c44bea6aba",
+      "at": "2026-10-06T11:08:10.956+00:00",
+      "decision": null
+    },
+    {
+      "event": "CANONICAL_TRUST_TRANSACTION",
+      "reference": "5d1bda19-c075-58ee-b34f-8cd3ca9e7ab4",
+      "at": "2026-10-06T11:08:13.843+00:00",
+      "decision": "ALLOW"
+    },
+    {
+      "event": "MODEL_APPROVAL_REVOKED",
+      "reference": "89346f93-15d7-43dd-a7b6-096af8070e8e",
+      "at": "2026-10-06T11:09:32.235+00:00",
+      "decision": null
+    },
+    {
+      "event": "CANONICAL_TRUST_TRANSACTION",
+      "reference": "ebac837d-0578-530c-8295-9ad7f92b8d61",
+      "at": "2026-10-06T11:09:34.995+00:00",
+      "decision": "DENY"
+    }
+  ],
+  "finalHostedCheck": {
+    "deployment": "dpl_MgjfRzN66qXqcGJwGNYGjhe1WWtv",
+    "results": [
+      {
+        "name": "approved-runtime-valid",
+        "receipt": 200,
+        "replay": 200,
+        "model": "APPROVED",
+        "digestUnchanged": true
+      },
+      {
+        "name": "approved-runtime-failed",
+        "receipt": 200,
+        "replay": 200,
+        "model": "APPROVED",
+        "digestUnchanged": true
+      },
+      {
+        "name": "revoked",
+        "receipt": 200,
+        "replay": 200,
+        "model": "REVOKED",
+        "digestUnchanged": true
+      }
+    ],
+    "apiKeyAcrossRedeploy": [
+      {
+        "status": 401,
+        "code": "API_KEY_EXPIRED"
+      },
+      {
+        "status": 401,
+        "code": "API_KEY_EXPIRED"
+      },
+      {
+        "status": 401,
+        "code": "API_KEY_EXPIRED"
+      }
+    ],
+    "ready": {
+      "schemaVersion": "readiness-v3",
+      "status": "READY",
+      "reasonCode": "ENTERPRISE_TRUST_ARCHITECTURE_AVAILABLE",
+      "checks": {
+        "environment": "READY",
+        "enterpriseTrustArchitecture": "READY",
+        "repositoryRuntime": "NOT_CONFIGURED",
+        "externalControls": "BLOCKED",
+        "process": "PROCESS_HEALTHY",
+        "projectIdentity": "VALID",
+        "dataPlane": "READY",
+        "apiAuthentication": "READY",
+        "canonicalPersistence": "READY",
+        "authority": "READY",
+        "humanReview": "READY",
+        "rateLimiting": "READY",
+        "apiKeyRotation": "READY"
+      },
+      "enterpriseTrustRegistry": {
+        "missingDomains": [],
+        "inactiveDomains": [],
+        "versionMismatchDomains": [],
+        "duplicateDomains": []
+      },
+      "runtime": {
+        "commitSha": null
+      },
+      "externalControls": {
+        "state": "BLOCKED",
+        "reasonCode": "AUTHORITATIVE_CONTROL_PLANE_EVIDENCE_REQUIRED"
+      },
+      "generatedAt": "2026-10-06T13:35:04.724Z",
+      "diagnosticState": "PROCESS_HEALTHY",
+      "publicApiEnvironment": {
+        "valid": true,
+        "state": "CONFIGURED",
+        "reasonCode": "PUBLIC_API_ENVIRONMENT_CONFIGURED",
+        "name": "staging",
+        "origin": "https://staging.cybersentinels.com"
+      },
+      "projectBinding": {
+        "valid": true,
+        "expectedProject": "agpyhygpfmppjkxwcpac",
+        "projectIdentity": "VALID",
+        "statuses": {
+          "NEXT_PUBLIC_SUPABASE_URL": "PRESENT",
+          "SUPABASE_URL": "PRESENT",
+          "NEXT_PUBLIC_SUPABASE_ANON_KEY": "PRESENT",
+          "SUPABASE_SERVICE_ROLE_KEY": "PRESENT"
+        },
+        "productionProjectActive": "NOT_ACTIVE"
+      }
+    }
+  },
+  "signup": {
+    "transport": "UNQUALIFIED_UPSTREAM_ERROR",
+    "ownerPending": {
+      "status": "PENDING",
+      "apiStatus": 403,
+      "pageStatus": 307,
+      "pageLocation": "/access-pending"
+    },
+    "otherCreation": "ADMIN_FIXTURE_FALLBACK",
+    "otherPending": {
+      "status": "PENDING",
+      "apiStatus": 403,
+      "pageStatus": 307,
+      "pageLocation": "/access-pending"
+    }
+  },
+  "cleanup": {
+    "events": [
+      "Gamma API key revoked",
+      "Delegation revoked",
+      "Delegation revoked",
+      "Native credential revoked",
+      "Native credential revoked",
+      "Native credential revoked"
+    ],
+    "storageUsersAbsent": [
+      "5210c167-0f19-4988-8813-333ff83eb079",
+      "4b80ad87-857f-40f7-8961-a2c877543169",
+      "04d014b1-a570-4f95-a01b-2f2e7045b47b"
+    ],
+    "accountsDeleted": [
+      "d24b6cf7-eae4-48cb-b0dd-9fde89878ab8",
+      "c7b0d46a-21e9-43c0-b1a9-2dbd250c2906"
+    ],
+    "apiKeysDeleted": 1,
+    "retiredApiKeyStatus": 401,
+    "remainingOwnFixtureUsers": [],
+    "historyRetained": 22,
+    "parentAuthoritiesRevoked": 3,
+    "apiBindingsDeleted": 1,
+    "activeNativeCredentials": 0
+  },
+  "storageCleanup": {
+    "workspaces": 0,
+    "cases": 0,
+    "fixtureStorageObjects": 0
+  },
+  "storage": {
+    "checks": 83,
+    "passed": 83
+  },
+  "gamma": "PUBLIC_API_ONLY_END_TO_END_COMPLETE",
+  "targeted": {
+    "suiteInvocations": 1,
+    "tests": 117,
+    "pass": 117,
+    "fail": 0,
+    "skipped": 0
+  },
+  "fullRegression": {
+    "tests": 1973,
+    "suiteInvocations": 87,
+    "pass": 1973,
+    "fail": 0,
+    "skipped": 0
+  },
+  "securityClosure": {
+    "tests": 13,
+    "suiteInvocations": 1,
+    "pass": 13,
+    "fail": 0,
+    "skipped": 0
+  },
+  "modelSuite": {
+    "tests": 37,
+    "suiteInvocations": 1,
+    "pass": 37,
+    "fail": 0,
+    "skipped": 0
+  },
+  "productTruth": {
+    "tests": 13,
+    "suiteInvocations": 1,
+    "pass": 13,
+    "fail": 0,
+    "skipped": 0
+  },
+  "oldScratch": {
+    "files": 120,
+    "findings": [],
+    "tracked": false,
+    "staged": false,
+    "ignored": true
+  },
+  "rcSecretScan": {
+    "files": 2922,
+    "knownSecretsChecked": 29,
+    "findings": []
+  },
+  "productionMutated": false,
+  "priorEvidence": "CORE_RELEASE_EVIDENCE_20261006.json",
+  "localGates": {
+    "typecheck": "PASS",
+    "lint": "PASS (ignored new scratch scripts excluded)",
+    "build": "PASS",
+    "staticPages": 208,
+    "diffCheck": "PASS"
+  },
+  "localCleanup": {
+    "status": "VERIFIED_RESOLVED",
+    "credentialExportsRemaining": 0,
+    "identifiedSixAbsent": true,
+    "oidcEntryRemoved": true,
+    "ignored": true,
+    "tracked": false,
+    "staged": false,
+    "vercelUploadExcluded": true
+  },
+  "releaseDecision": "CORE_RC_QUALIFIED",
+  "rcCommit": "Commit containing RC_SECRET_CLOSURE_20261006.md; exact SHA reported after creation",
+  "branch": "fix/p0p1-production-security-closure",
+  "baseHead": "94a530cfacbc4470a3f02ff8b08dfc60cd3e13de",
+  "productionAliasDeployment": "dpl_3aKJiNZB6jQssp9Urm8uDG1zBsyp",
+  "previousLocalCleanup": {
+    "status": "BLOCKED_BY_AUTOMATIC_APPROVAL_REVIEW",
+    "reason": "blocked by policy",
+    "credentialExportsRemaining": 6,
+    "ignored": true,
+    "tracked": false,
+    "staged": false,
+    "vercelUploadExcluded": true
+  },
+  "secretClosureReport": "RC_SECRET_CLOSURE_20261006.md"
+}

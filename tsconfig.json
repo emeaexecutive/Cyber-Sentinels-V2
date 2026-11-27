@@ -33,10 +33,13 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    ".next/dev/types/**/*.ts",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next-tenente-auth/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "tmp",
+    "temp"
   ]
 }

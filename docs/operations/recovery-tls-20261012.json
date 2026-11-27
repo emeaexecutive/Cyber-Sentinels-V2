@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-12T08:34:05.455Z",
+  "client": "PostgreSQL libpq 17.11",
+  "host": "aws-0-eu-west-3.pooler.supabase.com",
+  "port": 5432,
+  "sslmode": "verify-full",
+  "rootCertificateSha256": "700723581420dd1ac98fd7e9ac529f0ef210eadcaf87fc868a3ad7d114c2f3b7",
+  "tests": [
+    {
+      "label": "VALID_CA_AND_HOST",
+      "exitCode": 2,
+      "result": "psql: error: connection to server at \"aws-0-eu-west-3.pooler.supabase.com\" (15.188.134.6), port 5432 failed: fe_sendauth: no password supplied",
+      "expected": true
+    },
+    {
+      "label": "WRONG_HOST",
+      "exitCode": 2,
+      "result": "psql: error: connection to server at \"15.188.134.6\", port 5432 failed: server certificate for \"*.pooler.supabase.com\" (and 1 other name) does not match host name \"wrong-host.invalid\"",
+      "expected": true
+    },
+    {
+      "label": "WRONG_CA",
+      "exitCode": 2,
+      "result": "psql: error: connection to server at \"aws-0-eu-west-3.pooler.supabase.com\" (15.188.134.6), port 5432 failed: SSL error: certificate verify failed",
+      "expected": true
+    }
+  ],
+  "status": "PASS_CLIENT_TO_POOLER_VERIFIED_TLS",
+  "authenticationRetested": false,
+  "historicalSession": "Capture script used verify-full with same CA. Historical connection not packet-captured; script and successful archive are supporting execution evidence.",
+  "backend": "User-reported pg_stat_ssl.ssl=f describes pooler-to-PostgreSQL backend, not client TLS. End-to-end TLS across both hops is NOT established.",
+  "additionalProbeNotes": "Node verified TLS1.3/hostname but crashed on cleanup; Python strict X.509 rejected legacy CA key usage. Neither is used as the acceptance test; native libpq used by pg_dump is authoritative here."
+}

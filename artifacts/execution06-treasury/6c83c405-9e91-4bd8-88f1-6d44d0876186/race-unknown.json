@@ -1,0 +1,415 @@
+{
+  "checkpoint": {
+    "tenantId": "10000000-0000-4000-8000-000000000001",
+    "count": 13,
+    "head": "2aaf606ce40dc37afd7cbcc27de10d6db0242d8decba0ec9e1e74ad44186d9e8",
+    "effectsDigest": "3ef2375cd17078ac4f402c3b63dac3f3177dbdecdc9d8e39efa954326d70bb03",
+    "synthetic": true
+  },
+  "signature": {
+    "version": "authority-receipt-signature-v1",
+    "algorithm": "Ed25519",
+    "keyId": "sandbox:receipt:v1",
+    "tenantId": "10000000-0000-4000-8000-000000000001",
+    "receiptId": "export:2aaf606ce40dc37afd7cbcc27de10d6db0242d8decba0ec9e1e74ad44186d9e8",
+    "payloadDigest": "b81d116255f9d40b0d4eab3a42cae79480cd3e50ca2821600518e65680208493",
+    "signature": "A2qODtAlYPAA53EUd3yGzEEuaxkSlb2uWpWvaMz7SDpks366g_5FNATprGrBRFXnYUplHEFMTLl8GL0CZSiHCw"
+  },
+  "events": [
+    {
+      "event": {
+        "sequence": 1,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "MEMBERSHIP_ADDED",
+        "actorId": "operator",
+        "subjectId": "agent:1",
+        "at": 1794768228462,
+        "details": {
+          "swarmId": "swarm:1",
+          "parentId": null,
+          "originalAuthority": "10000000-0000-4000-8000-000000000003",
+          "workflowId": "workflow:1",
+          "authorityConferred": false
+        },
+        "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "digest": "de14851bf8a6eaada5759f36c4056e50d0c7ab3533585ba9026ff7857efd6303"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "de14851bf8a6eaada5759f36c4056e50d0c7ab3533585ba9026ff7857efd6303",
+        "payloadDigest": "28d0d7ad96a7f4608929bf56862a1e23831a6c9230568deab64cba364e636879",
+        "signature": "Pxf--q6XvutRV_GxNlGPFAW-3UmdzNEIsJ1D6_abgeAiEbwHMZz7bN7tq6zbSI4EQcwna-TVc01xP2C2OdagDQ"
+      }
+    },
+    {
+      "event": {
+        "sequence": 2,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "HEARTBEAT_VERIFIED",
+        "actorId": "agent:1",
+        "subjectId": "agent:1",
+        "at": 1794768228462,
+        "details": {
+          "sequence": 1,
+          "credentialVersion": 1
+        },
+        "previousHash": "de14851bf8a6eaada5759f36c4056e50d0c7ab3533585ba9026ff7857efd6303",
+        "digest": "9b69ed2311a14fe4149dc2eb17298a58c3d1e617c36cc28e6110ffffe92d6cd7"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "9b69ed2311a14fe4149dc2eb17298a58c3d1e617c36cc28e6110ffffe92d6cd7",
+        "payloadDigest": "1b1d0ebf61805f7bc800c4baf81a175df3e4dc8528f821c73169fc95cc52b024",
+        "signature": "LDD-pBoHNxNA4F90qbKNXpiYd2eWgB-qZrpSxyA6xD_Ywe01xlbipKiJNGOB0kyyeH1w5nBtSbnJZpq7AlmSCw"
+      }
+    },
+    {
+      "event": {
+        "sequence": 3,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "MEMBERSHIP_ADDED",
+        "actorId": "operator",
+        "subjectId": "agent:2",
+        "at": 1794768228462,
+        "details": {
+          "swarmId": "swarm:1",
+          "parentId": null,
+          "originalAuthority": "10000000-0000-4000-8000-000000000003",
+          "workflowId": "workflow:1",
+          "authorityConferred": false
+        },
+        "previousHash": "9b69ed2311a14fe4149dc2eb17298a58c3d1e617c36cc28e6110ffffe92d6cd7",
+        "digest": "a1dbcd267ff0cbe92451d7de3c216792893be3a8d799ed55a7a474d0209c74ad"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "a1dbcd267ff0cbe92451d7de3c216792893be3a8d799ed55a7a474d0209c74ad",
+        "payloadDigest": "37ea78a47f897a1af5d80f53187047545cdb871c01ca253553a14e4bab11d6f8",
+        "signature": "-5fiR_GwMk7sjwS5jz2_CB9vWokvQzsN8U6Pl-la7gqIOouWKiMlmNEqRCgfyprZccEFazi64C_sdGkk4IkuAA"
+      }
+    },
+    {
+      "event": {
+        "sequence": 4,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "HEARTBEAT_VERIFIED",
+        "actorId": "agent:2",
+        "subjectId": "agent:2",
+        "at": 1794768228462,
+        "details": {
+          "sequence": 1,
+          "credentialVersion": 1
+        },
+        "previousHash": "a1dbcd267ff0cbe92451d7de3c216792893be3a8d799ed55a7a474d0209c74ad",
+        "digest": "c43c0babedefdb730206085e53a3b853ed6d46a6d32e1aa26d7593ff2e715d3b"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "c43c0babedefdb730206085e53a3b853ed6d46a6d32e1aa26d7593ff2e715d3b",
+        "payloadDigest": "7597a6779cc148194a8305409128d7b5d3eb42f24a623c9c6d2de5a991805f60",
+        "signature": "37jfA2vaYZRhPMohNFZq5HF_8sliTEe0bSHcmEPqDQlaTsvQRwRXFjOVb3JfpnxM7695J3EnFoFnpm2A3OkkBQ"
+      }
+    },
+    {
+      "event": {
+        "sequence": 5,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "MEMBERSHIP_CHANGED",
+        "actorId": "operator",
+        "subjectId": "agent:1",
+        "at": 1794768228462,
+        "details": {
+          "runtimeKeyFingerprint": "de16fb9dc73c0a1c2c95dc7a2fc70ea86f368b4059000c9ab70d32ed92838097",
+          "credentialVersion": 2,
+          "authorityConferred": false
+        },
+        "previousHash": "c43c0babedefdb730206085e53a3b853ed6d46a6d32e1aa26d7593ff2e715d3b",
+        "digest": "70feadefcd68d6fb3ad13e4d71cdd0addd18ad528330905506ff6dbd15e19310"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "70feadefcd68d6fb3ad13e4d71cdd0addd18ad528330905506ff6dbd15e19310",
+        "payloadDigest": "059ea0af1446e5a85af6388de8c7a47ac5365d361054eaab9fa95f4b5fe7deef",
+        "signature": "LtXAk4nO_Xx7Qa6TVjdq3gmzoSGvAkVEXuhpTtLzAubxUpRSUJ5htT8x-59aK186c3phCArJuLkgHOHR1PvqBw"
+      }
+    },
+    {
+      "event": {
+        "sequence": 6,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "MEMBERSHIP_CHANGED",
+        "actorId": "operator",
+        "subjectId": "agent:2",
+        "at": 1794768228462,
+        "details": {
+          "runtimeKeyFingerprint": "9620ad9ed7d5f997766a043c1c472fc9fc14765b100f293a159f032353522e80",
+          "credentialVersion": 2,
+          "authorityConferred": false
+        },
+        "previousHash": "70feadefcd68d6fb3ad13e4d71cdd0addd18ad528330905506ff6dbd15e19310",
+        "digest": "5fd093824099f7cd0c9a5b13575f344c71eaa3a0ad659640a502dc8a74fc0360"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "5fd093824099f7cd0c9a5b13575f344c71eaa3a0ad659640a502dc8a74fc0360",
+        "payloadDigest": "abae8575d3b64cc389d7466342608c48e09fe58af5365dccae4d1d8fa1970130",
+        "signature": "FpW9iLQGvuWvxCXdZrPgRRgLlfkc9gk6uQL3NsIPuFr6UjNaRxoBJZJC5GaYbR9dvkosNkfD5d2LB5otlp8rBw"
+      }
+    },
+    {
+      "event": {
+        "sequence": 7,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "MEMBERSHIP_CHANGED",
+        "actorId": "operator",
+        "subjectId": "swarm:1",
+        "at": 1794768228462,
+        "details": {
+          "syntheticFixture": true,
+          "accountablePrincipal": "owner"
+        },
+        "previousHash": "5fd093824099f7cd0c9a5b13575f344c71eaa3a0ad659640a502dc8a74fc0360",
+        "digest": "ff2c8c9ba7142f1d15fa2d853495e2fbc4d4e3ff9c22faf7355c092481570bef"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "ff2c8c9ba7142f1d15fa2d853495e2fbc4d4e3ff9c22faf7355c092481570bef",
+        "payloadDigest": "a3725df4969239d6e3669a222af61417320aaf195e136a917677608289c112df",
+        "signature": "jNstlTJoHW85RIfOM0cngSmQxwXL2t_88dyEU8a91j8p7T5cmtjINf2qreJMEG-lK5MFlLJ0f5elrO27mIebBA"
+      }
+    },
+    {
+      "event": {
+        "sequence": 8,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "FINANCIAL_POLICY_CHANGED",
+        "actorId": "operator",
+        "subjectId": "treasury:EUR",
+        "at": 1794768228462,
+        "details": {
+          "version": "v2",
+          "stopped": false
+        },
+        "previousHash": "ff2c8c9ba7142f1d15fa2d853495e2fbc4d4e3ff9c22faf7355c092481570bef",
+        "digest": "7a1cc8d26e2534edb369c3264a3ffd048b96dcf23308e85501c7ee163ae96e3b"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "7a1cc8d26e2534edb369c3264a3ffd048b96dcf23308e85501c7ee163ae96e3b",
+        "payloadDigest": "5c697450ec97f8a7f47f214a6fa71defee350b39f5a689c03db3364638d1fc23",
+        "signature": "ha2ef3P_vMdke9kV5pTbBi6lgE2a1-x58xKkIKCiGdp4LBheLoJE7jqUUEfHMysbbzA7mR9fws8PgjwKPp27Aw"
+      }
+    },
+    {
+      "event": {
+        "sequence": 9,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "FINANCIAL_ALLOW",
+        "actorId": "agent:1",
+        "subjectId": "http:race:0000",
+        "at": 1794768228462,
+        "details": {
+          "digest": "f7c0347bdc7078e627ce171968b35f033cdb960f9c6397c9c9ae27b11a24b033",
+          "decision": "ALLOW",
+          "reasons": [],
+          "mandateId": "c2a5a9d9-87e7-43a9-bfa3-ff4a0907db36",
+          "effectId": null,
+          "synthetic": true,
+          "defensiveStage": "PROVE"
+        },
+        "previousHash": "7a1cc8d26e2534edb369c3264a3ffd048b96dcf23308e85501c7ee163ae96e3b",
+        "digest": "3df2a71cc5d769b7e147ab9abcfe727d20768d28e741a1e1969f816ee787b4c0"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "3df2a71cc5d769b7e147ab9abcfe727d20768d28e741a1e1969f816ee787b4c0",
+        "payloadDigest": "1777c8bfe692406f02c62f2d83a75aa1fadd23f396acdc5cf9d683f48094aa89",
+        "signature": "q8S5rmNsBsTKqijsvSnKuTCQr7IO_buGlkgihL5Qa7v4L0sv1OhdwGN1oLFpHTc7gggxjALT0s9uH4mVoBCYAg"
+      }
+    },
+    {
+      "event": {
+        "sequence": 10,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "FINANCIAL_DENY",
+        "actorId": "agent:2",
+        "subjectId": "http:race:0001",
+        "at": 1794768228462,
+        "details": {
+          "digest": "a38d87ac31546f5f9726f2e17dca4257ef1917664de334c0f706d21197f75ba2",
+          "decision": "DENY",
+          "reasons": [
+            "DAILY_LIMIT",
+            "ROLLING_LIMIT"
+          ],
+          "mandateId": null,
+          "effectId": null,
+          "synthetic": true,
+          "defensiveStage": "CHALLENGE"
+        },
+        "previousHash": "3df2a71cc5d769b7e147ab9abcfe727d20768d28e741a1e1969f816ee787b4c0",
+        "digest": "ea54e9f773b7b92bbe883b5956d581e9048c019bac81f38a9b82e1dd82630bfb"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "ea54e9f773b7b92bbe883b5956d581e9048c019bac81f38a9b82e1dd82630bfb",
+        "payloadDigest": "9bedf84e9ca2d3e2bf2111d71fc227845e60377dfb513cd09794ae35542be3a5",
+        "signature": "5X_qm7jB3ufTx2_Q5m_TlE7-cDUuQ0-9bBzBZ8gjjXIdZIfz9i5wWkY61RlGfoqGEY_evY57Jae3T9o-biQTAw"
+      }
+    },
+    {
+      "event": {
+        "sequence": 11,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "FINANCIAL_DENY",
+        "actorId": "agent:1",
+        "subjectId": "http:race:0000",
+        "at": 1794768228462,
+        "details": {
+          "digest": "f7c0347bdc7078e627ce171968b35f033cdb960f9c6397c9c9ae27b11a24b033",
+          "decision": "DENY",
+          "reasons": [
+            "GATEWAY_UNAVAILABLE"
+          ],
+          "mandateId": null,
+          "effectId": null,
+          "synthetic": true,
+          "defensiveStage": "CHALLENGE"
+        },
+        "previousHash": "ea54e9f773b7b92bbe883b5956d581e9048c019bac81f38a9b82e1dd82630bfb",
+        "digest": "235259c7f87fe4a478c399f2e1cf22aed7d8b1a3a30c1ee168e96280acc800e0"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "235259c7f87fe4a478c399f2e1cf22aed7d8b1a3a30c1ee168e96280acc800e0",
+        "payloadDigest": "33204086fcba21e2d92ee0d5d5f0509feaa0ef20d8edb3d7ad4e04459c4c5f58",
+        "signature": "jzUDlOSJrfXgTUBAu8oi-5bh3rnpfzh7SLE329IGHjMFlb4uYbB020RjTXpuTfcjBcJXuyfhgE9Kv4AJH35KBA"
+      }
+    },
+    {
+      "event": {
+        "sequence": 12,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "FINANCIAL_ALLOW",
+        "actorId": "agent:1",
+        "subjectId": "http:race:0000",
+        "at": 1794768228567,
+        "details": {
+          "digest": "f7c0347bdc7078e627ce171968b35f033cdb960f9c6397c9c9ae27b11a24b033",
+          "decision": "ALLOW",
+          "reasons": [],
+          "mandateId": "c2a5a9d9-87e7-43a9-bfa3-ff4a0907db36",
+          "effectId": "31930e23-6a0b-4588-89c7-69ef0be3764d",
+          "synthetic": true,
+          "defensiveStage": "PROVE"
+        },
+        "previousHash": "235259c7f87fe4a478c399f2e1cf22aed7d8b1a3a30c1ee168e96280acc800e0",
+        "digest": "328b07646207f718d165548623e83c681d0e9425c8175898ddaa3f54fa6cfdab"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "328b07646207f718d165548623e83c681d0e9425c8175898ddaa3f54fa6cfdab",
+        "payloadDigest": "884b327f404f7c2d41b4f4152e9de549fd2542041cd1a837f1401f305dbb6be2",
+        "signature": "ZbJt4dhnMB-wcsOv5dlE4qs6EOTwNJP4iulGyxPzIG26kxWe1tZSB1422zQHh9uaEoag5hDTpkhl-4XX10-rBA"
+      }
+    },
+    {
+      "event": {
+        "sequence": 13,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "FINANCIAL_DENY",
+        "actorId": "agent:1",
+        "subjectId": "http:race:0000",
+        "at": 1794768228567,
+        "details": {
+          "digest": "f7c0347bdc7078e627ce171968b35f033cdb960f9c6397c9c9ae27b11a24b033",
+          "decision": "DENY",
+          "reasons": [
+            "DAILY_LIMIT",
+            "ROLLING_LIMIT",
+            "MANDATE_INVALID_OR_USED",
+            "IDEMPOTENCY_REPLAY"
+          ],
+          "mandateId": null,
+          "effectId": null,
+          "synthetic": true,
+          "defensiveStage": "CHALLENGE"
+        },
+        "previousHash": "328b07646207f718d165548623e83c681d0e9425c8175898ddaa3f54fa6cfdab",
+        "digest": "2aaf606ce40dc37afd7cbcc27de10d6db0242d8decba0ec9e1e74ad44186d9e8"
+      },
+      "signature": {
+        "version": "authority-receipt-signature-v1",
+        "algorithm": "Ed25519",
+        "keyId": "sandbox:receipt:v1",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "receiptId": "2aaf606ce40dc37afd7cbcc27de10d6db0242d8decba0ec9e1e74ad44186d9e8",
+        "payloadDigest": "0f9d116a1178cf11f6487d84607cea913d5fd9e09b4c5f4f56f42df5f52f9963",
+        "signature": "Jv9MUnl2nxAfyfZFirBGgOzyJq1JMo_ly8ZnD4io2iKqGLL5_xA2gKYTVXqtBwk5lMIpdpkcjMFao1FJkPJMAg"
+      }
+    }
+  ],
+  "effects": [
+    {
+      "id": "31930e23-6a0b-4588-89c7-69ef0be3764d",
+      "requestId": "http:race:0000",
+      "mandateId": "c2a5a9d9-87e7-43a9-bfa3-ff4a0907db36",
+      "digest": "f7c0347bdc7078e627ce171968b35f033cdb960f9c6397c9c9ae27b11a24b033",
+      "payment": {
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "agentId": "agent:1",
+        "requestId": "http:race:0000",
+        "amountMinor": 5000000,
+        "currency": "EUR",
+        "asset": "FIAT",
+        "network": "MOCK",
+        "chainId": "",
+        "contract": "",
+        "beneficiary": "supplier:1",
+        "destination": "supplier:approved",
+        "provider": "controlled:sandbox",
+        "policyVersion": "v2",
+        "expiresAt": 1794768288462,
+        "environment": "sandbox"
+      },
+      "at": 1794768228567,
+      "synthetic": true
+    }
+  ]
+}

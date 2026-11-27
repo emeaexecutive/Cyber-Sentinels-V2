@@ -89,12 +89,13 @@ test("Preview reset requests are limited to the runtime Preview origin", () => {
 });
 
 test("recovery implementation uses product-owned request, PKCE callback, and updateUser", async () => {
-  const [login, requestRoute, callback, completeRoute, page, config, template, recoveryPolicy] = await Promise.all([
-    read("app/login/page.tsx"),
+  const [login, requestRoute, callback, completeRoute, page, accountI18n, config, template, recoveryPolicy] = await Promise.all([
+    read("components/login-experience.tsx"),
     read("app/api/auth/password-reset/request/route.ts"),
     read("lib/auth/callback-handler.ts"),
     read("app/api/auth/password-reset/complete/route.ts"),
     read("app/account/reset-password/reset-password-form.tsx"),
+    read("lib/i18n/account.ts"),
     read("supabase/config.toml"),
     read("supabase/templates/recovery.html"),
     read("lib/auth/password-recovery.ts"),
@@ -111,8 +112,10 @@ test("recovery implementation uses product-owned request, PKCE callback, and upd
   assert.match(completeRoute, /supabase\.auth\.updateUser/);
   assert.match(completeRoute, /scope: "global"/);
   assert.match(completeRoute, /PASSWORD_UPDATED/);
-  assert.match(page, /Set a new password/);
-  assert.match(page, /Confirm new password/);
+  assert.match(page, /\{copy\.newTitle\}/);
+  assert.match(page, /aria-label=\{copy\.confirmPassword\}/);
+  assert.match(accountI18n, /"newTitle": "Set a new password"/);
+  assert.match(accountI18n, /"confirmPassword": "Confirm new password"/);
   assert.match(config, /site_url = "https:\/\/www\.cybersentinels\.com"/);
   assert.doesNotMatch(config, /www\.cybersentinels\.com\/\*\*/);
   assert.match(template, /\{\{ \.ConfirmationURL \}\}/);

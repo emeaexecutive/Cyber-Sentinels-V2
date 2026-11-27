@@ -1,0 +1,47 @@
+{
+  "migration_rehearsal_v1": {
+    "result": "PASS",
+    "differences": [
+      {
+        "section": "functions",
+        "key": "public.rls_auto_enable..postgres",
+        "classification": "SUPABASE_MANAGED"
+      }
+    ]
+  },
+  "migration_rehearsal_v2": {
+    "result": "FAIL",
+    "differences": [
+      {
+        "section": "tables",
+        "key": "public.account_access_approval_events.postgres",
+        "classification": "MUST_RECONCILE"
+      },
+      {
+        "section": "tables",
+        "key": "public.account_access_approvals.postgres",
+        "classification": "MUST_RECONCILE"
+      },
+      {
+        "section": "triggers",
+        "key": "public.account_access_approvals.guard_account_access_transition",
+        "classification": "MUST_RECONCILE"
+      },
+      {
+        "section": "functions",
+        "key": "public.guard_account_access_transition..postgres",
+        "classification": "MUST_RECONCILE"
+      },
+      {
+        "section": "functions",
+        "key": "public.rls_auto_enable..postgres",
+        "classification": "SUPABASE_MANAGED"
+      },
+      {
+        "section": "functions",
+        "key": "public.set_account_access_status.p_user_id uuid, p_status text, p_actor_user_id uuid, p_reason text.postgres",
+        "classification": "MUST_RECONCILE"
+      }
+    ]
+  }
+}

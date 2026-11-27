@@ -1,0 +1,22 @@
+[
+  {
+    "schema": "public",
+    "table": "api_keys",
+    "name": "api_keys_authority_boundary_v1_check",
+    "reason": "PostgreSQL deparser grouping of associative AND terms; operands, casts, limits and null behavior are unchanged.",
+    "definitions": [
+      "CHECK (((authority_management_boundary IS NULL) OR ((jsonb_typeof(authority_management_boundary) = 'object'::text) AND (jsonb_typeof((authority_management_boundary -> 'actions'::text)) = 'array'::text) AND (jsonb_typeof((authority_management_boundary -> 'target_prefixes'::text)) = 'array'::text) AND (jsonb_typeof((authority_management_boundary -> 'purposes'::text)) = 'array'::text) AND (jsonb_typeof((authority_management_boundary -> 'environments'::text)) = 'array'::text) AND (((authority_management_boundary ->> 'max_ttl_seconds'::text))::integer >= 300) AND (((authority_management_boundary ->> 'max_ttl_seconds'::text))::integer <= 7776000))))",
+      "CHECK (((authority_management_boundary IS NULL) OR ((jsonb_typeof(authority_management_boundary) = 'object'::text) AND (jsonb_typeof((authority_management_boundary -> 'actions'::text)) = 'array'::text) AND (jsonb_typeof((authority_management_boundary -> 'target_prefixes'::text)) = 'array'::text) AND (jsonb_typeof((authority_management_boundary -> 'purposes'::text)) = 'array'::text) AND (jsonb_typeof((authority_management_boundary -> 'environments'::text)) = 'array'::text) AND ((((authority_management_boundary ->> 'max_ttl_seconds'::text))::integer >= 300) AND (((authority_management_boundary ->> 'max_ttl_seconds'::text))::integer <= 7776000)))))"
+    ]
+  },
+  {
+    "schema": "public",
+    "table": "trust_profiles",
+    "name": "trust_profiles_v2_shape_ck",
+    "reason": "PostgreSQL deparser grouping of associative AND terms; operands, casts, limits and null behavior are unchanged.",
+    "definitions": [
+      "CHECK (((profile_version <> 'trust-dna-v2'::text) OR ((entity_id IS NOT NULL) AND (entity_type = ANY (ARRAY['HUMAN'::text, 'ORGANISATION'::text, 'AI_AGENT'::text, 'DEVICE'::text, 'IDENTITY'::text, 'EMAIL'::text, 'PHONE'::text, 'DOCUMENT'::text, 'WORKFLOW'::text, 'POLICY'::text])) AND (version > 0) AND (overall_score >= (0)::numeric) AND (overall_score <= (100)::numeric) AND (evidence_completeness >= (0)::numeric) AND (evidence_completeness <= (100)::numeric))))",
+      "CHECK (((profile_version <> 'trust-dna-v2'::text) OR ((entity_id IS NOT NULL) AND (entity_type = ANY (ARRAY['HUMAN'::text, 'ORGANISATION'::text, 'AI_AGENT'::text, 'DEVICE'::text, 'IDENTITY'::text, 'EMAIL'::text, 'PHONE'::text, 'DOCUMENT'::text, 'WORKFLOW'::text, 'POLICY'::text])) AND (version > 0) AND ((overall_score >= (0)::numeric) AND (overall_score <= (100)::numeric)) AND ((evidence_completeness >= (0)::numeric) AND (evidence_completeness <= (100)::numeric)))))"
+    ]
+  }
+]

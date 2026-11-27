@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 
@@ -67,7 +68,7 @@ async function submitFeedback(formData: FormData) {
   }
 
   if (category === "enterprise_interest") {
-    await supabase.from("interest_signals").insert({
+    await createServiceRoleClient().from("interest_signals").insert({
       company: null,
       role: null,
       use_case: message,

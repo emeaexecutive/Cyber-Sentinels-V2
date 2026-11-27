@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PublicDisclosure } from "@/components/public-disclosure";
 import { StructuredData } from "@/components/search/structured-data";
 import { ORGANIZATION_ID, SITE_URL, WEBSITE_ID } from "@/lib/search/metadata";
 import { RESOURCE_REVIEWED, RESOURCE_ROOT, type SecurityResource } from "@/lib/search/resources";
@@ -30,11 +31,10 @@ export function SecurityResourceArticle({ resource }: { resource: SecurityResour
       </header>
       <div className="mt-10 grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_16rem]">
         <div className="min-w-0 max-w-3xl space-y-10">
-          {resource.sections.map((section) => <section key={section.id} id={section.id} className="scroll-mt-32">
-            <h2 className="text-2xl font-semibold leading-8">{section.title}</h2>
+          {resource.sections.map((section, index) => <PublicDisclosure key={section.id} id={section.id} title={section.title} defaultOpen={index === 0}>
             {section.paragraphs.map((paragraph) => <p key={paragraph} className="mt-4 text-base leading-8 text-zinc-300">{paragraph}</p>)}
             {section.example ? <pre className="mt-5 overflow-x-auto whitespace-pre-wrap break-words rounded-xl border border-zinc-800 bg-black p-5 text-sm leading-7 text-cyan-100">{section.example}</pre> : null}
-          </section>)}
+          </PublicDisclosure>)}
           <section id="sources" className="border-t border-zinc-800 pt-8">
             <h2 className="text-2xl font-semibold">Sources and scope</h2>
             <ul className="mt-4 space-y-5">{resource.sources.map((source) => <li key={source.href}><a href={source.href} className="text-cyan-200 underline underline-offset-4">{source.label}</a><p className="mt-2 text-sm leading-7 text-zinc-400">{source.supports}</p></li>)}</ul>

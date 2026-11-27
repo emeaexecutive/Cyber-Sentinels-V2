@@ -58,6 +58,7 @@ function normalizeConfiguredOrigin(value: string | null | undefined) {
 export function getApprovedAuthOrigin(requestUrl: string) {
   const requestOrigin = new URL(requestUrl).origin;
   const configuredOrigin = normalizeConfiguredOrigin(
+    (process.env.VERCEL_ENV === "preview" ? process.env.CYBER_SENTINELS_PUBLIC_ORIGIN : undefined) ||
     process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL,
   );
 

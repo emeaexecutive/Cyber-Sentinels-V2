@@ -23,7 +23,9 @@ test("canonical production origin and auth callback are explicit", () => {
   assert.match(layout, /metadataBase: new URL\("https:\/\/www\.cybersentinels\.com"\)/);
   assert.match(docs, /https:\/\/www\.cybersentinels\.com\/auth\/callback/);
   assert.equal(
-    sourceText.includes("vercel.app"),
+    // The separately tested private acceptance allowlist is intentional. Public
+    // origins and every other application reference must remain canonical.
+    sourceText.replaceAll("https://cyber-sentinels-pr58-acceptance.vercel.app", "").includes("vercel.app"),
     false
   );
 });
@@ -52,7 +54,7 @@ test("security headers cover the application and Cloudflare Turnstile", () => {
   assert.match(config, /X-Robots-Tag/);
 });
 
-test("every declared indexable public route has explicit canonical metadata", async () => {
+test("every declared canonical public route has explicit reciprocal metadata", async () => {
   const visibility = read("lib/navigation/route-visibility.ts");
   const block = visibility.match(/canonicalPublicRoutes = \[([\s\S]*?)\] as const/)?.[1] ?? "";
   const routes = [...block.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
@@ -70,11 +72,12 @@ test("every declared indexable public route has explicit canonical metadata", as
     }
     const page = route === "/" ? "app/page.tsx" : `app${route}/page.tsx`;
     assert.equal(fs.existsSync(page), true, `${page} should exist`);
-    assert.match(
-      read(page),
-      new RegExp(`canonical:\\s*["']${route.replaceAll("/", "\\/")}["']`),
-      `${route} should declare its canonical URL`,
-    );
+    const {harness}=await import("./fixtures/sign-out-session.mjs");
+    const pageModule=harness().load(page);
+    const metadata=pageModule.metadata??await pageModule.generateMetadata();
+    assert.equal(metadata.alternates.canonical,route,`${route} canonical`);
+    assert.equal(metadata.alternates.languages.en,route);
+    assert.equal(metadata.alternates.languages.es,route==="/"?"/es":`/es${route}`);
   }
 });
 
@@ -94,13 +97,13 @@ test("account and privacy settings surfaces are explicitly non-indexable", () =>
 });
 
 test("auth actions verify Turnstile server-side when configured", () => {
-  const login = read("app/login/page.tsx");
+  const login = read("components/login-experience.tsx");
   const route = read("app/api/auth/turnstile/route.ts");
   const passwordResetRoute = read("app/api/auth/password-reset/request/route.ts");
 
-  assert.match(login, /fetch\("\/api\/auth\/turnstile"/);
+  assert.match(login, /fetch\("\/api\/auth\/submit"/);
   assert.equal(
-    (login.match(/await verifyTurnstileForAuth\(version\)/g) ?? []).length,
+    (login.match(/performProtectedAuth\("(?:password|signup|resend|magic-link)"\)/g) ?? []).length,
     4
   );
   assert.match(passwordResetRoute, /verifyTurnstileToken/);
@@ -173,7 +176,7 @@ test("admin and sensitive governance operations retain server protection", () =>
 
 test("service-role secrets remain server-only", () => {
   const clientFiles = [
-    "app/login/page.tsx",
+    "components/login-experience.tsx",
     "components/global-navigation.tsx",
     "components/waitlist-form.tsx",
   ].map(read).join("\n");

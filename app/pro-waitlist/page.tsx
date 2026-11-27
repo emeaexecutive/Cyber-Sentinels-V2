@@ -112,7 +112,7 @@ export default async function ProWaitlistPage({
               rows={4}
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
-            <TurnstileField siteKey={turnstileSiteKey} />
+            <TurnstileField action="enterprise_access" siteKey={turnstileSiteKey} />
             <button
               type="submit"
               className="rounded-xl bg-white p-4 font-semibold text-black hover:bg-cyan-100"

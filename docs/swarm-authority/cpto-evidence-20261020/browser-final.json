@@ -1,0 +1,109 @@
+[
+  {
+    "name": "public",
+    "path": "platform",
+    "device": "desktop",
+    "blockedNonGet": 2,
+    "width": 1440,
+    "scrollWidth": 1440,
+    "h1": [
+      "One provider-neutral control plane for operational trust decisions."
+    ],
+    "title": "Platform | Cyber Sentinels",
+    "canonical": "https://www.cybersentinels.com/platform"
+  },
+  {
+    "name": "public",
+    "path": "platform",
+    "device": "mobile",
+    "blockedNonGet": 2,
+    "width": 390,
+    "scrollWidth": 390,
+    "h1": [
+      "One provider-neutral control plane for operational trust decisions."
+    ],
+    "title": "Platform | Cyber Sentinels",
+    "canonical": "https://www.cybersentinels.com/platform"
+  },
+  {
+    "name": "public",
+    "path": "about",
+    "device": "desktop",
+    "blockedNonGet": 2,
+    "width": 1440,
+    "scrollWidth": 1440,
+    "h1": [
+      "Trust changed quietly."
+    ],
+    "title": "About | Cyber Sentinels",
+    "canonical": "https://www.cybersentinels.com/about"
+  },
+  {
+    "name": "public",
+    "path": "about",
+    "device": "mobile",
+    "blockedNonGet": 2,
+    "width": 390,
+    "scrollWidth": 390,
+    "h1": [
+      "Trust changed quietly."
+    ],
+    "title": "About | Cyber Sentinels",
+    "canonical": "https://www.cybersentinels.com/about"
+  },
+  {
+    "name": "local",
+    "path": "platform",
+    "device": "desktop",
+    "blockedNonGet": 1,
+    "width": 1440,
+    "scrollWidth": 1440,
+    "h1": [
+      "One provider-neutral control plane for operational trust decisions."
+    ],
+    "title": "Platform | Cyber Sentinels",
+    "canonical": "https://www.cybersentinels.com/platform"
+  },
+  {
+    "name": "local",
+    "path": "platform",
+    "device": "mobile",
+    "blockedNonGet": 1,
+    "width": 390,
+    "scrollWidth": 390,
+    "h1": [
+      "One provider-neutral control plane for operational trust decisions."
+    ],
+    "title": "Platform | Cyber Sentinels",
+    "canonical": "https://www.cybersentinels.com/platform"
+  },
+  {
+    "mobileMenuVisible": true
+  },
+  {
+    "name": "local",
+    "path": "about",
+    "device": "desktop",
+    "blockedNonGet": 1,
+    "width": 1440,
+    "scrollWidth": 1440,
+    "h1": [
+      "Trust changed quietly."
+    ],
+    "title": "About | Cyber Sentinels",
+    "canonical": "https://www.cybersentinels.com/about"
+  },
+  {
+    "name": "local",
+    "path": "about",
+    "device": "mobile",
+    "blockedNonGet": 1,
+    "width": 390,
+    "scrollWidth": 390,
+    "h1": [
+      "Trust changed quietly."
+    ],
+    "title": "About | Cyber Sentinels",
+    "canonical": "https://www.cybersentinels.com/about"
+  }
+]

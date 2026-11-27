@@ -32,7 +32,7 @@ test("React runtime and type packages remain coordinated at the reviewed version
 
 test("client boundaries and Server Actions retain explicit ownership", () => {
   for (const clientFile of [
-    "app/login/page.tsx",
+    "components/login-experience.tsx",
     "components/global-navigation.tsx",
     "components/turnstile-field.tsx",
     "components/waitlist-form.tsx",
@@ -50,12 +50,14 @@ test("client boundaries and Server Actions retain explicit ownership", () => {
 });
 
 test("critical auth, Turnstile, Stripe, form, and recovery contracts remain present", () => {
-  const login = read("app/login/page.tsx");
+  const login = read("components/login-experience.tsx");
   const turnstile = read("components/turnstile-field.tsx");
   const stripe = `${read("app/api/stripe/create-checkout-session/route.ts")}\n${read("app/api/stripe/customer-portal/route.ts")}\n${read("app/api/stripe/webhook/route.ts")}`;
 
   assert.match(login, /createClient/);
-  assert.match(login, /\/api\/auth\/turnstile/);
+  assert.match(login, /\/api\/auth\/submit/);
+  assert.doesNotMatch(login, /supabase\.auth\.(signInWithPassword|signUp|signInWithOtp|resend)\(/);
+  assert.match(read("lib/auth/protected-auth.ts"), /await verifyTurnstileToken/);
   assert.match(turnstile, /turnstile\.render/);
   assert.match(turnstile, /onTokenChange/);
   assert.match(turnstile, /cf-turnstile-response/);

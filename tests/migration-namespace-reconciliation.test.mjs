@@ -47,13 +47,21 @@ test("migration timestamps remain unique", () => {
   assert.equal(new Set(timestamps).size, timestamps.length);
 });
 
+const relationExpression = /create\s+(?:or\s+replace\s+)?(materialized\s+view|table|view)\s+(if\s+not\s+exists\s+)?(?:"?([a-z_][\w$]*)"?\s*\.\s*)?"?([a-z_][\w$]*)"?/gi;
+const relationName = match => `${match[3] && match[3].toLowerCase() !== "public" ? match[3].toLowerCase() + "." : ""}${match[4].toLowerCase()}`;
+
+test("relation scanner distinguishes private-schema tables from their schema name", () => {
+  const sql = 'create table swarm_private.state(x int); create table swarm_private.events(x int); create table "public"."state"(x int);';
+  assert.deepEqual([...sql.matchAll(relationExpression)].map(relationName), ["swarm_private.state", "swarm_private.events", "state"]);
+});
+
 test("relation creation has no hidden table/view or incompatible duplicate collision", () => {
   const relations = occurrences(
-    /create\s+(?:or\s+replace\s+)?(materialized\s+view|table|view)\s+(if\s+not\s+exists\s+)?(?:public\.)?"?([a-z_][\w$]*)"?/gi,
+    relationExpression,
     (match) => ({
       kind: match[1].toLowerCase().replace(/\s+/g, " "),
       guarded: Boolean(match[2]),
-      name: match[3].toLowerCase(),
+      name: relationName(match),
     }),
   );
 
@@ -82,12 +90,24 @@ test("relation creation has no hidden table/view or incompatible duplicate colli
   }
 });
 
-test("index names are globally unique across the public migration namespace", () => {
+test("index names are unique except exact, guarded canonical repairs", () => {
   const indexes = occurrences(
-    /create\s+(?:unique\s+)?index\s+(?:if\s+not\s+exists\s+)?"?([a-z_][\w$]*)"?/gi,
-    (match) => ({ name: match[1].toLowerCase() }),
+    /create\s+(?:unique\s+)?index\s+(?:if\s+not\s+exists\s+)?"?([a-z_][\w$]*)"?[^;]*;/gi,
+    (match) => ({ name: match[1].toLowerCase(), statement: match[0] }),
   );
+  const canonicalRepairs = new Map([
+    ["hopae_verifications_verification_id_uidx", /^create unique index if not exists hopae_verifications_verification_id_uidx on public\.hopae_verifications (?:using btree )?\(verification_id\);$/i],
+    ["hopae_webhook_events_event_id_uidx", /^create unique index if not exists hopae_webhook_events_event_id_uidx on public\.hopae_webhook_events (?:using btree )?\(event_id\) where (?:event_id is not null|\(event_id is not null\));$/i],
+  ]);
   for (const [name, definitions] of grouped(indexes, (item) => item.name)) {
+    if (definitions.length > 1 && canonicalRepairs.has(name)) {
+      assert.deepEqual(definitions.map(d=>d.file), [
+        "202606190003_hopae_connect_upstream_identity.sql",
+        "20261008105722_canonical_application_schema_reconciliation.sql",
+      ], `${name} permits only the original definition and reviewed forward repair`);
+      for (const definition of definitions) assert.match(definition.statement.replace(/\s+/g," ").trim(),canonicalRepairs.get(name),`${name} repair must retain uniqueness, table, columns, predicate and IF NOT EXISTS`);
+      continue;
+    }
     assert.equal(
       definitions.length,
       1,

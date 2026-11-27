@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import ts from "typescript";
@@ -15,9 +15,10 @@ const origin = "http://localhost:3000";
 
 // Execute the actual routes, middleware and components; replace only framework
 // request context and the external Auth/Turnstile service boundaries.
-export function harness() {
+export function harness({ locale = "en", authPrecheckError, publicSupabaseConfigured = true } = {}) {
   const jar = new Map();
   const calls = [];
+  let accessStatus = "APPROVED";
   let revoked = false;
   let method = "recovery";
   let recoveryTime = Math.floor(Date.now() / 1000);
@@ -45,6 +46,8 @@ export function harness() {
       return json(payload());
     }
     if (url.pathname.endsWith("/user")) return json(user);
+    if (url.pathname.endsWith("/account_access_approvals")) return json([{ status: accessStatus }]);
+    if (url.pathname.endsWith("/rpc/record_account_access_attempt")) return json(null);
     throw new Error(`Unexpected fixture Auth path: ${url.pathname}`);
   };
   const cookieStore = {
@@ -71,20 +74,33 @@ export function harness() {
     "@/components/public-page-adoption-rail": { PublicPageAdoptionRail: () => null },
     "@/src/components/consent/ConsentManager": { ConsentManager: () => null },
     "@/src/components/consent/ConsentPreferencesLink": { ConsentPreferencesLink: () => null },
-    "next/headers": { cookies: async () => cookieStore },
+    "next/headers": { cookies: async () => cookieStore, headers: async () => new Headers({ "x-public-locale": locale }) },
     "next/link": { __esModule: true, default: ({ children, ...props }) => React.createElement("a", props, children) },
+    "next/navigation": {
+      useRouter: () => ({ push() {}, refresh() {} }),
+      usePathname: () => "/",
+      notFound: () => { throw new Error("NEXT_HTTP_ERROR_FALLBACK;404"); },
+    },
     "@/lib/supabase/server": { createClient: async (headers) => client(headers), createNavigationClient: async () => client(), isInvalidRefreshTokenError: () => false },
     "@/lib/operational-monitoring": { captureOperationalIssue() {} },
     "@/lib/bot-protection": { checkRequestRateLimit: () => false, getClientIp: () => "127.0.0.1",
       getExpectedTurnstileHostname: (v) => v, getTurnstileTokenFromJson: (v) => v.turnstileToken,
       verifyTurnstileToken: async (value) => ({ ok: value === "fixture-turnstile", reason: "invalid_token" }) },
-    "@/lib/env": { hasPublicSupabaseEnv: () => true, getPublicSupabaseEnv: () => ({ supabaseUrl: "https://fixture.supabase.co", supabaseAnonKey: "fixture-anon" }), getAdminEmailsEnv: () => "" },
-    "@supabase/ssr": { createServerClient: (url, key, options) => createServerClient(url, key, { ...options, global: { fetch } }) },
+    "@/lib/env": { hasPublicSupabaseEnv: () => publicSupabaseConfigured, getPublicSupabaseEnv: () => ({ supabaseUrl: "https://fixture.supabase.co", supabaseAnonKey: "fixture-anon" }), getAdminEmailsEnv: () => "" },
+    "@supabase/ssr": { createServerClient: (url, key, options) => authPrecheckError
+      ? { auth: {
+        getClaims: async () => ({ data: { claims: null }, error: authPrecheckError }),
+        getUser: async () => ({ data: { user: null }, error: authPrecheckError }),
+      } }
+      : createServerClient(url, key, { ...options, global: { fetch } }) },
   };
   const cache = new Map();
   function load(filename) {
     filename = path.resolve(root, filename);
-    if (!existsSync(filename)) filename += existsSync(`${filename}.ts`) ? ".ts" : ".tsx";
+    const resolved = [filename, `${filename}.ts`, `${filename}.tsx`, path.join(filename, "index.ts"), path.join(filename, "index.tsx")]
+      .find(candidate => existsSync(candidate) && statSync(candidate).isFile());
+    if (!resolved) throw new Error(`Test module could not resolve to a source file: ${filename}`);
+    filename = resolved;
     if (cache.has(filename)) return cache.get(filename);
     const loaded = { exports: {} };
     cache.set(filename, loaded.exports);
@@ -105,6 +121,7 @@ export function harness() {
     headers: { cookie: [...jar].map(([k, v]) => `${k}=${v}`).join("; "), ...headers },
   }));
   return { jar, calls, client, load, apply, request, guard, token,
+    setAccessStatus: (status) => { accessStatus = status; },
     expire: () => { recoveryTime -= 3600; },
     async begin() {
       const response = await load("app/api/auth/password-reset/request/route.ts").POST(request("/api/auth/password-reset/request", {

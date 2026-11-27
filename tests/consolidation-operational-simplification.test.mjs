@@ -75,7 +75,7 @@ test("homepage stays focused and uses the canonical Operational Trust vocabulary
 });
 
 test("auth affordances remain visible and administrative navigation is role-gated", () => {
-  const login = read("app/login/page.tsx");
+  const login = read("components/login-experience.tsx");
   const navigation = read("components/global-navigation.tsx");
   const contract = read("lib/navigation/canonical-navigation.ts");
 
@@ -96,7 +96,7 @@ test("auth affordances remain visible and administrative navigation is role-gate
 
 test("production security baseline remains preserved", () => {
   assert.match(read("next.config.mjs"), /Strict-Transport-Security/);
-  assert.match(read("app/login/page.tsx"), /\/api\/auth\/turnstile/);
+  assert.match(read("components/login-experience.tsx"), /\/api\/auth\/submit/);
   assert.equal(fs.existsSync("app/trust/page.tsx"), true);
   assert.equal(fs.existsSync("app/methodology/page.tsx"), true);
   assert.equal(

@@ -1,9 +1,21 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { executeOpenGraphSite } from "../lib/providers/opengraph-executor.ts";
+import { createOpenGraphTestAdapter } from "../lib/providers/opengraph-test-adapter.ts";
 import { normalizeOpenGraphTarget } from "../src/lib/opengraph/workflow.ts";
 
 const target = normalizeOpenGraphTarget("https://example.com/docs");
+
+test("deterministic Staging adapter performs no provider request and never claims an HTTP response", async () => {
+  const result = await createOpenGraphTestAdapter({ now: () => new Date("2026-10-04T12:00:00.000Z") })(target);
+  assert.equal(result.provider, "test_adapter");
+  assert.equal(result.providerNetworkBehaviorAssurance, "NOT_APPLICABLE_TEST_ADAPTER");
+  assert.equal(result.executionAttempted, true);
+  assert.equal(result.providerResponseStatus, null);
+  assert.equal(result.outcomeCertainty, "UNVERIFIED");
+  assert.match(result.evidenceDigest, /^[a-f0-9]{64}$/);
+  assert.match(result.normalizedResult.title, /Staging deterministic test adapter/);
+});
 
 test("OpenGraph executor stays unconfigured without an App ID and makes no provider request", async () => {
   let called = false;

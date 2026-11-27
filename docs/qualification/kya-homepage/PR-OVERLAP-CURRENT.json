@@ -1,0 +1,243 @@
+{
+  "checkedAt": "2026-11-16",
+  "prs": [
+    {
+      "number": 133,
+      "info": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/133",
+        "number": 133,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "The public website previously offered Spanish on five canonical pages; other public routes fell back to English. This candidate supplies real Spanish owners for all 42 canonical public pages, reciprocal metadata and sitemap entries, document language navigation, translated footer/adoption controls, and Spanish summaries for the unchanged 26-operation API contract. The 1,108-message catalogue includes diagram captions and accessible labels and preserves reviewed translations by message ID.\n\nUnpublished legal/company content remains a publication-under-review notice. Account controls, the consent controls and existing English PDF are explicitly identified as English. Technical disclosures retain their content and open hash-targeted sections. Public buttons wrap longer translated labels on mobile. The existing locale routing and Turnstile action-binding fixes are retained.\n\nThis PR contains website changes only. Approval-enforcement application and SQL work remain separate PRs #131 and #132. No cloud binding update, hosted synthetic write, migration application or Production promotion is included. `docs/PREVIEW-STAGING-BINDINGS.json` is a preparation manifest only. Existing translation and TENENTE worktrees are preserved.\n\nValidation at head `13a3485bb8a6ec8af720ec579bcf6b357003dec6`: all reported CI checks passed, including verify (audit/lint/typecheck/full tests/build), CodeQL, gitleaks, Docker qualification and the dedicated immutable-head browser workflow. Browser CI independently passed 84 HTTP routes, 168 rendering checks at asserted 390px/1440px widths, 114 link targets and four navigation/form checks with zero JavaScript/public asset errors. The final application-source local build passed. Twenty locale/catalogue/metadata/API presentation regressions passed. Protected workflow 503s and the unbound consent endpoint's 403 remain recorded as blockers, not successful backend tests. Supabase Preview was skipped; it does not establish hosted database qualification.\n\nPreview `dpl_EbJKhGVBZK3r76qxHcxAeXh4Sa9S` is READY at that exact head. Authenticated read-only GETs passed for Home, Spanish Home/Pricing/Platform/Help/Contact/Privacy, each with HTTP200, expected document language and real page content. This is public rendering evidence only.\n\nHosted positive Turnstile, direct Supabase CAPTCHA enforcement, Auth/consent persistence, private settings and provider execution remain unqualified. Staging is ACTIVE_HEALTHY, but the two new approval/dispatch RPCs are absent. Branch-specific Preview bindings, named migration application after drift reconciliation, and controlled synthetic writes require separate approvals. Production promotion approval is absent. Do not infer hosted readiness from a green build or local public rendering.\n",
+        "title": "website: complete English-Spanish public pages and qualification gates",
+        "base": "main",
+        "base_sha": "63a0e0f550f65b4beb3c52afabdba0481b510e69",
+        "head": "website/spanish-public-completion-20261108",
+        "head_sha": "13a3485bb8a6ec8af720ec579bcf6b357003dec6",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "c4b8414fadb932e76bc6400b27d0af156f789b36",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-08T14:55:30Z",
+        "updated_at": "2026-11-08T16:22:35Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 13,
+        "changed_files": 217,
+        "additions": 29383,
+        "deletions": 916,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/133",
+        "display_title": "website: complete English-Spanish public pages and qualification gates"
+      },
+      "status": {
+        "statuses": [
+          {
+            "context": "Vercel",
+            "state": "success",
+            "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/EbJKhGVBZK3r76qxHcxAeXh4Sa9S"
+          }
+        ]
+      }
+    },
+    {
+      "number": 141,
+      "info": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/141",
+        "number": 141,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "Adds an English/Spanish River Crossing Loop Limit simulation while preserving the seven existing scenarios. The browser demonstration covers failing retries, delegation, two agents competing for one slot, one ALLOW/one DENY, independently observed synthetic destination effects, hash-linked Replay, emergency stop and UNKNOWN reconciliation. Public fixtures remain explicitly ILLUSTRATIVE SIMULATION.\n\nApplication source: 170da71528b4c65edfd907db0453b8e6973da58e. Security correction/head: f0b0f3258124212b5f0bda96ecdccef4fb0dd803. Run43242473800's 21 findings were inherited SOC metadata (18 public-key SHA256 fingerprints, three synthetic idempotency UUIDs), all outside this PR's source delta. Exact fingerprint-only exclusions and metadata-only triage are documented in docs/qualification/EXECUTION03-PR141-SECRET-SCAN.*. No credential exposure identified; rules/workflow unchanged. Corrected-head run https://github.com/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43263542032 PASS:907 commits,zero findings.\n\nValidation: locked install,45 focused tests, lint, fresh typecheck and production build pass locally. Built browser checks:4 Loop language/viewport combinations,56 inherited River checks,90 EN/ES HTTP routes,184 browser checks and120 link targets;zero rendering failures/page errors. Consent receipt returned403 on unbound localhost and remains unqualified; English consent controls and protected SaaS translation remain gaps.\n\nAll eleven publication-notice pages lack recorded approval of underlying content and remain noindex notices; metadata now accurately describes review status in both languages. Unsupported locales stay disabled. No hosted inference, hosted Auth/billing or full Spanish product claim. Separate enforcement candidate:#142. No merge or Production deployment authorized.",
+        "title": "feat(website): add bilingual River Crossing loop-limit simulation",
+        "base": "website/watchtowers-ribagorza-20261109",
+        "base_sha": "582acc889afbe59991ea307bc5e4a2b986b11c0e",
+        "head": "codex/execution03-website-20261112",
+        "head_sha": "f0b0f3258124212b5f0bda96ecdccef4fb0dd803",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "ba346ca522a9e492abde6ba8c0d5f59dce42aa4c",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-12T14:56:41Z",
+        "updated_at": "2026-11-12T17:00:17Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 4,
+        "changed_files": 29,
+        "additions": 748,
+        "deletions": 29,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/141",
+        "display_title": "feat(website): add bilingual River Crossing loop-limit simulation"
+      },
+      "status": {
+        "statuses": [
+          {
+            "context": "Vercel",
+            "state": "success",
+            "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/FDd1BB6tMZLLiBMRvEU43ZiuuBtm"
+          }
+        ]
+      },
+      "runs": {
+        "workflow_runs": [
+          {
+            "id": 43263542390,
+            "name": "Public website exact-head qualification",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 12,
+            "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43263542390/jobs",
+            "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43263542390/logs",
+            "workflow_id": 411223607
+          },
+          {
+            "id": 43263542032,
+            "name": "Redacted secret scan",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 452,
+            "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43263542032/jobs",
+            "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43263542032/logs",
+            "workflow_id": 323916032
+          },
+          {
+            "id": 43263542038,
+            "name": "CodeQL",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 430,
+            "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43263542038/jobs",
+            "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43263542038/logs",
+            "workflow_id": 326790531
+          },
+          {
+            "id": 43263542064,
+            "name": "Production verification",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 469,
+            "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43263542064/jobs",
+            "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43263542064/logs",
+            "workflow_id": 317466170
+          }
+        ]
+      }
+    },
+    {
+      "number": 143,
+      "info": {
+        "url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/143",
+        "number": 143,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": false,
+        "body": "This focused documentation change clarifies:\n- Spanish public coverage\n- the eleven noindex notice routes\n- English-only/unqualified account and consent flows\n- exact local validation evidence\n\nIt does not change application code or approve publication.",
+        "title": "docs: clarify current bilingual website status",
+        "base": "codex/execution03-website-20261112",
+        "base_sha": "f0b0f3258124212b5f0bda96ecdccef4fb0dd803",
+        "head": "codex/integrated-website-20261112",
+        "head_sha": "9b58683a63ce71b7f6d48936dfd71f90f52b15c3",
+        "head_repo_id": 1235827296,
+        "head_repo_full_name": "emeaexecutive/Cyber-Sentinels-V2",
+        "merge_commit_sha": "0dc9f6ec36cccf39b960ead5cfc738a2446407fe",
+        "user": {
+          "login": "emeaexecutive",
+          "name": "emeaexecutive",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/216573537?v=4",
+          "id": 216573537
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-13T18:06:33Z",
+        "updated_at": "2026-11-13T18:10:50Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 1,
+        "changed_files": 1,
+        "additions": 28,
+        "deletions": 4,
+        "display_url": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/143",
+        "display_title": "docs: clarify current bilingual website status"
+      },
+      "status": {
+        "statuses": [
+          {
+            "context": "Vercel",
+            "state": "success",
+            "target_url": "https://vercel.com/keith-speres-projects/cyber-sentinels-v2/GxPsmybmJkYNNg1wHNmXekG8qwC5"
+          }
+        ]
+      },
+      "runs": {
+        "workflow_runs": [
+          {
+            "id": 43479377770,
+            "name": "CodeQL",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 433,
+            "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43479377770/jobs",
+            "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43479377770/logs",
+            "workflow_id": 326790531
+          },
+          {
+            "id": 43479377809,
+            "name": "Redacted secret scan",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 455,
+            "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43479377809/jobs",
+            "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43479377809/logs",
+            "workflow_id": 323916032
+          },
+          {
+            "id": 43479377798,
+            "name": "Public website exact-head qualification",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 13,
+            "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43479377798/jobs",
+            "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43479377798/logs",
+            "workflow_id": 411223607
+          },
+          {
+            "id": 43479377761,
+            "name": "Production verification",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 472,
+            "jobs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43479377761/jobs",
+            "logs_url": "https://api.github.com/repos/emeaexecutive/Cyber-Sentinels-V2/actions/runs/43479377761/logs",
+            "workflow_id": 317466170
+          }
+        ]
+      }
+    }
+  ]
+}
