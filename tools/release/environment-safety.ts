@@ -68,14 +68,14 @@ function fail(code: EnvironmentSafetyErrorCode): never {
   throw new EnvironmentSafetyError(code);
 }
 
-function normalizeHostname(value: string | undefined) {
+export function normalizeHostname(value: string | undefined) {
   if (!value) return "";
   const normalized = value.trim().toLowerCase();
   if (!normalized) return "";
   try {
     return new URL(normalized.includes("://") ? normalized : "https://" + normalized).hostname;
   } catch {
-    return normalized.split("/")[0]?.split(":")[0] ?? "";
+    return "";
   }
 }
 
@@ -103,7 +103,12 @@ export function assertSafeStagingEnvironment(input: EnvironmentSafetyInput): Saf
     fail("ENVIRONMENT_IDENTITY_MISSING");
   }
 
-  if (isProductionHostname(normalizeHostname(input.hostname))) {
+  const hostname = normalizeHostname(input.hostname);
+  if (input.hostname?.trim() && !hostname) {
+    fail("ENVIRONMENT_UNKNOWN");
+  }
+
+  if (isProductionHostname(hostname)) {
     fail("PRODUCTION_OPERATION_REFUSED");
   }
 
@@ -134,7 +139,6 @@ export function assertSafeStagingEnvironment(input: EnvironmentSafetyInput): Saf
     fail("ENVIRONMENT_REFERENCE_MISMATCH");
   }
 
-  const hostname = normalizeHostname(input.hostname);
   if (hostname && ![
     ...environmentByName.knownApplicationHostnames,
     `${projectReference}.supabase.co`,

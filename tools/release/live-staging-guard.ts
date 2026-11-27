@@ -1,4 +1,8 @@
-import { assertSafeStagingEnvironment, type EnvironmentSafetyInput } from "./environment-safety.ts";
+import {
+  assertSafeStagingEnvironment,
+  normalizeHostname,
+  type EnvironmentSafetyInput,
+} from "./environment-safety.ts";
 
 export const liveStagingGuardErrorCodes = [
   "LIVE_TARGET_IDENTITY_MISSING",
@@ -42,17 +46,6 @@ function fail(code: LiveStagingGuardErrorCode): never {
   throw new LiveStagingGuardError(code);
 }
 
-function normalizeHostname(value: string | undefined) {
-  if (!value) return "";
-  const normalized = value.trim().toLowerCase();
-  if (!normalized) return "";
-  try {
-    return new URL(normalized.includes("://") ? normalized : `https://${normalized}`).hostname;
-  } catch {
-    return normalized.split("/")[0]?.split(":")[0] ?? "";
-  }
-}
-
 function isProductionHostname(hostname: string) {
   if (!hostname) return false;
   if (hostname === "staging.cybersentinels.com") return false;
@@ -92,6 +85,10 @@ export function assertLiveStagingGuard(input: LiveStagingGuardInput): LiveStagin
   }
 
   const hostname = normalizeHostname(approvedHostname);
+  if (approvedHostname?.trim() && !hostname) {
+    fail("LIVE_TARGET_UNKNOWN");
+  }
+
   if (isProductionHostname(hostname)) {
     fail("LIVE_TARGET_PRODUCTION_REFUSED");
   }

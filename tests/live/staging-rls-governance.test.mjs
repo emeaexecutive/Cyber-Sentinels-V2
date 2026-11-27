@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { assertLiveStagingGuard, LiveStagingGuardError } from "../../tools/release/live-staging-guard.ts";
+import { assertSafeStagingEnvironment, EnvironmentSafetyError } from "../../tools/release/environment-safety.ts";
 
 const runner = await readFile(new URL("../../tools/release/run-live-rls-governance.ts", import.meta.url), "utf8");
 
@@ -39,6 +40,24 @@ test("live guard rejects production hostnames by domain boundary", () => {
   assert.throws(
     () => assertLiveStagingGuard({ ...validInput, approvedHostname: "cybersentinels.com.attacker.invalid" }),
     (error) => error instanceof LiveStagingGuardError && error.code === "LIVE_TARGET_UNKNOWN",
+  );
+});
+
+test("live guards reject malformed hostnames instead of accepting a stripped prefix", () => {
+  const approvedHostname = "staging.cybersentinels.com:invalid";
+  assert.throws(
+    () => assertLiveStagingGuard({ ...validInput, approvedHostname }),
+    (error) => error instanceof LiveStagingGuardError && error.code === "LIVE_TARGET_UNKNOWN",
+  );
+  assert.throws(
+    () => assertSafeStagingEnvironment({
+      environmentName: "staging",
+      projectReference: "agpyhygpfmppjkxwcpac",
+      expectedEnvironmentType: "staging",
+      syntheticFixtures: true,
+      hostname: approvedHostname,
+    }),
+    (error) => error instanceof EnvironmentSafetyError && error.code === "ENVIRONMENT_UNKNOWN",
   );
 });
 
