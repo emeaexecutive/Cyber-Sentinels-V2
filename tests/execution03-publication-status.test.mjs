@@ -3,10 +3,14 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {harness} from './fixtures/sign-out-session.mjs';
 const h=harness();
-test('all eleven unapproved publication pages expose their real status in English and Spanish metadata',()=>{
- const {spanishPublicationNotices,spanishNoticeMetadata}=h.load('lib/i18n/public-notices.ts');assert.equal(Object.keys(spanishPublicationNotices).length,11);
+test('all nine unapproved publication pages expose their real status in English and Spanish metadata',()=>{
+ const {spanishPublicationNotices,spanishNoticeMetadata}=h.load('lib/i18n/public-notices.ts');assert.equal(Object.keys(spanishPublicationNotices).length,9);
  for(const route of Object.keys(spanishPublicationNotices)){
   const {metadata}=h.load(`app${route}/page.tsx`);assert.match(metadata.description,/under review; an approved version has not been published/);assert.equal(metadata.openGraph.description,metadata.description);assert.equal(metadata.robots.index,false);assert.match(spanishNoticeMetadata(route).description,/Todavía no se ha publicado una versión aprobada/);assert.equal(spanishNoticeMetadata(route).robots.index,false);
+ }
+ for(const route of ['/privacy','/cookies']){
+  const {metadata}=h.load(`app${route}/page.tsx`);
+  assert.doesNotMatch(metadata.description,/under review|publication status/i);
  }
 });
 test('public language offer remains English/Spanish only and declares incomplete account/download scope',()=>{
