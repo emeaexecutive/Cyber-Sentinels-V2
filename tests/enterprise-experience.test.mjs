@@ -178,15 +178,17 @@ test("public navigation avoids protected Enterprise routes and footer discovery 
 });
 
 test("analytics remains dormant until an approved provider and consent controller exist", async () => {
-  const [packageSource, cookiesPage, analyticsReview] = await Promise.all([
+  const [packageSource, cookiesPage, consentPolicy, analyticsReview] = await Promise.all([
     read("package.json"),
     read("app/cookies/page.tsx"),
+    read("src/lib/consent/policy.ts"),
     read("docs/epic-16/SPRINT_16_1B_1_ANALYTICS.md"),
   ]);
 
   assert.doesNotMatch(packageSource, /@vercel\/analytics|posthog|plausible|segment|google-analytics/i);
-  assert.match(cookiesPage, /Analytics Placeholder/);
-  assert.match(cookiesPage, /not described as active/);
+  assert.match(cookiesPage, /ConsentCookieCatalogue/);
+  assert.match(consentPolicy, /Configured analytics provider only/);
+  assert.match(consentPolicy, /analytics identifiers when configured/);
   assert.match(analyticsReview, /not emitted in this release/i);
   for (const prohibited of ["identity data", "email addresses", "authentication/session values", "sensitive evidence", "free text"]) {
     assert.match(analyticsReview, new RegExp(prohibited.replace("/", "\\/"), "i"));
