@@ -27,6 +27,7 @@ const publishedSpanishPages: Readonly<Partial<Record<CanonicalPublicPath, `/es${
   "/careers": "/es/careers",
   "/accessibility": "/es/accessibility",
   "/privacy": "/es/privacy",
+  "/privacy/cookies": "/es/privacy/cookies",
   "/terms": "/es/terms",
   "/cookies": "/es/cookies",
   "/legal": "/es/legal",

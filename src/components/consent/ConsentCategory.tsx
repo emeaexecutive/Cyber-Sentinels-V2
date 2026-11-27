@@ -2,10 +2,18 @@
 
 import type { ConsentCategoryDefinition } from "@/src/lib/consent/types";
 import { consentText, localizedConsentCategory, useConsentLocale } from "@/src/lib/consent/localization";
+import { usePathname } from "next/navigation";
 
 export function ConsentCategory({ category, enabled, onChange }: { category: ConsentCategoryDefinition; enabled: boolean; onChange: (enabled: boolean) => void }) {
-  const locale = useConsentLocale();
-  const copy = localizedConsentCategory(locale, category.key, category.name, category.description);
+  const pathname = usePathname();
+  const routeLocale = pathname?.startsWith("/es/") || pathname === "/es" ? "es" : "en";
+  const locale = useConsentLocale(pathname ?? undefined, routeLocale);
+  const copy = localizedConsentCategory(locale, category);
+  const party = locale === "es"
+    ? copy.party
+    : category.party === "FIRST_PARTY"
+      ? consentText(locale, "firstParty", "First party")
+      : consentText(locale, "firstAndThirdParty", "First and third party");
   return (
     <section className="rounded-xl border border-[var(--brand-border)] bg-[var(--brand-surface-raised)] p-4" aria-labelledby={`consent-category-${category.key}`}>
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-5">
@@ -16,9 +24,9 @@ export function ConsentCategory({ category, enabled, onChange }: { category: Con
         </label>
       </div>
       <dl className="mt-4 grid gap-2 text-xs text-zinc-500 sm:grid-cols-2">
-        <div><dt className="text-zinc-300">{consentText(locale, "purpose", "Purpose")}</dt><dd>{category.purposes.join(", ")}</dd></div><div><dt className="text-zinc-300">{consentText(locale, "legalBasis", "Legal basis")}</dt><dd>{category.legalBasis}</dd></div>
-        <div><dt className="text-zinc-300">{consentText(locale, "providers", "Providers")}</dt><dd>{category.providers.join(", ")}</dd></div><div><dt className="text-zinc-300">{consentText(locale, "storage", "Storage")}</dt><dd>{category.storageItems.join(", ")}</dd></div>
-        <div><dt className="text-zinc-300">{consentText(locale, "retention", "Retention")}</dt><dd>{category.retention}</dd></div><div><dt className="text-zinc-300">{consentText(locale, "classification", "Classification")}</dt><dd>{category.party.replaceAll("_", " ")} · {category.required ? consentText(locale, "required", "Required") : consentText(locale, "optional", "Optional")}</dd></div>
+        <div><dt className="text-zinc-300">{consentText(locale, "purpose", "Purpose")}</dt><dd>{copy.purposes.join(", ")}</dd></div><div><dt className="text-zinc-300">{consentText(locale, "legalBasis", "Legal basis")}</dt><dd>{copy.legalBasis}</dd></div>
+        <div><dt className="text-zinc-300">{consentText(locale, "providers", "Providers")}</dt><dd>{copy.providers.join(", ")}</dd></div><div><dt className="text-zinc-300">{consentText(locale, "storage", "Storage")}</dt><dd>{copy.storageItems.join(", ")}</dd></div>
+        <div><dt className="text-zinc-300">{consentText(locale, "retention", "Retention")}</dt><dd>{copy.retention}</dd></div><div><dt className="text-zinc-300">{consentText(locale, "classification", "Classification")}</dt><dd>{party} · {category.required ? consentText(locale, "required", "Required") : consentText(locale, "optional", "Optional")}</dd></div>
         <div><dt className="text-zinc-300">{consentText(locale, "lastUpdated", "Last updated")}</dt><dd>{category.lastUpdated}</dd></div>
       </dl>
     </section>

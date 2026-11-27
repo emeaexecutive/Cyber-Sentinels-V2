@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { consentLocale, consentText, localizedConsentCategory } from "../src/lib/consent/localization.ts";
+import { currentConsentPolicy } from "../src/lib/consent/policy.ts";
 
 test("Spanish consent locale is selected only by the /es route or exact lang query", () => {
   assert.equal(consentLocale("/privacy/preferences", "?lang=es"), "es");
@@ -11,13 +12,23 @@ test("Spanish consent locale is selected only by the /es route or exact lang que
   assert.equal(consentLocale("/privacy", "?lang=es-ES"), "en");
 });
 
-test("Spanish consent copy translates presentation without changing category keys", () => {
+test("Spanish consent copy translates every catalogue field without changing category keys", () => {
   assert.equal(consentText("es", "acceptAll", "Accept All"), "Aceptar todo");
   assert.equal(consentText("en", "acceptAll", "Accept All"), "Accept All");
-  assert.deepEqual(localizedConsentCategory("es", "analytics", "Analytics", "English description"), {
-    name: "Analítica",
-    description: "Mide el uso y el rendimiento anónimos del producto para mejorar el servicio.",
+  const expectedNames = ["Esenciales", "Funcionales", "Analítica", "Mejoras de IA", "Marketing"];
+  const localized = currentConsentPolicy.categories.map((category, index) => {
+    const translated = localizedConsentCategory("es", category);
+    assert.equal(translated.key, category.key);
+    assert.equal(translated.name, expectedNames[index]);
+    assert.notEqual(translated.description, category.description);
+    assert.notDeepEqual(translated.purposes, category.purposes);
+    assert.notEqual(translated.legalBasis, category.legalBasis);
+    assert.notDeepEqual(translated.storageItems, category.storageItems);
+    assert.notEqual(translated.retention, category.retention);
+    assert.equal(translated.party, category.party === "FIRST_PARTY" ? "Primera parte" : "Primera y tercera parte");
+    return translated;
   });
+  assert.equal(localized.length, currentConsentPolicy.categories.length);
 });
 
 test("consent footer initializes from its server locale and tracks client navigation", () => {

@@ -84,6 +84,7 @@ export const canonicalPublicRoutes = [
   "/help",
   "/accessibility",
   "/privacy",
+  "/privacy/cookies",
   "/terms",
   "/cookies",
   "/legal",

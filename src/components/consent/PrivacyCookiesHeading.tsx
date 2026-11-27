@@ -1,9 +1,12 @@
 "use client";
 
 import { useConsentLocale } from "@/src/lib/consent/localization";
+import type { ConsentLocale } from "@/src/lib/consent/localization";
+import { usePathname } from "next/navigation";
 
-export function PrivacyCookiesHeading() {
-  const spanish = useConsentLocale() === "es";
+export function PrivacyCookiesHeading({ locale: initialLocale = "en" }: { locale?: ConsentLocale } = {}) {
+  const pathname = usePathname();
+  const spanish = useConsentLocale(pathname ?? undefined, initialLocale) === "es";
   return (
     <>
       <p className="text-sm uppercase tracking-[0.16em] text-cyan-300">{spanish ? "Catálogo de cookies y rastreadores" : "Cookie & Tracker Catalogue"}</p>

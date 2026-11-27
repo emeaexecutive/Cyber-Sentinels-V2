@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ConsentCategoryDefinition } from "./types";
 
 export type ConsentLocale = "en" | "es";
 
@@ -44,6 +45,8 @@ const spanish = {
   lastUpdated: "Última actualización",
   required: "Obligatoria",
   optional: "Opcional",
+  firstParty: "Primera parte",
+  firstAndThirdParty: "Primera y tercera parte",
   consentFor: "consentimiento para",
   dismiss: "Cerrar la notificación de preferencias guardadas",
   browserStorageError: "Su navegador no pudo guardar esta preferencia. Revise la configuración de almacenamiento e inténtelo de nuevo.",
@@ -87,26 +90,56 @@ const categories = {
   essential: {
     name: "Esenciales",
     description: "Necesarias para la autenticación, la seguridad de sesión, la protección CSRF, la prevención del fraude, la prestación del servicio y el almacenamiento del consentimiento.",
+    purposes: ["autenticación", "seguridad de sesión", "prevención del fraude", "almacenamiento del consentimiento"],
+    legalBasis: "Operación necesaria del servicio; la configuración y revisión legal dependen de cada empresa.",
+    providers: ["Cyber Sentinels", "Supabase", "Cloudflare", "Vercel"],
+    storageItems: ["sesión de autenticación", "verificación de administrador", "cs_consent", "cs_consent_anon"],
+    retention: "Duración de la sesión o periodo de conservación de seguridad documentado",
   },
   functional: {
     name: "Funcionales",
     description: "Recuerdan ajustes de visualización opcionales y permiten comportamientos no esenciales de la interfaz.",
+    purposes: ["preferencias de interfaz", "personalización no esencial"],
+    legalBasis: "Consentimiento cuando sea necesario; se configura según la política regional.",
+    providers: ["Cyber Sentinels"],
+    storageItems: ["preferencias opcionales de interfaz"],
+    retention: "Hasta 180 días",
   },
   analytics: {
     name: "Analítica",
     description: "Mide el uso y el rendimiento anónimos del producto para mejorar el servicio.",
+    purposes: ["analítica del producto", "análisis del rendimiento", "mejora del servicio"],
+    legalBasis: "Consentimiento cuando se requiera consentimiento previo.",
+    providers: ["Solo el proveedor de analítica configurado"],
+    storageItems: ["identificadores analíticos cuando estén configurados"],
+    retention: "Específica del proveedor; debe incluirse en el catálogo",
   },
   ai_improvements: {
     name: "Mejoras de IA",
     description: "Permite evaluar funciones minimizando la privacidad y la calidad del asistente cuando esté permitido. Los datos confidenciales del cliente o personales no se incluyen automáticamente.",
+    purposes: ["mejora de flujos de trabajo", "calidad del asistente", "análisis anónimo de funciones"],
+    legalBasis: "Consentimiento explícito y configuración empresarial.",
+    providers: ["Cyber Sentinels"],
+    storageItems: ["telemetría de funciones minimizada en términos de privacidad"],
+    retention: "Hasta 90 días cuando se configure",
   },
   marketing: {
     name: "Marketing",
     description: "Permite atribución de campañas, publicidad, redireccionamiento y seguimiento en redes sociales cuando esté configurado.",
+    purposes: ["atribución de campañas", "publicidad", "retargeting"],
+    legalBasis: "Consentimiento cuando sea necesario; las reglas de exclusión pueden depender de la región configurada.",
+    providers: ["Solo el proveedor de marketing configurado"],
+    storageItems: ["identificadores de marketing cuando estén configurados"],
+    retention: "Específica del proveedor; debe incluirse en el catálogo",
   },
 } as const;
 
-export function localizedConsentCategory(locale: ConsentLocale, key: keyof typeof categories, fallbackName: string, fallbackDescription: string) {
-  if (locale === "en") return { name: fallbackName, description: fallbackDescription };
-  return categories[key];
+export function localizedConsentCategory(locale: ConsentLocale, category: ConsentCategoryDefinition) {
+  if (locale === "en") return category;
+  const translation = categories[category.key];
+  return {
+    ...category,
+    ...translation,
+    party: category.party === "FIRST_PARTY" ? spanish.firstParty : spanish.firstAndThirdParty,
+  };
 }

@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useConsentLocale } from "@/src/lib/consent/localization";
+import { usePathname } from "next/navigation";
+import { useConsentLocale, type ConsentLocale } from "@/src/lib/consent/localization";
 
-export function PrivacyPageContent() {
-  const spanish = useConsentLocale() === "es";
+export function PrivacyPageContent({ locale: initialLocale = "en" }: { locale?: ConsentLocale } = {}) {
+  const pathname = usePathname();
+  const spanish = useConsentLocale(pathname ?? undefined, initialLocale) === "es";
   const links = spanish
     ? [
         ["/privacy/preferences?lang=es", "Gestionar preferencias de confianza", "Revise o cambie cada categoría opcional."],
-        ["/privacy/cookies?lang=es", "Catálogo de cookies y rastreadores", "Consulte proveedores, finalidades, almacenamiento y conservación."],
+        ["/es/privacy/cookies", "Catálogo de cookies y rastreadores", "Consulte proveedores, finalidades, almacenamiento y conservación."],
         ["/privacy/consent-history?lang=es", "Cronología de consentimiento™", "Revise recibos de consentimiento™ no modificables."],
       ]
     : [
@@ -35,12 +37,14 @@ export function PrivacyPageContent() {
             </Link>
           ))}
         </div>
-        <p role="status" className="mt-8 text-sm text-amber-100">{spanish ? "El aviso de privacidad está en revisión. Todavía no se ha publicado una versión aprobada." : "The privacy notice is under review. An approved version has not been published."}</p>
+        <p className="mt-8 text-sm text-amber-100">{spanish
+          ? "Este resumen informativo no es asesoramiento legal ni sustituye los términos contractuales o los avisos legales aplicables."
+          : "This informational summary is not legal advice or a substitute for applicable contractual terms or legal notices."}</p>
         <section className="mt-10 grid gap-5 rounded-xl border border-zinc-800 bg-black p-6">
           <h2 className="text-2xl font-semibold">{spanish ? "Principios de privacidad" : "Privacy principles"}</h2>
           <p className="text-sm leading-7 text-zinc-400">
             {spanish
-              ? "Los identificadores de cuenta, la evidencia de flujos gobernados y los registros de auditoría se tratan únicamente para finalidades de servicio documentadas. Las direcciones IP completas, los secretos de autenticación sin procesar, las huellas de dispositivo sin restricción y las cadenas de agente de usuario innecesarias no se almacenan en los registros de consentimiento. La conservación y el ejercicio de derechos siguen sujetos a la política del cliente, los contratos y la revisión aplicable. Esta versión en español requiere la aprobación final de privacidad/legal antes de publicación."
+              ? "Los identificadores de cuenta, la evidencia de flujos gobernados y los registros de auditoría se tratan únicamente para finalidades de servicio documentadas. Las direcciones IP completas, los secretos de autenticación sin procesar, las huellas de dispositivo sin restricción y las cadenas de agente de usuario innecesarias no se almacenan en los registros de consentimiento. La conservación y el ejercicio de derechos siguen sujetos a la política del cliente, los contratos y la revisión aplicable."
               : "Account identifiers, governed workflow evidence and audit records are processed only for documented service purposes. Full IP addresses, raw authentication secrets, unrestricted device fingerprints and unnecessary user-agent strings are not stored in consent records. Retention and rights handling remain subject to customer policy, contracts and applicable review."}
           </p>
           <p className="text-sm text-zinc-400">

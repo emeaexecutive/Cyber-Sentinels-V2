@@ -5,9 +5,9 @@ import { PrivacyPageContent } from "@/src/components/consent/PrivacyPageContent"
 
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
-  ...publicSocialMetadata("Privacy | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/privacy"),
-  title: "Privacy | Cyber Sentinels",
-  description: "Publication status: this page is under review; an approved version has not been published.",
+  ...publicSocialMetadata("Privacy and Trust Preferences | Cyber Sentinels", "Information about account identifiers, governed workflows, consent settings and privacy controls.", "/privacy"),
+  title: "Privacy and Trust Preferences | Cyber Sentinels",
+  description: "Information about account identifiers, governed workflows, consent settings and privacy controls.",
   alternates: publicPageAlternates("/privacy"),
 };
 
